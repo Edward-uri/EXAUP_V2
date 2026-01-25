@@ -1,0 +1,58 @@
+import { useState, useEffect } from 'react';
+import { EncuestaService } from '../../data/EncuestaService';
+import type { Encuesta } from '../../domain/Encuesta';
+
+export const useEncuestasList = () => {
+    const [encuestas, setEncuestas] = useState<Encuesta[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const loadEncuestas = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const data = await EncuestaService.getAll(true);
+            setEncuestas(data);
+        } catch (err) {
+            console.error('Error cargando encuestas:', err);
+            setError('No se pudieron cargar las encuestas');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadEncuestas();
+    }, []);
+
+    const deleteEncuesta = async (id: string) => {
+        if (!window.confirm('¿Estás seguro de eliminar esta encuesta?')) return;
+        
+        try {
+            await EncuestaService.delete(id);
+            setEncuestas(prev => prev.filter(e => e.id !== id));
+        } catch (err) {
+            console.error('Error eliminando encuesta:', err);
+            alert('No se pudo eliminar la encuesta');
+        }
+    };
+
+    const toggleActive = async (id: string, currentStatus: boolean) => {
+        try {
+            const updated = await EncuestaService.toggleActive(id, !currentStatus);
+            setEncuestas(prev => prev.map(e => e.id === id ? updated : e));
+        } catch (err) {
+            console.error('Error actualizando estado:', err);
+            alert('No se pudo actualizar el estado');
+        }
+    };
+
+    return {
+        encuestas,
+        loading,
+        error,
+        deleteEncuesta,
+        toggleActive,
+        refetch: loadEncuestas
+    };
+};

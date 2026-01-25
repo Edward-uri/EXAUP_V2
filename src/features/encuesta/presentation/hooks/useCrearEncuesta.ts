@@ -42,9 +42,10 @@ export const useCrearEncuesta = () => {
     const createEncuesta = async (nombre: string, descripcion: string, formId: string, templateId: string) => {
         setSaving(true);
         try {
-            await EncuestaService.create(nombre, descripcion, formId, templateId);
+            const encuestaCreada = await EncuestaService.create(nombre, descripcion, formId, templateId);
             alert("¡Encuesta creada exitosamente!");
-            navigate('/encuestas/enviar'); // O a la lista de encuestas
+            // Redirigir a la página de gestión
+            navigate(`/encuestas/${encuestaCreada.id}/gestionar`);
         } catch (error) {
             console.error(error);
             alert("Ocurrió un error al crear la encuesta.");

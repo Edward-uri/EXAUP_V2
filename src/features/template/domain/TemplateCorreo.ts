@@ -3,7 +3,8 @@ export interface TemplateCorreo {
   type: 'templates-correo';
   attributes: {
     subject: string;
-    body: string;
+    body: string;       
+    layout_html: string | null; 
   };
   relationships?: {
     tipo_correo?: {

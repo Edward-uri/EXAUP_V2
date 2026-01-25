@@ -1,11 +1,14 @@
 import { createBrowserRouter } from "react-router-dom";
 
-const Home = () => <div className="p-4"><h1>Bienvenido al Dashboard</h1></div>;
 import DashboardLayout from "../shared/layout/Layout";
 import CrearFormularioPage from "../features/formulario/presentation/pages/CrearFomularioPage";
 import FormulariosPage from "../features/formulario/presentation/pages/FormulariosPage";
 import PreviewFormularioPage from "../features/formulario/presentation/pages/PreviewFormularioPage";
 import CrearEncuestaPage from "../features/encuesta/presentation/pages/CrearEncuestaPage";
+import EncuestasPage from "../features/encuesta/presentation/pages/EncuestasPage";
+import GestionarEncuestaPage from "../features/encuesta/presentation/pages/GestionarEncuestaPage";
+import { ROUTES } from "../constants/routes";
+import HomePage from "../features/home/presentation/pages/Home";
 
 export const router = createBrowserRouter([
   {
@@ -14,18 +17,26 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true, 
-        element: <Home />
+        element: <HomePage />
       },
       {
-        path:"encuestas/crear",
+        path: ROUTES.ENCUESTAS,
+        element: <EncuestasPage/>
+      },
+      {
+        path: ROUTES.ENCUESTAS_CREAR,
         element: <CrearEncuestaPage/>
       },
       {
-        path: "formularios",
+        path: "encuestas/:id/gestionar",
+        element: <GestionarEncuestaPage/>
+      },
+      {
+        path: ROUTES.FORMULARIOS,
         element: <FormulariosPage/>
       },
       {
-        path: "formularios/crear",
+        path: ROUTES.FORMULARIOS_CREAR,
         element: <CrearFormularioPage/>
       },
       {

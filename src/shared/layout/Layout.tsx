@@ -35,16 +35,16 @@ const navigation: NavItem[] = [
         name: 'Encuestas', 
         icon: DocumentIcon,
         children: [
-            { name: 'Enviar', href: '/encuestas/crear' },
-            { name: 'Enviadas', href: '/encuestas/enviadas' },
+            { name: 'Crear nueva', href: ROUTES.ENCUESTAS_CREAR },
+            { name: 'Ver todas', href: ROUTES.ENCUESTAS },
         ]
     },
     { 
         name: 'Formularios', 
         icon: ClipboardDocumentListIcon,
         children: [
-            { name: 'Crear nuevo', href: '/formularios/crear' }, 
-            { name: 'Ver todos', href: '/formularios' },
+            { name: 'Crear nuevo', href: ROUTES.FORMULARIOS_CREAR }, 
+            { name: 'Ver todos', href: ROUTES.FORMULARIOS },
         ]
     },
 ]
@@ -57,22 +57,17 @@ export default function DashboardLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const location = useLocation()
 
-    // --- CORRECCIÓN DEL BUG ---
-    // Usamos comparación exacta (===) en lugar de startsWith.
-    // Esto evita que '/formularios' se ilumine cuando estás en '/formularios/crear'
     const isCurrent = (href: string | undefined) => {
         if (!href) return false
         return location.pathname === href
     }
 
-    // Helper para saber si un padre debe estar abierto (si alguno de sus hijos es la ruta actual)
     const isChildActive = (children: { href: string }[] | undefined) => {
         if (!children) return false;
         return children.some(child => location.pathname === child.href);
     }
 
     const renderNavItem = (item: NavItem) => {
-        // Caso 1: Item sin hijos (ej: Inicio)
         if (!item.children) {
             const active = isCurrent(item.href)
             return (
@@ -81,8 +76,8 @@ export default function DashboardLayout() {
                         to={item.href!}
                         className={classNames(
                             active
-                                ? 'bg-white text-blue-900 shadow-sm' // Activo: Tarjeta blanca
-                                : 'text-blue-950/70 hover:bg-white/30 hover:text-blue-900', // Inactivo: Azul oscuro translúcido
+                                ? 'bg-white text-blue-900 shadow-sm'
+                                : 'text-blue-950/70 hover:bg-white/30 hover:text-blue-900',
                             'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold transition-all duration-200 ease-in-out'
                         )}
                     >
@@ -99,7 +94,6 @@ export default function DashboardLayout() {
             )
         }
 
-        // Caso 2: Item con Submenú (Accordions)
         const anyChildActive = isChildActive(item.children);
 
         return (
@@ -138,7 +132,7 @@ export default function DashboardLayout() {
                                                 to={subItem.href}
                                                 className={classNames(
                                                     subActive
-                                                        ? 'bg-white/50 text-blue-900 font-bold shadow-sm' // Sub-item activo
+                                                        ? 'bg-white/50 text-blue-900 font-bold shadow-sm'
                                                         : 'text-blue-900/70 hover:bg-white/30 hover:text-blue-900',
                                                     'block rounded-md py-2 pr-2 pl-9 text-sm/6 transition-all duration-200'
                                                 )}
@@ -159,7 +153,6 @@ export default function DashboardLayout() {
     return (
         <>
             <div>
-                {/* --- MOBILE SIDEBAR --- */}
                 <Dialog open={sidebarOpen} onClose={setSidebarOpen} className="relative z-50 lg:hidden">
                     <DialogBackdrop
                         transition
@@ -180,7 +173,6 @@ export default function DashboardLayout() {
                                 </div>
                             </TransitionChild>
 
-                            {/* FONDO AZUL (#8DD2FF) */}
                             <div className="relative flex grow flex-col gap-y-5 overflow-y-auto bg-[#8DD2FF] px-6 pb-4">
                                 <div className="flex h-16 shrink-0 items-center">
                                     <img
@@ -203,9 +195,7 @@ export default function DashboardLayout() {
                     </div>
                 </Dialog>
 
-                {/* --- DESKTOP SIDEBAR --- */}
                 <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-                    {/* FONDO AZUL (#8DD2FF) con borde sutil */}
                     <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-[#8DD2FF] border-r border-blue-300/30 px-6 pb-4">
                         <div className="flex h-16 shrink-0 items-center mt-2">
                             <img
@@ -222,7 +212,6 @@ export default function DashboardLayout() {
                                     </ul>
                                 </li>
 
-                                {/* Sección de Usuario al final */}
                                 <li className="mt-auto">
                                     <div className="border-t border-blue-900/10 -mx-2 mb-4"></div>
                                     <div className="flex items-center gap-x-3 px-2 py-2 mb-2 rounded-xl bg-white/10 border border-white/10">
@@ -247,7 +236,6 @@ export default function DashboardLayout() {
                     </div>
                 </div>
 
-                {/* --- HEADER MÓVIL (Fondo blanco para contraste con contenido) --- */}
                 <div className="sticky top-0 z-40 flex items-center gap-x-4 bg-white px-4 py-3 shadow-sm border-b border-gray-200 sm:px-6 lg:hidden">
                     <button
                         type="button"
@@ -263,7 +251,6 @@ export default function DashboardLayout() {
                     </div>
                 </div>
 
-                {/* --- CONTENIDO PRINCIPAL --- */}
                 <main className="lg:pl-72 bg-slate-50 min-h-screen">
                     <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
                         <Outlet />
