@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import { ROUTES } from '../../../../../constants/routes';
 import type { Encuesta } from '../../../domain/Encuesta';
 
@@ -26,6 +26,13 @@ export function PageHeader({ encuesta }: PageHeaderProps) {
                     {encuesta.attributes.descripcion || 'Gestionar asignaciones y envíos'}
                 </p>
             </div>
+            <button
+                onClick={() => navigate(ROUTES.ENCUESTAS_ANALYTICS(encuesta.id))}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all shadow-sm hover:shadow-md text-sm font-medium"
+            >
+                <ChartBarIcon className="w-5 h-5" />
+                Ver Métricas
+            </button>
             <div className={`px-3 py-1 rounded-full text-sm font-medium ${
                 encuesta.attributes.is_active
                     ? 'bg-green-100 text-green-800'
