@@ -5,6 +5,7 @@ import DashboardLayout from "../shared/layout/Layout";
 import CrearFormularioPage from "../features/formulario/presentation/pages/CrearFomularioPage";
 import FormulariosPage from "../features/formulario/presentation/pages/FormulariosPage";
 import PreviewFormularioPage from "../features/formulario/presentation/pages/PreviewFormularioPage";
+import CrearEncuestaPage from "../features/encuesta/presentation/pages/CrearEncuestaPage";
 
 export const router = createBrowserRouter([
   {
@@ -14,6 +15,10 @@ export const router = createBrowserRouter([
       {
         index: true, 
         element: <Home />
+      },
+      {
+        path:"encuestas/crear",
+        element: <CrearEncuestaPage/>
       },
       {
         path: "formularios",

@@ -35,7 +35,7 @@ const navigation: NavItem[] = [
         name: 'Encuestas', 
         icon: DocumentIcon,
         children: [
-            { name: 'Enviar', href: '/encuestas/enviar' },
+            { name: 'Enviar', href: '/encuestas/crear' },
             { name: 'Enviadas', href: '/encuestas/enviadas' },
         ]
     },
