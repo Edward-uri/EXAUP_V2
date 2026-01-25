@@ -1,0 +1,95 @@
+# ==================== DEPENDENCIES ====================
+node_modules
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# ==================== BUILD OUTPUT ====================
+dist
+dist-ssr
+build
+*.local
+
+# ==================== ENVIRONMENT VARIABLES ====================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+.env.example
+# ==================== LOGS ====================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==================== TESTING ====================
+coverage
+.nyc_output
+*.lcov
+.jest-cache
+
+# ==================== CACHE ====================
+.cache
+.parcel-cache
+.eslintcache
+.stylelintcache
+.npm
+.yarn-integrity
+.vite
+
+# ==================== OS FILES ====================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ==================== EDITOR DIRECTORIES ====================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+.idea
+*.swp
+*.swo
+*.swn
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# ==================== IDE SPECIFIC ====================
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.vs/
+
+# ==================== TEMPORARY FILES ====================
+*.tmp
+*.temp
+*.bak
+*.backup
+.temp/
+.tmp/
+
+# ==================== TYPESCRIPT ====================
+*.tsbuildinfo
+
+# ==================== MISC ====================
+.vercel
+.turbo
+.next
+out
