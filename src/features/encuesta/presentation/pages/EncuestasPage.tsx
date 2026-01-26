@@ -31,7 +31,7 @@ export default function EncuestasPage() {
     });
 
     const handleViewMetrics = (id: string) => {
-        navigate(`/encuestas/${id}/metricas`);
+        navigate(ROUTES.ENCUESTAS_ANALYTICS(id));
     };
 
     const handleGestionar = (id: string) => {
