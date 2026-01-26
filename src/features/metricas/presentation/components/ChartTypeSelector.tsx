@@ -18,7 +18,7 @@ export const ChartTypeSelector = ({
 
   const availableConfigs = CHART_CONFIGS.map(config => ({
     ...config,
-    disabled: minResponses < config.minResponsesRequired
+    disabled: minResponses < config.minDataPointsRequired
   }));
 
   const currentLabel = availableConfigs.find(c => c.type === value)?.label || 'Tipo de gráfica';
@@ -68,7 +68,7 @@ export const ChartTypeSelector = ({
               } ${value === config.type ? 'bg-blue-100 font-semibold' : ''}`}
             >
               {config.label}
-              {config.disabled && ' (mín. ' + config.minResponsesRequired + ' opciones)'}
+              {config.disabled && ' (mín. ' + config.minDataPointsRequired + ' opciones)'}
             </button>
           ))}
         </div>

@@ -1,5 +1,5 @@
 import { apiClient } from "../../../core/api.config";
-import type { Formulario, FormularioListResponse, CreateFormularioRequest } from "../domain/Formulario";
+import type { Formulario, CreateFormularioRequest } from "../domain/Formulario";
 
 const ENDPOINT = "/formulario"; 
 

@@ -1,18 +1,15 @@
 import { useRef, useEffect, useCallback } from 'react';
-import type { MutableRefObject } from 'react';
 import { ChartExporter } from '../utils/chartExporter';
 import { generatePrintWindow } from '../utils/printHandler';
 
 interface UseChartExportOptions {
   totalCharts: number;
   headerId?: string;
-  metricsId?: string;
 }
 
 export const useChartExport = ({ 
   totalCharts, 
-  headerId = 'metric-header',
-  metricsId = 'metric-metrics' 
+  headerId = 'metric-header' 
 }: UseChartExportOptions) => {
   const chartRefs = useRef<Array<any | null>>([]);
 
@@ -28,14 +25,13 @@ export const useChartExport = ({
 
       generatePrintWindow({
         images,
-        headerId,
-        metricsId
+        headerId
       });
     } catch (error) {
       console.error('Error al exportar:', error);
       window.print();
     }
-  }, [totalCharts, headerId, metricsId]);
+  }, [totalCharts, headerId]);
 
   useEffect(() => {
     const handler = () => handlePrint();

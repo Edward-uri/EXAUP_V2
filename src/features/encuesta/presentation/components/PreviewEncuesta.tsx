@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FormularioService, type PreguntaDetalle } from '../../../formulario/data/FormularioService';
 import type { Encuesta } from '../../domain/Encuesta';
-import { TemplatePreview } from './TemplatePreview';
-import { generatePreviewHtml } from '../../../template/presentation/utils/templateUtils';
 import { 
     DocumentTextIcon, 
     EnvelopeIcon, 
@@ -17,11 +15,9 @@ interface PreviewEncuestaProps {
 export function PreviewEncuesta({ encuesta }: PreviewEncuestaProps) {
     const [preguntas, setPreguntas] = useState<PreguntaDetalle[]>([]);
     const [loading, setLoading] = useState(true);
-    const [templatePreview, setTemplatePreview] = useState('');
 
     useEffect(() => {
         loadPreguntas();
-        loadTemplatePreview();
     }, [encuesta]);
 
     const loadPreguntas = async () => {
@@ -43,12 +39,6 @@ export function PreviewEncuesta({ encuesta }: PreviewEncuestaProps) {
         } finally {
             setLoading(false);
         }
-    };
-
-    const loadTemplatePreview = async () => {
-        // Aquí podrías cargar el template completo si lo necesitas
-        // Por ahora usamos un placeholder
-        setTemplatePreview('<p>Vista previa del correo...</p>');
     };
 
     const getTipoPreguntaNombre = (pregunta: PreguntaDetalle): string => {
