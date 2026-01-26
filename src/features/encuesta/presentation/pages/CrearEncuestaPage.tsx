@@ -165,7 +165,7 @@ export default function CrearEncuestaPage() {
                     </button>
                     <div className="flex-1">
                         <h1 className="text-3xl font-bold text-gray-900 font-display">
-                            Lanzar Nueva Encuesta
+                            Crear Nueva Encuesta
                         </h1>
                         <p className="text-sm text-gray-600 mt-1">
                             Configura tu encuesta en 3 pasos simples

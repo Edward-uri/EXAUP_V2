@@ -81,9 +81,9 @@ export default function HomePage() {
                         icon={PaperAirplaneIcon}
                         iconBg="bg-indigo-50"
                         iconColor="text-indigo-700"
-                        title="Lanzar Nueva Encuesta"
-                        description="Selecciona un formulario existente, configura la plantilla de correo y envíalo."
-                        actionText="Iniciar lanzamiento"
+                        title="Crear Nueva Encuesta"
+                        description="Selecciona un formulario existente, configura la plantilla de correo y guarda."
+                        actionText="Iniciar creación"
                         hoverRing="hover:ring-indigo-500/30"
                     />
                 </div>
