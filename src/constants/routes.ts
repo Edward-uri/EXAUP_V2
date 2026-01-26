@@ -4,5 +4,6 @@ export const ROUTES = {
     ENCUESTAS_CREAR: '/encuestas/crear',
     ENCUESTAS_GESTIONAR: (id: string) => `/encuestas/${id}/gestionar`,
     FORMULARIOS: '/formularios',
-    FORMULARIOS_CREAR: '/formularios/crear'
+    FORMULARIOS_CREAR: '/formularios/crear',
+    ORGULLO_UP: '/orgullo-up'
 } as const;

@@ -49,6 +49,9 @@ export function ParticipantesTable({ participantes, meta, onRevocar, onPageChang
                             Email
                         </th>
                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                            Programa Educativo
+                        </th>
+                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                             Estado
                         </th>
                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
@@ -77,6 +80,9 @@ export function ParticipantesTable({ participantes, meta, onRevocar, onPageChang
                                 </td>
                                 <td className="px-3 py-4 text-sm text-gray-500">
                                     {egresado.email}
+                                </td>
+                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                    {egresado.programa_educativo}
                                 </td>
                                 <td className="whitespace-nowrap px-3 py-4 text-sm">
                                     {participante.attributes.estado_respuesta === 'contestada' ? (

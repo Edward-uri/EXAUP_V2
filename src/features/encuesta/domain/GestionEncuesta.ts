@@ -20,6 +20,7 @@ export interface Participante {
             segundo_apellido: string;
             matricula: string;
             email: string;
+            programa_educativo: string;
         };
     };
 }

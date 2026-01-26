@@ -19,6 +19,7 @@ import {
     ChevronRightIcon,
     ClipboardDocumentListIcon,
     ArrowRightStartOnRectangleIcon,
+    StarIcon,
 } from '@heroicons/react/24/outline'
 import { ROUTES } from '../../constants/routes'
 
@@ -47,6 +48,7 @@ const navigation: NavItem[] = [
             { name: 'Ver todos', href: ROUTES.FORMULARIOS },
         ]
     },
+    { name: 'Orgullo UP', href: ROUTES.ORGULLO_UP, icon: StarIcon },
 ]
 
 function classNames(...classes: (string | undefined | null | false)[]) {

@@ -7,6 +7,7 @@ import PreviewFormularioPage from "../features/formulario/presentation/pages/Pre
 import CrearEncuestaPage from "../features/encuesta/presentation/pages/CrearEncuestaPage";
 import EncuestasPage from "../features/encuesta/presentation/pages/EncuestasPage";
 import GestionarEncuestaPage from "../features/encuesta/presentation/pages/GestionarEncuestaPage";
+import OrgulloUpPage from "../features/orgulloUP/presentation/pages/OrgulloUpPage";
 import { ROUTES } from "../constants/routes";
 import HomePage from "../features/home/presentation/pages/Home";
 
@@ -46,6 +47,10 @@ export const router = createBrowserRouter([
       {
         path: "formularios/preview/:id",
         element: <PreviewFormularioPage/>
+      },
+      {
+        path: ROUTES.ORGULLO_UP,
+        element: <OrgulloUpPage/>
       }
     ]
   }
