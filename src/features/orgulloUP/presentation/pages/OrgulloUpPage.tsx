@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { OrgulloUPFilter } from '../components/OrgulloUPFilter';
 import { OrgulloUPTable } from '../components/OrgulloUPTable';
+import { EgresadoDetailModal } from '../components/EgresadoDetailModal';
 import { OrgulloUPService } from '../../data/OrgulloUPService';
 import type { OrgulloUPRecord, OrgulloUPMeta } from '../../domain/OrgulloUP';
 import { PlusIcon } from '@heroicons/react/24/outline';
@@ -14,6 +15,9 @@ export default function OrgulloUpPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<'all' | 'activo' | 'inactivo' | 'pendiente'>('all');
     const [currentPage, setCurrentPage] = useState(1);
+
+    const [selectedRecord, setSelectedRecord] = useState<OrgulloUPRecord | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Cargar datos
     useEffect(() => {
@@ -38,8 +42,8 @@ export default function OrgulloUpPage() {
     // Filtrado
     const filteredRecords = records.filter(record => {
         const { egresado, status } = record.attributes;
-        const nombreCompleto = `${egresado.nombre} ${egresado.primer_apellido} ${egresado.segundo_apellido}`.toLowerCase();
-        const email = egresado.email.toLowerCase();
+        const nombreCompleto = `${egresado.nombre} ${egresado.primer_apellido} ${egresado.segundo_apellido || ''}`.toLowerCase();
+        const email = (egresado.email || '').toLowerCase();
         
         const matchesSearch = nombreCompleto.includes(searchTerm.toLowerCase()) || 
                              email.includes(searchTerm.toLowerCase());
@@ -57,8 +61,64 @@ export default function OrgulloUpPage() {
     const pendingCount = records.filter(r => r.attributes.status === 'pendiente').length;
 
     const handleView = (id: string) => {
-        console.log('Ver registro:', id);
-        // TODO: Implementar navegación a detalle
+        const record = records.find(r => r.id === id);
+        if (record) {
+            setSelectedRecord(record);
+            setIsModalOpen(true);
+        }
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedRecord(null);
+    };
+
+    const handleToggleStatus = async (id: string, newStatus: boolean) => {
+        try {
+            // Actualizar el estado localmente
+            setRecords(prevRecords =>
+                prevRecords.map(record =>
+                    record.id === id
+                        ? {
+                              ...record,
+                              attributes: {
+                                  ...record.attributes,
+                                  status: newStatus ? 'activo' : 'inactivo',
+                                  egresado: {
+                                      ...record.attributes.egresado,
+                                      is_active: newStatus
+                                  }
+                              }
+                          }
+                        : record
+                )
+            );
+
+            // Actualizar el registro seleccionado si es el que se está modificando
+            if (selectedRecord?.id === id) {
+                setSelectedRecord(prev =>
+                    prev
+                        ? {
+                              ...prev,
+                              attributes: {
+                                  ...prev.attributes,
+                                  status: newStatus ? 'activo' : 'inactivo',
+                                  egresado: {
+                                      ...prev.attributes.egresado,
+                                      is_active: newStatus
+                                  }
+                              }
+                          }
+                        : null
+                );
+            }
+
+            // Aquí puedes agregar la llamada al API cuando esté disponible
+            // await OrgulloUPService.updateStatus(id, newStatus);
+        } catch (err) {
+            console.error('Error al actualizar el estado:', err);
+            // Podrías mostrar un toast de error aquí
+        }
     };
 
     if (loading) {
@@ -140,6 +200,14 @@ export default function OrgulloUpPage() {
                     </div>
                 )}
             </div>
+
+            {/* Modal */}
+            <EgresadoDetailModal
+                isOpen={isModalOpen}
+                record={selectedRecord}
+                onClose={handleCloseModal}
+                onToggleStatus={handleToggleStatus}
+            />
         </div>
     );
 }

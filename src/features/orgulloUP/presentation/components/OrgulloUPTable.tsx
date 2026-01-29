@@ -41,6 +41,12 @@ export function OrgulloUPTable({ records, meta, onView, onPageChange }: OrgulloU
                                 Nombre
                             </th>
                             <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                Matrícula
+                            </th>
+                            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                Período
+                            </th>
+                            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                 Email
                             </th>
                             <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
@@ -57,18 +63,24 @@ export function OrgulloUPTable({ records, meta, onView, onPageChange }: OrgulloU
                     <tbody className="divide-y divide-gray-200">
                         {records.map((record) => {
                             const { egresado, status } = record.attributes;
-                            const nombreCompleto = `${egresado.nombre} ${egresado.primer_apellido} ${egresado.segundo_apellido}`;
+                            const nombreCompleto = `${egresado.nombre} ${egresado.primer_apellido} ${egresado.segundo_apellido || ''}`.trim();
                             
                             return (
                                 <tr key={record.id} className="hover:bg-gray-50 transition-colors">
                                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                                         {nombreCompleto}
                                     </td>
-                                    <td className="px-3 py-4 text-sm text-gray-500">
-                                        {egresado.email}
+                                    <td className="whitespace-nowrap px-2 py-4 text-sm text-gray-500">
+                                        {egresado.matricula || '-'}
+                                    </td>
+                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                        {egresado.id_periodo || '-'}
+                                    </td>
+                                    <td className="px-5 py-4 text-sm text-gray-500">
+                                        {egresado.email || '-'}
                                     </td>
                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        {egresado.programa_educativo}
+                                        {egresado.id_programa_educativo || '-'}
                                     </td>
                                     <td className="whitespace-nowrap px-3 py-4 text-sm">
                                         {getStatusBadge(status)}
