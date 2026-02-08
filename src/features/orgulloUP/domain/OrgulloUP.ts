@@ -13,6 +13,17 @@ export interface Egresado {
     id_periodo: number | null;
 }
 
+export interface PerfilActualizable {
+    nombre?: string;
+    primer_apellido?: string;
+    segundo_apellido?: string | null;
+    curp?: string;
+    email?: string | null;
+    imagen_egresado?: string | null;
+    fecha_nacimiento?: string | null;
+    id_programa_educativo?: number | null;
+}
+
 export interface LogroAcademico {
     id_academic_achievement: number;
     name: string;
@@ -31,7 +42,7 @@ export interface OrgulloUPRecord {
     type: 'orgullo_up';
     id: string;
     attributes: {
-        status: 'activo' | 'inactivo' | 'pendiente';
+        status: 'pendiente' | 'rechazado' | 'aprobado';
         egresado: Egresado;
         logros_academicos?: LogroAcademico[];
         logros_laborales?: LogroLaboral[];

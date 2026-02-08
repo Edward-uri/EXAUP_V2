@@ -13,8 +13,8 @@ export default function OrgulloUpPage() {
     const [error, setError] = useState<string | null>(null);
     
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterStatus, setFilterStatus] = useState<'all' | 'activo' | 'inactivo' | 'pendiente'>('all');
-    const [currentPage, setCurrentPage] = useState(1);
+    const [filterStatus, setFilterStatus] = useState<'all' | 'pendiente' | 'rechazado' | 'aprobado'>('all');
+
 
     const [selectedRecord, setSelectedRecord] = useState<OrgulloUPRecord | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,7 +24,7 @@ export default function OrgulloUpPage() {
         const loadRecords = async () => {
             try {
                 setLoading(true);
-                const response = await OrgulloUPService.getAll(currentPage, 10);
+                const response = await OrgulloUPService.getAll(1, 1000); // Carga todos los registros
                 setRecords(response.data);
                 setMeta(response.meta);
                 setError(null);
@@ -37,7 +37,7 @@ export default function OrgulloUpPage() {
         };
 
         loadRecords();
-    }, [currentPage]);
+    }, []);
 
     // Filtrado
     const filteredRecords = records.filter(record => {
@@ -56,9 +56,9 @@ export default function OrgulloUpPage() {
     });
 
     // Contar estados
-    const activeCount = records.filter(r => r.attributes.status === 'activo').length;
-    const inactiveCount = records.filter(r => r.attributes.status === 'inactivo').length;
-    const pendingCount = records.filter(r => r.attributes.status === 'pendiente').length;
+    const pendienteCount = records.filter(r => r.attributes.status === 'pendiente').length;
+    const rechazadoCount = records.filter(r => r.attributes.status === 'rechazado').length;
+    const aprobadoCount = records.filter(r => r.attributes.status === 'aprobado').length;
 
     const handleView = (id: string) => {
         const record = records.find(r => r.id === id);
@@ -73,51 +73,19 @@ export default function OrgulloUpPage() {
         setSelectedRecord(null);
     };
 
-    const handleToggleStatus = async (id: string, newStatus: boolean) => {
+    const handleUpdateRecord = async () => {
+        // Recargar los datos cuando se actualiza un registro
         try {
-            // Actualizar el estado localmente
-            setRecords(prevRecords =>
-                prevRecords.map(record =>
-                    record.id === id
-                        ? {
-                              ...record,
-                              attributes: {
-                                  ...record.attributes,
-                                  status: newStatus ? 'activo' : 'inactivo',
-                                  egresado: {
-                                      ...record.attributes.egresado,
-                                      is_active: newStatus
-                                  }
-                              }
-                          }
-                        : record
-                )
-            );
-
-            // Actualizar el registro seleccionado si es el que se está modificando
-            if (selectedRecord?.id === id) {
-                setSelectedRecord(prev =>
-                    prev
-                        ? {
-                              ...prev,
-                              attributes: {
-                                  ...prev.attributes,
-                                  status: newStatus ? 'activo' : 'inactivo',
-                                  egresado: {
-                                      ...prev.attributes.egresado,
-                                      is_active: newStatus
-                                  }
-                              }
-                          }
-                        : null
-                );
+            const response = await OrgulloUPService.getAll(1, 1000);
+            setRecords(response.data);
+            setMeta(response.meta);
+            // Actualizar el registro seleccionado con los datos nuevos
+            const updatedRecord = response.data.find(r => r.id === selectedRecord?.id);
+            if (updatedRecord) {
+                setSelectedRecord(updatedRecord);
             }
-
-            // Aquí puedes agregar la llamada al API cuando esté disponible
-            // await OrgulloUPService.updateStatus(id, newStatus);
         } catch (err) {
-            console.error('Error al actualizar el estado:', err);
-            // Podrías mostrar un toast de error aquí
+            console.error('Error al recargar los registros:', err);
         }
     };
 
@@ -169,9 +137,9 @@ export default function OrgulloUpPage() {
                     filterStatus={filterStatus}
                     onFilterStatusChange={setFilterStatus}
                     totalRecords={records.length}
-                    activeCount={activeCount}
-                    inactiveCount={inactiveCount}
-                    pendingCount={pendingCount}
+                    pendienteCount={pendienteCount}
+                    rechazadoCount={rechazadoCount}
+                    aprobadoCount={aprobadoCount}
                 />
 
                 {/* Tabla */}
@@ -179,7 +147,6 @@ export default function OrgulloUpPage() {
                     records={filteredRecords}
                     meta={meta}
                     onView={handleView}
-                    onPageChange={setCurrentPage}
                 />
 
                 {/* Empty State si hay filtros activos */}
@@ -206,7 +173,7 @@ export default function OrgulloUpPage() {
                 isOpen={isModalOpen}
                 record={selectedRecord}
                 onClose={handleCloseModal}
-                onToggleStatus={handleToggleStatus}
+                onUpdate={handleUpdateRecord}
             />
         </div>
     );

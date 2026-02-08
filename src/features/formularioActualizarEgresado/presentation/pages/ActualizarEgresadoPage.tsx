@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User, MapPin, Briefcase, Heart, ChevronRight, ChevronLeft, Save, Check } from 'lucide-react';
 import type { FormData, StepItem } from '../../../../types';
+import { ActualizarEgresadoService } from '../../data/ActualizarEgresadoService';
 
 // Importación de componentes
 import Stepper from '../components/Stepper';
@@ -19,7 +20,7 @@ const ActualizarEgresadoPage: React.FC = () => {
   // Estado inicial tipado con la interfaz FormData
   const [formData, setFormData] = useState<FormData>({
     // Etapa 1
-    curp: '', nombre: '', apellidoPaterno: '', apellidoMaterno: '', fechaNacimiento: '', email: '',
+    egresadoId: undefined, matricula: '', curp: '', nombre: '', apellidoPaterno: '', apellidoMaterno: '', fechaNacimiento: '', email: '',
     // Etapa 2
     calle: '', colonia: '', numero: '', estado: '', ciudad: '', codigoPostal: '',
     // Etapa 3
@@ -32,7 +33,7 @@ const ActualizarEgresadoPage: React.FC = () => {
     { id: 1, title: 'Datos personales', icon: <User size={18} /> },
     { id: 2, title: 'Datos domiciliarios', icon: <MapPin size={18} /> },
     { id: 3, title: 'Datos laborales', icon: <Briefcase size={18} /> },
-    { id: 4, title: 'Orgullo UP', icon: <Heart size={18} /> }
+    { id: 4, title: 'Orgullo UP', icon: <img src="/OrgUpLogo.png" alt="Orgullo UP" className="w-100 h-100 object-contain scale-300" /> }
   ];
 
   // --- LÓGICA DE NEGOCIO ---
@@ -56,23 +57,39 @@ const ActualizarEgresadoPage: React.FC = () => {
     }
   };
 
-  const handleValidateCurp = () => {
-    if (formData.curp.length < 10) {
-        alert("Por favor, ingresa una CURP válida (mínimo 10 caracteres).");
-        return;
+  const handleValidateCurp = async () => {
+    if (!formData.matricula.trim()) {
+      alert('Por favor, ingresa tu matrícula.');
+      return;
     }
-    
+
+    if (formData.curp.trim().length < 10) {
+      alert('Por favor, ingresa una CURP válida (mínimo 10 caracteres).');
+      return;
+    }
+
     setLoadingCurp(true);
-    setTimeout(() => {
-      setLoadingCurp(false);
+    try {
+      const auth = await ActualizarEgresadoService.login(
+        formData.matricula.trim(),
+        formData.curp.trim().toUpperCase()
+      );
+
       setCurpValidated(true);
-      setFormData(prev => ({ 
-          ...prev, 
-          nombre: 'Juan', 
-          apellidoPaterno: 'Pérez', 
-          fechaNacimiento: '1995-05-20' 
+      setFormData(prev => ({
+        ...prev,
+        egresadoId: auth.id ?? prev.egresadoId,
+        nombre: auth.nombre ?? prev.nombre,
+        email: auth.email ?? prev.email
       }));
-    }, 1500);
+    } catch (err: any) {
+      setCurpValidated(false);
+      const apiMessage = err?.response?.data?.message || err?.response?.data?.error;
+      const message = apiMessage || (err instanceof Error ? err.message : 'No se pudo validar la CURP');
+      alert(message);
+    } finally {
+      setLoadingCurp(false);
+    }
   };
 
   // --- NAVEGACIÓN ---
@@ -129,7 +146,7 @@ const ActualizarEgresadoPage: React.FC = () => {
                     )}
                     {currentStep === 2 && <EtapaDos data={formData} onChange={handleChange} />}
                     {currentStep === 3 && <EtapaTres data={formData} onChange={handleChange} setFormData={setFormData} />}
-                    {currentStep === 4 && <EtapaCuatro data={formData} onChange={handleChange} onImageUpload={handleImageUpload} />}
+                    {currentStep === 4 && <EtapaCuatro data={formData} />}
                 </div>
 
                 <div className="bg-white px-6 py-4 border-t border-gray-100 flex justify-between items-center z-10">
@@ -179,7 +196,7 @@ const ActualizarEgresadoPage: React.FC = () => {
                         {currentStep === 4 && (
                             <button 
                                 onClick={handleFinalizarTodo} 
-                                className="bg-green-600 hover:bg-green-700 text-white px-8 py-2 rounded-md font-medium shadow-lg shadow-green-600/30 flex items-center gap-2"
+                            className="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 px-8 py-2 rounded-md font-medium border border-emerald-200 shadow-sm flex items-center gap-2"
                             >
                                 <Check size={18} /> FINALIZAR REGISTRO
                             </button>

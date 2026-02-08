@@ -1,5 +1,5 @@
 import { apiClient } from "../../../core/api.config";
-import type { OrgulloUPRecord, OrgulloUPMeta } from "../domain/OrgulloUP";
+import type { OrgulloUPRecord, OrgulloUPMeta, PerfilActualizable } from "../domain/OrgulloUP";
 
 const ENDPOINT = "/egresado/perfiles-completos";
 
@@ -22,6 +22,7 @@ interface ApiResponse {
             imagen_egresado: string | null;
             fecha_nacimiento: string | null;
             is_active: boolean;
+            id_estado?: number; // 1: Pendiente, 2: Rechazado, 3: Aprobado
             id_programa_educativo: number | null;
             id_periodo: number | null;
         };
@@ -29,12 +30,6 @@ interface ApiResponse {
         logros_laborales?: any[];
     }>;
     total: number;
-}
-
-interface OrgulloUPParams {
-    page?: number;
-    limit?: number;
-    busqueda?: string;
 }
 
 export const OrgulloUPService = {
@@ -52,11 +47,35 @@ export const OrgulloUPService = {
             data: data.data.map((item) => {
                 const egresado = item.egresado;
                 
+                // Mapear estado: 1: Pendiente, 2: Rechazado, 3: Aprobado
+                // NOTA: El API GET devuelve is_active pero no id_estado
+                const mapEstado = (id_estado?: number, is_active?: boolean | number): 'pendiente' | 'rechazado' | 'aprobado' => {
+                    // Si tenemos id_estado, usarlo directamente
+                    if (id_estado !== undefined && id_estado !== null) {
+                        switch (id_estado) {
+                            case 1: return 'pendiente';
+                            case 2: return 'rechazado';
+                            case 3: return 'aprobado';
+                            default: return 'pendiente';
+                        }
+                    }
+                    
+                    // Fallback a is_active si id_estado no está disponible
+                    if (is_active !== undefined && is_active !== null) {
+                        // Convertir boolean a número si es necesario
+                        const isActiveNum = typeof is_active === 'boolean' ? (is_active ? 1 : 0) : is_active;
+                        return isActiveNum === 1 ? 'aprobado' : 'rechazado';
+                    }
+                    
+                    return 'pendiente';
+                };
+                
+                const status = mapEstado(egresado.id_estado, egresado.is_active);
                 return {
                     type: 'orgullo_up',
                     id: String(egresado.id),
                     attributes: {
-                        status: egresado.is_active ? 'activo' : 'inactivo',
+                        status: status,
                         egresado: {
                             id_egresado: egresado.id,
                             nombre: egresado.nombre,
@@ -98,11 +117,33 @@ export const OrgulloUPService = {
         const egresado = data.data[0].egresado;
         const item = data.data[0];
         
+        const mapEstado = (id_estado?: number, is_active?: boolean | number): 'pendiente' | 'rechazado' | 'aprobado' => {
+            // Si tenemos id_estado, usarlo directamente
+            if (id_estado !== undefined && id_estado !== null) {
+                switch (id_estado) {
+                    case 1: return 'pendiente';
+                    case 2: return 'rechazado';
+                    case 3: return 'aprobado';
+                    default: return 'pendiente';
+                }
+            }
+            
+            // Fallback a is_active si id_estado no está disponible
+            if (is_active !== undefined && is_active !== null) {
+                // Convertir boolean a número si es necesario
+                const isActiveNum = typeof is_active === 'boolean' ? (is_active ? 1 : 0) : is_active;
+                return isActiveNum === 1 ? 'aprobado' : 'rechazado';
+            }
+            
+            return 'pendiente';
+        };
+        
+        const status = mapEstado(egresado.id_estado, egresado.is_active);
         return {
             type: 'orgullo_up',
             id: String(egresado.id),
             attributes: {
-                status: egresado.is_active ? 'activo' : 'inactivo',
+                status: status,
                 egresado: {
                     id_egresado: egresado.id,
                     nombre: egresado.nombre,
@@ -123,18 +164,44 @@ export const OrgulloUPService = {
         };
     },
 
-    create: async (egresadoData: any): Promise<OrgulloUPRecord> => {
+    create: async (_egresadoData: any): Promise<OrgulloUPRecord> => {
         // No se usa el servicio de OrgulloUP para crear - se usa formularioActualizarEgresado
         throw new Error('Operación no disponible para Orgullo UP');
     },
 
-    update: async (id: string, egresadoData: any): Promise<OrgulloUPRecord> => {
+    update: async (_id: string, _egresadoData: any): Promise<OrgulloUPRecord> => {
         // No se usa el servicio de OrgulloUP para actualizar - se usa formularioActualizarEgresado
         throw new Error('Operación no disponible para Orgullo UP');
     },
 
-    delete: async (id: string): Promise<void> => {
+    delete: async (_id: string): Promise<void> => {
         // No se usa el servicio de OrgulloUP para eliminar
         throw new Error('Operación no disponible para Orgullo UP');
+    },
+
+    // Actualiza el estado del egresado (1: Pendiente, 2: Rechazado, 3: Aprobado)
+    updateEstado: async (id: string, estado: 1 | 2 | 3): Promise<void> => {
+        const payload = {
+            data: {
+                type: 'egresados',
+                id: id,
+                attributes: {
+                    id_estado: estado
+                }
+            }
+        };
+        await apiClient.patch(`/egresado/${id}/estado`, payload);
+    },
+
+    // Actualiza los datos de perfil del egresado (no incluye matrícula ni periodo)
+    updatePerfil: async (id: string, perfilData: PerfilActualizable): Promise<void> => {
+        const payload = {
+            data: {
+                type: 'egresados',
+                id: id,
+                attributes: perfilData
+            }
+        };
+        await apiClient.patch(`/egresado/${id}/perfil`, payload);
     }
 };

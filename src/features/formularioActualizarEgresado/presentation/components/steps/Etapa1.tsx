@@ -26,9 +26,26 @@ const EtapaUno: React.FC<EtapaUnoProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   return (
     <div className="animate-fade-in-up">
-      <div className="mb-6">
-        <label className={`block text-sm font-medium text-blue-900 mb-1 ${centerCurp ? 'text-2xl md:text-3xl text-center font-bold' : ''}`}>CURP</label>
-        <div className={`flex gap-2 ${centerCurp ? 'justify-center' : ''} mb-6`}>
+      <div className="mb-6 space-y-4">
+        <div>
+          <label className={`block text-sm font-medium text-blue-900 mb-1 ${centerCurp ? 'text-2xl md:text-3xl text-center font-bold' : ''}`}>
+            Matrícula
+          </label>
+          <input
+            type="text"
+            name="matricula"
+            value={data.matricula}
+            onChange={onChange}
+            disabled={curpValidated}
+            placeholder="Ingresa tu matrícula..."
+            className={`w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 outline-none ${centerCurp ? 'max-w-md mx-auto block' : ''}`}
+          />
+        </div>
+
+        <div>
+          <label className={`block text-sm font-medium text-blue-900 mb-1 ${centerCurp ? 'text-2xl md:text-3xl text-center font-bold' : ''}`}>
+            CURP
+          </label>
           <input 
             type="text" 
             name="curp" 
@@ -36,21 +53,20 @@ const EtapaUno: React.FC<EtapaUnoProps> = ({
             onChange={onChange} 
             disabled={curpValidated} 
             placeholder="Ingresa tu CURP..." 
-            className={`flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 outline-none uppercase ${centerCurp ? 'max-w-md' : ''}`} 
+            className={`w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 outline-none uppercase ${centerCurp ? 'max-w-md mx-auto block' : ''}`} 
           />
+        </div>
+
+        <div className={`${centerCurp ? 'flex justify-center' : ''} mt-3 mb-2`}>
           {!curpValidated ? (
             <button 
               onClick={onValidateCurp} 
               disabled={loadingCurp} 
-              className="bg-blue-900 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition-colors flex items-center gap-2"
+              className="bg-blue-900 text-white px-4 py-2 rounded-md hover:bg-blue-800 transition-colors inline-flex items-center gap-2"
             >
               {loadingCurp ? 'Buscando...' : 'Validar'} <Search size={16}/>
             </button>
-          ) : (
-            <button onClick={() => setCurpValidated(false)} className="text-sm text-gray-500 underline hover:text-blue-900">
-              Cambiar CURP
-            </button>
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -92,10 +108,15 @@ const EtapaUno: React.FC<EtapaUnoProps> = ({
               <input type="text" name="nombre" value={data.nombre} onChange={onChange} className="w-full p-2 border border-gray-300 rounded-md mt-1" />
             </div>
             
-            <div className="relative">
+            <div>
               <label className="text-xs text-blue-900 font-semibold">Fecha de Nacimiento</label>
-              <input type="date" name="fechaNacimiento" value={data.fechaNacimiento} onChange={onChange} className="w-full p-2 border border-gray-300 rounded-md mt-1" />
-              <Calendar className="absolute right-3 top-8 text-gray-400 pointer-events-none" size={16} />
+              <input
+                type="date"
+                name="fechaNacimiento"
+                value={data.fechaNacimiento}
+                onChange={onChange}
+                className="w-full p-2 border border-gray-300 rounded-md mt-1"
+              />
             </div>
 
             <div>

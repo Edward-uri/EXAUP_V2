@@ -1,6 +1,8 @@
 import type React from 'react';
 
 export type FormData = {
+  egresadoId?: string;
+  matricula: string;
   curp: string;
   nombre: string;
   apellidoPaterno: string;

@@ -1,6 +1,8 @@
 // Interfaz principal de los datos del formulario
 export interface FormData {
   // Etapa 1: Datos Personales
+  egresadoId?: string;
+  matricula: string;
   curp: string;
   nombre: string;
   apellidoPaterno: string;

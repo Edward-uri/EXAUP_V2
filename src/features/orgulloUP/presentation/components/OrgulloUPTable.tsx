@@ -1,5 +1,5 @@
 import type { OrgulloUPRecord, OrgulloUPMeta } from '../../domain/OrgulloUP';
-import { EyeIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { EyeIcon } from '@heroicons/react/24/outline';
 
 interface OrgulloUPTableProps {
     records: OrgulloUPRecord[];
@@ -8,7 +8,7 @@ interface OrgulloUPTableProps {
     onPageChange?: (page: number) => void;
 }
 
-export function OrgulloUPTable({ records, meta, onView, onPageChange }: OrgulloUPTableProps) {
+export function OrgulloUPTable({ records, onView }: OrgulloUPTableProps) {
     
     if (records.length === 0) {
         return (
@@ -20,12 +20,12 @@ export function OrgulloUPTable({ records, meta, onView, onPageChange }: OrgulloU
 
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case 'activo':
-                return <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Activo</span>;
-            case 'inactivo':
-                return <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Inactivo</span>;
             case 'pendiente':
                 return <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pendiente</span>;
+            case 'rechazado':
+                return <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Rechazado</span>;
+            case 'aprobado':
+                return <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Aprobado</span>;
             default:
                 return <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{status}</span>;
         }
@@ -102,64 +102,6 @@ export function OrgulloUPTable({ records, meta, onView, onPageChange }: OrgulloU
                     </tbody>
                 </table>
             </div>
-            
-            {/* Paginación */}
-            {meta && meta.total_records > meta.limit && onPageChange && (
-                <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 rounded-b-lg">
-                    <div className="flex-1 flex justify-between sm:hidden">
-                        <button
-                            onClick={() => onPageChange(meta.page - 1)}
-                            disabled={meta.page <= 1}
-                            className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Anterior
-                        </button>
-                        <button
-                            onClick={() => onPageChange(meta.page + 1)}
-                            disabled={meta.page * meta.limit >= meta.total_records}
-                            className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            Siguiente
-                        </button>
-                    </div>
-                    <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                        <div>
-                            <p className="text-sm text-gray-700">
-                                Mostrando{' '}
-                                <span className="font-medium">{(meta.page - 1) * meta.limit + 1}</span>
-                                {' - '}
-                                <span className="font-medium">
-                                    {Math.min(meta.page * meta.limit, meta.total_records)}
-                                </span>
-                                {' de '}
-                                <span className="font-medium">{meta.total_records}</span>
-                                {' resultados'}
-                            </p>
-                        </div>
-                        <div>
-                            <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                                <button
-                                    onClick={() => onPageChange(meta.page - 1)}
-                                    disabled={meta.page <= 1}
-                                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    <ChevronLeftIcon className="h-5 w-5" />
-                                </button>
-                                <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                                    Página {meta.page} de {Math.ceil(meta.total_records / meta.limit)}
-                                </span>
-                                <button
-                                    onClick={() => onPageChange(meta.page + 1)}
-                                    disabled={meta.page * meta.limit >= meta.total_records}
-                                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    <ChevronRightIcon className="h-5 w-5" />
-                                </button>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            )}
         </>
     );
 }

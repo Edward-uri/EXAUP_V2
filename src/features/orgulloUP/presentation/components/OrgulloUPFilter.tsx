@@ -3,12 +3,12 @@ import { FunnelIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 interface OrgulloUPFilterProps {
     searchTerm: string;
     onSearchChange: (term: string) => void;
-    filterStatus: 'all' | 'activo' | 'inactivo' | 'pendiente';
-    onFilterStatusChange: (status: 'all' | 'activo' | 'inactivo' | 'pendiente') => void;
+    filterStatus: 'all' | 'pendiente' | 'rechazado' | 'aprobado';
+    onFilterStatusChange: (status: 'all' | 'pendiente' | 'rechazado' | 'aprobado') => void;
     totalRecords: number;
-    activeCount: number;
-    inactiveCount: number;
-    pendingCount: number;
+    pendienteCount: number;
+    rechazadoCount: number;
+    aprobadoCount: number;
 }
 
 export function OrgulloUPFilter({
@@ -17,9 +17,9 @@ export function OrgulloUPFilter({
     filterStatus,
     onFilterStatusChange,
     totalRecords,
-    activeCount,
-    inactiveCount,
-    pendingCount
+    pendienteCount,
+    rechazadoCount,
+    aprobadoCount
 }: OrgulloUPFilterProps) {
     
     return (
@@ -47,9 +47,9 @@ export function OrgulloUPFilter({
                         className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                         <option value="all">Todos</option>
-                        <option value="activo">Activos</option>
-                        <option value="inactivo">Inactivos</option>
-                        <option value="pendiente">Pendientes</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="rechazado">Rechazado</option>
+                        <option value="aprobado">Aprobado</option>
                     </select>
                 </div>
             </div>
@@ -61,16 +61,16 @@ export function OrgulloUPFilter({
                     <span className="ml-2 font-semibold text-gray-900">{totalRecords}</span>
                 </div>
                 <div>
-                    <span className="text-gray-500">Activos:</span>
-                    <span className="ml-2 font-semibold text-green-600">{activeCount}</span>
+                    <span className="text-gray-500">Pendiente:</span>
+                    <span className="ml-2 font-semibold text-yellow-600">{pendienteCount}</span>
                 </div>
                 <div>
-                    <span className="text-gray-500">Inactivos:</span>
-                    <span className="ml-2 font-semibold text-red-600">{inactiveCount}</span>
+                    <span className="text-gray-500">Rechazado:</span>
+                    <span className="ml-2 font-semibold text-red-600">{rechazadoCount}</span>
                 </div>
                 <div>
-                    <span className="text-gray-500">Pendientes:</span>
-                    <span className="ml-2 font-semibold text-yellow-600">{pendingCount}</span>
+                    <span className="text-gray-500">Aprobado:</span>
+                    <span className="ml-2 font-semibold text-green-600">{aprobadoCount}</span>
                 </div>
             </div>
         </div>
