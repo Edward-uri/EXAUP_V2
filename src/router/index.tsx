@@ -10,6 +10,7 @@ import GestionarEncuestaPage from "../features/encuesta/presentation/pages/Gesti
 import AnalyticsPage from "../features/metricas/presentation/pages/AnalyticsPage";
 import OrgulloUpPage from "../features/orgulloUP/presentation/pages/OrgulloUpPage";
 import ActualizarEgresadoPage from "../features/formularioActualizarEgresado/presentation/pages/ActualizarEgresadoPage";
+import ResponderEncuestaPage from "../features/encuesta/presentation/pages/ResponderEncuestaPage";
 import { ROUTES } from "../constants/routes";
 import HomePage from "../features/home/presentation/pages/Home";
 
@@ -18,6 +19,15 @@ export const router = createBrowserRouter([
   {
     path: "/actualizar-egresado",
     element: <ActualizarEgresadoPage />
+  },
+  // Ruta pública corta usada en correos
+  {
+    path: "/survey/:uuid",
+    element: <ResponderEncuestaPage />
+  },
+  {
+    path: "/encuestas/responder/:uuid",
+    element: <ResponderEncuestaPage />
   },
   {
     path: "/",
