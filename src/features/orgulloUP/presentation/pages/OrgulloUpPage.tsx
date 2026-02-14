@@ -19,13 +19,16 @@ export default function OrgulloUpPage() {
     const [selectedRecord, setSelectedRecord] = useState<OrgulloUPRecord | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const sortByMostRecent = (items: OrgulloUPRecord[]) =>
+        items.slice().sort((a, b) => Number(b.id) - Number(a.id));
+
     // Cargar datos
     useEffect(() => {
         const loadRecords = async () => {
             try {
                 setLoading(true);
                 const response = await OrgulloUPService.getAll(1, 1000); // Carga todos los registros
-                setRecords(response.data);
+                setRecords(sortByMostRecent(response.data));
                 setMeta(response.meta);
                 setError(null);
             } catch (err) {
@@ -77,7 +80,7 @@ export default function OrgulloUpPage() {
         // Recargar los datos cuando se actualiza un registro
         try {
             const response = await OrgulloUPService.getAll(1, 1000);
-            setRecords(response.data);
+            setRecords(sortByMostRecent(response.data));
             setMeta(response.meta);
             // Actualizar el registro seleccionado con los datos nuevos
             const updatedRecord = response.data.find(r => r.id === selectedRecord?.id);

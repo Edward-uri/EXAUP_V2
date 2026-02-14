@@ -48,13 +48,15 @@ const EtapaTres: React.FC<EtapaTresProps> = ({ data, onChange, setFormData }) =>
               <input type="text" name="puesto" value={data.puesto} onChange={onChange} className="w-full p-2 border border-gray-300 rounded-md mt-1" />
             </div>
             <div>
-              <label className="text-xs text-blue-900 font-semibold">Sector Económico</label>
-              <select name="sector" onChange={onChange} className="w-full p-2 border border-gray-300 rounded-md mt-1 bg-white">
-                    <option value="">Seleccione...</option>
-                    <option value="Tecnología">Tecnología</option>
-                    <option value="Salud">Salud</option>
-                    <option value="Educación">Educación</option>
-                </select>
+              <label className="text-xs text-blue-900 font-semibold">ID de sector</label>
+              <input
+                type="number"
+                name="sector"
+                value={data.sector}
+                onChange={onChange}
+                placeholder="Ej. 9"
+                className="w-full p-2 border border-gray-300 rounded-md mt-1"
+              />
             </div>
             <div>
               <label className="text-xs text-blue-900 font-semibold">Actividad Principal</label>

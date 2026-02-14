@@ -16,16 +16,14 @@ const ActualizarEgresadoPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [curpValidated, setCurpValidated] = useState<boolean>(false);
   const [loadingCurp, setLoadingCurp] = useState<boolean>(false);
+  const [loadingDomicilio, setLoadingDomicilio] = useState<boolean>(false);
+  const [loadingLaboral, setLoadingLaboral] = useState<boolean>(false);
+  const [loadingPerfil, setLoadingPerfil] = useState<boolean>(false);
 
-  // Estado inicial tipado con la interfaz FormData
   const [formData, setFormData] = useState<FormData>({
-    // Etapa 1
-    egresadoId: undefined, matricula: '', curp: '', nombre: '', apellidoPaterno: '', apellidoMaterno: '', fechaNacimiento: '', email: '',
-    // Etapa 2
+    egresadoId: undefined, curp: '', nombre: '', apellidoPaterno: '', apellidoMaterno: '', fechaNacimiento: '', email: '',
     calle: '', colonia: '', numero: '', estado: '', ciudad: '', codigoPostal: '',
-    // Etapa 3
     trabajaActualmente: false, empresa: '', puesto: '', sector: '', actividad: '',
-    // Etapa 4
     orgulloImagen: null, orgulloNombre: '', orgulloCorreo: '', orgulloCarrera: '', orgulloMensaje: ''
   });
 
@@ -36,11 +34,10 @@ const ActualizarEgresadoPage: React.FC = () => {
     { id: 4, title: 'Orgullo UP', icon: <img src="/OrgUpLogo.png" alt="Orgullo UP" className="w-100 h-100 object-contain scale-300" /> }
   ];
 
-  // --- LÓGICA DE NEGOCIO ---
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
-    // TypeScript necesita saber que es un HTMLInputElement para acceder a 'checked',
+
     // por lo que hacemos un casting o comprobación
     const checked = (e.target as HTMLInputElement).checked;
 
@@ -58,11 +55,6 @@ const ActualizarEgresadoPage: React.FC = () => {
   };
 
   const handleValidateCurp = async () => {
-    if (!formData.matricula.trim()) {
-      alert('Por favor, ingresa tu matrícula.');
-      return;
-    }
-
     if (formData.curp.trim().length < 10) {
       alert('Por favor, ingresa una CURP válida (mínimo 10 caracteres).');
       return;
@@ -71,7 +63,6 @@ const ActualizarEgresadoPage: React.FC = () => {
     setLoadingCurp(true);
     try {
       const auth = await ActualizarEgresadoService.login(
-        formData.matricula.trim(),
         formData.curp.trim().toUpperCase()
       );
 
@@ -92,17 +83,103 @@ const ActualizarEgresadoPage: React.FC = () => {
     }
   };
 
-  // --- NAVEGACIÓN ---
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length));
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
-  // --- BOTONES DE ACCIÓN ---
-  const handleFinalizarSoloTresEtapas = () => {
+  const handleGuardarDomicilioYContinuar = async () => {
+    setLoadingDomicilio(true);
+    try {
+      await ActualizarEgresadoService.createDatosDomiciliarios({
+        calle: formData.calle,
+        colonia: formData.colonia,
+        numero_exterior: formData.numero,
+        codigo_postal: formData.codigoPostal,
+        estado: formData.estado,
+        ciudad: formData.ciudad
+      });
+      nextStep();
+    } catch (err: any) {
+      const apiMessage = err?.response?.data?.message || err?.response?.data?.error;
+      const message = apiMessage || (err instanceof Error ? err.message : 'No se pudieron guardar los datos domiciliarios');
+      alert(message);
+    } finally {
+      setLoadingDomicilio(false);
+    }
+  };
+
+  const handleActualizarPerfilYContinuar = async () => {
+    if (!formData.egresadoId) {
+      alert('Primero valida tu CURP para obtener el ID del egresado.');
+      return;
+    }
+
+    setLoadingPerfil(true);
+    try {
+      await ActualizarEgresadoService.updatePerfil(formData.egresadoId, {
+        email: formData.email || undefined,
+        fecha_nacimiento: formData.fechaNacimiento || undefined,
+        imagen_egresado: formData.orgulloImagen || undefined
+      });
+      nextStep();
+    } catch (err: any) {
+      const apiMessage = err?.response?.data?.message || err?.response?.data?.error;
+      const message = apiMessage || (err instanceof Error ? err.message : 'No se pudo actualizar el perfil');
+      alert(message);
+    } finally {
+      setLoadingPerfil(false);
+    }
+  };
+
+  const handleGuardarDatosLaborales = async () => {
+    const sectorValue = formData.sector.trim();
+    const sectorId = sectorValue ? Number(sectorValue) : null;
+
+    if (formData.trabajaActualmente) {
+      if (!formData.empresa.trim() || !formData.puesto.trim() || !formData.actividad.trim()) {
+        alert('Completa empresa, puesto y actividad principal.');
+        return false;
+      }
+
+      if (!sectorValue || Number.isNaN(sectorId)) {
+        alert('Ingresa un ID de sector valido.');
+        return false;
+      }
+    }
+
+    setLoadingLaboral(true);
+    try {
+      await ActualizarEgresadoService.createDatosLaborales({
+        trabaja_actualmente: formData.trabajaActualmente,
+        nombre_empresa: formData.empresa,
+        puesto: formData.puesto,
+        id_sector: formData.trabajaActualmente ? sectorId : null,
+        actividad_principal: formData.actividad
+      });
+      return true;
+    } catch (err: any) {
+      const apiMessage = err?.response?.data?.message || err?.response?.data?.error;
+      const message = apiMessage || (err instanceof Error ? err.message : 'No se pudieron guardar los datos laborales');
+      alert(message);
+      return false;
+    } finally {
+      setLoadingLaboral(false);
+    }
+  };
+
+  const handleFinalizarSoloTresEtapas = async () => {
+    const saved = await handleGuardarDatosLaborales();
+    if (!saved) {
+      return;
+    }
     alert("¡Datos actualizados correctamente! (Sin Orgullo UP)");
     console.log("Enviando datos parciales:", formData);
   };
 
-  const handleUnirseOrgulloUp = () => {
+  const handleUnirseOrgulloUp = async () => {
+    const saved = await handleGuardarDatosLaborales();
+    if (!saved) {
+      return;
+    }
     if (!formData.orgulloNombre) {
         setFormData(prev => ({ 
             ...prev, 
@@ -165,30 +242,36 @@ const ActualizarEgresadoPage: React.FC = () => {
                     <div className="flex gap-3">
                         {currentStep < 3 && (
                              <button 
-                                onClick={nextStep} 
-                                disabled={currentStep === 1 && !curpValidated} 
+                            onClick={currentStep === 1 ? handleActualizarPerfilYContinuar : currentStep === 2 ? handleGuardarDomicilioYContinuar : nextStep} 
+                            disabled={(currentStep === 1 && (!curpValidated || loadingPerfil)) || (currentStep === 2 && loadingDomicilio)} 
                                 className={`flex items-center gap-2 px-6 py-2 rounded-md font-medium text-white transition-colors 
-                                ${currentStep === 1 && !curpValidated 
+                            ${currentStep === 1 && !curpValidated 
                                     ? 'bg-blue-900/50 cursor-not-allowed' 
                                     : 'bg-blue-900 hover:bg-blue-800'}`}
                             >
-                                SIGUIENTE <ChevronRight size={18} />
+                            {currentStep === 1 && loadingPerfil
+                              ? 'Guardando...'
+                              : currentStep === 2 && loadingDomicilio
+                              ? 'Guardando...'
+                              : 'SIGUIENTE'} <ChevronRight size={18} />
                             </button>
                         )}
 
                         {currentStep === 3 && (
                             <>
                                 <button 
-                                    onClick={handleFinalizarSoloTresEtapas} 
-                                    className="flex items-center gap-2 px-4 py-2 rounded-md font-medium text-blue-900 border border-blue-900 hover:bg-blue-50 transition-colors"
+                                  onClick={handleFinalizarSoloTresEtapas} 
+                                  disabled={loadingLaboral}
+                                  className="flex items-center gap-2 px-4 py-2 rounded-md font-medium text-blue-900 border border-blue-900 hover:bg-blue-50 transition-colors disabled:opacity-50"
                                 >
-                                    <Save size={18} /> Solo Guardar
+                                  <Save size={18} /> {loadingLaboral ? 'Guardando...' : 'Solo Guardar'}
                                 </button>
                                 <button 
-                                    onClick={handleUnirseOrgulloUp} 
-                                    className="flex items-center gap-2 px-6 py-2 rounded-md font-medium text-white bg-gradient-to-r from-blue-900 to-indigo-800 hover:to-indigo-900 shadow-lg shadow-indigo-500/30 transition-all"
+                                  onClick={handleUnirseOrgulloUp} 
+                                  disabled={loadingLaboral}
+                                  className="flex items-center gap-2 px-6 py-2 rounded-md font-medium text-white bg-gradient-to-r from-blue-900 to-indigo-800 hover:to-indigo-900 shadow-lg shadow-indigo-500/30 transition-all disabled:opacity-50"
                                 >
-                                    ¡Unirme a Orgullo UP! <Heart size={18} className="fill-white" />
+                                  ¡Unirme a Orgullo UP! <Heart size={18} className="fill-white" />
                                 </button>
                             </>
                         )}

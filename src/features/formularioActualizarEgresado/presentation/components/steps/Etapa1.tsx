@@ -29,21 +29,6 @@ const EtapaUno: React.FC<EtapaUnoProps> = ({
       <div className="mb-6 space-y-4">
         <div>
           <label className={`block text-sm font-medium text-blue-900 mb-1 ${centerCurp ? 'text-2xl md:text-3xl text-center font-bold' : ''}`}>
-            Matrícula
-          </label>
-          <input
-            type="text"
-            name="matricula"
-            value={data.matricula}
-            onChange={onChange}
-            disabled={curpValidated}
-            placeholder="Ingresa tu matrícula..."
-            className={`w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 outline-none ${centerCurp ? 'max-w-md mx-auto block' : ''}`}
-          />
-        </div>
-
-        <div>
-          <label className={`block text-sm font-medium text-blue-900 mb-1 ${centerCurp ? 'text-2xl md:text-3xl text-center font-bold' : ''}`}>
             CURP
           </label>
           <input 
