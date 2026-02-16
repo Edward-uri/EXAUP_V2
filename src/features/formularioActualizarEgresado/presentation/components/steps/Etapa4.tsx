@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { FormData } from '../../types';
 import type { LogroAcademicoInput, LogroLaboralInput } from '../../../domain/ActualizarEgresado';
 import { ActualizarEgresadoService } from '../../../data/ActualizarEgresadoService';
+import { useAlert } from '../../../../../shared/components/Alert';
 
 interface EtapaCuatroProps {
   data: FormData;
 }
 
 const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
+  const alert = useAlert();
   const [logroAcademico, setLogroAcademico] = useState<LogroAcademicoInput>({
     titulo: '',
     institucion: '',
@@ -22,15 +24,51 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
   const [logrosLaborales, setLogrosLaborales] = useState<LogroLaboralInput[]>([]);
   const [savingAcademico, setSavingAcademico] = useState(false);
   const [savingLaboral, setSavingLaboral] = useState(false);
+  const [showLogrosAcademicos, setShowLogrosAcademicos] = useState(false);
+  const [showLogrosLaborales, setShowLogrosLaborales] = useState(false);
+
+  // Precargar logros académicos y laborales ya registrados para el egresado
+  useEffect(() => {
+    const loadLogros = async () => {
+      if (!data.egresadoId) return;
+
+      try {
+        const [academicos, laborales] = await Promise.all([
+          ActualizarEgresadoService.getLogrosAcademicos(data.egresadoId),
+          ActualizarEgresadoService.getLogrosLaborales(data.egresadoId),
+        ]);
+
+        setLogrosAcademicos(
+          (academicos || []).map((item: any) => ({
+            titulo: item.attributes?.titulo ?? '',
+            institucion: item.attributes?.institucion ?? '',
+            fecha: item.attributes?.fecha ?? '',
+          }))
+        );
+
+        setLogrosLaborales(
+          (laborales || []).map((item: any) => ({
+            empresa: item.attributes?.empresa ?? '',
+            puesto: item.attributes?.puesto ?? '',
+            fecha: item.attributes?.fecha ?? '',
+          }))
+        );
+      } catch (error) {
+        console.error('Error al cargar logros del egresado:', error);
+      }
+    };
+
+    loadLogros();
+  }, [data.egresadoId]);
 
   const handleGuardarLogroAcademico = async () => {
     if (!data.egresadoId) {
-      alert('Primero valida tu CURP para obtener el ID del egresado.');
+      alert.warning('CURP requerida', 'Primero valida tu CURP para obtener el ID del egresado.');
       return;
     }
 
     if (!logroAcademico.titulo || !logroAcademico.institucion || !logroAcademico.fecha) {
-      alert('Completa título, institución y fecha del logro académico.');
+      alert.warning('Datos incompletos', 'Por favor completa todos los campos antes de continuar.');
       return;
     }
 
@@ -41,7 +79,7 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
       setLogroAcademico({ titulo: '', institucion: '', fecha: '' });
     } catch (error) {
       console.error('Error al guardar logro académico:', error);
-      alert('No se pudo guardar el logro académico.');
+      alert.error('Error al guardar', 'No se pudo guardar el logro academico.');
     } finally {
       setSavingAcademico(false);
     }
@@ -49,12 +87,12 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
 
   const handleGuardarLogroLaboral = async () => {
     if (!data.egresadoId) {
-      alert('Primero valida tu CURP para obtener el ID del egresado.');
+      alert.warning('CURP requerida', 'Primero valida tu CURP para obtener el ID del egresado.');
       return;
     }
 
     if (!logroLaboral.empresa || !logroLaboral.puesto || !logroLaboral.fecha) {
-      alert('Completa empresa, puesto y fecha del logro laboral.');
+      alert.warning('Datos incompletos', 'Por favor completa todos los campos antes de continuar.');
       return;
     }
 
@@ -65,7 +103,7 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
       setLogroLaboral({ empresa: '', puesto: '', fecha: '' });
     } catch (error) {
       console.error('Error al guardar logro laboral:', error);
-      alert('No se pudo guardar el logro laboral.');
+      alert.error('Error al guardar', 'No se pudo guardar el logro laboral.');
     } finally {
       setSavingLaboral(false);
     }
@@ -121,13 +159,27 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
             </div>
 
             {logrosAcademicos.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {logrosAcademicos.map((item, index) => (
-                  <div key={`${item.titulo}-${index}`} className="text-xs text-gray-600 bg-blue-50 border border-blue-100 rounded-md p-2">
-                    <p className="font-semibold text-blue-900">{item.titulo}</p>
-                    <p>{item.institucion} · {item.fecha}</p>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowLogrosAcademicos(prev => !prev)}
+                  className="text-xs font-semibold text-blue-900 hover:text-blue-700"
+                >
+                  {showLogrosAcademicos
+                    ? `Ocultar logros (${logrosAcademicos.length})`
+                    : `Ver logros (${logrosAcademicos.length})`}
+                </button>
+
+                {showLogrosAcademicos && (
+                  <div className="mt-3 space-y-2">
+                    {logrosAcademicos.map((item, index) => (
+                      <div key={`${item.titulo}-${index}`} className="text-xs text-gray-600 bg-blue-50 border border-blue-100 rounded-md p-2">
+                        <p className="font-semibold text-blue-900">{item.titulo}</p>
+                        <p>{item.institucion} · {item.fecha}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>
@@ -173,13 +225,27 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
             </div>
 
             {logrosLaborales.length > 0 && (
-              <div className="mt-4 space-y-2">
-                {logrosLaborales.map((item, index) => (
-                  <div key={`${item.empresa}-${index}`} className="text-xs text-gray-600 bg-emerald-50 border border-emerald-100 rounded-md p-2">
-                    <p className="font-semibold text-emerald-900">{item.empresa}</p>
-                    <p>{item.puesto} · {item.fecha}</p>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowLogrosLaborales(prev => !prev)}
+                  className="text-xs font-semibold text-emerald-900 hover:text-emerald-700"
+                >
+                  {showLogrosLaborales
+                    ? `Ocultar logros (${logrosLaborales.length})`
+                    : `Ver logros (${logrosLaborales.length})`}
+                </button>
+
+                {showLogrosLaborales && (
+                  <div className="mt-3 space-y-2">
+                    {logrosLaborales.map((item, index) => (
+                      <div key={`${item.empresa}-${index}`} className="text-xs text-gray-600 bg-emerald-50 border border-emerald-100 rounded-md p-2">
+                        <p className="font-semibold text-emerald-900">{item.empresa}</p>
+                        <p>{item.puesto} · {item.fecha}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>

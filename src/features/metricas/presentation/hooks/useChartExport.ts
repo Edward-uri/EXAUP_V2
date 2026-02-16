@@ -1,6 +1,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { ChartExporter } from '../utils/chartExporter';
 import { generatePrintWindow } from '../utils/printHandler';
+import { useAlert } from '../../../../shared/components/Alert';
 
 interface UseChartExportOptions {
   totalCharts: number;
@@ -12,6 +13,7 @@ export const useChartExport = ({
   headerId = 'metric-header' 
 }: UseChartExportOptions) => {
   const chartRefs = useRef<Array<any | null>>([]);
+  const alert = useAlert();
 
   const handlePrint = useCallback(async () => {
     try {
@@ -19,19 +21,20 @@ export const useChartExport = ({
       const images = await exporter.captureAll();
 
       if (images.every(img => !img || img.length <= 200)) {
-        alert('No se pudieron generar las imágenes de las gráficas. Intenta de nuevo.');
+        alert.warning('Exportacion incompleta', 'No se pudieron generar las imágenes de las gráficas. Intenta de nuevo.');
         return;
       }
 
       generatePrintWindow({
         images,
-        headerId
+        headerId,
+        onError: (message) => alert.error('Impresion bloqueada', message)
       });
     } catch (error) {
       console.error('Error al exportar:', error);
       window.print();
     }
-  }, [totalCharts, headerId]);
+  }, [totalCharts, headerId, alert]);
 
   useEffect(() => {
     const handler = () => handlePrint();

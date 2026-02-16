@@ -1,12 +1,12 @@
 import { RouterProvider } from 'react-router-dom'
 import { router } from "./router/index"
-import { ToastProvider } from './shared/components/Toast'
+import { AlertProvider } from './shared/components/Alert'
 
 function App() {
   return (
-    <ToastProvider>
+    <AlertProvider>
       <RouterProvider router={router} />
-    </ToastProvider>
+    </AlertProvider>
   )
 }
 

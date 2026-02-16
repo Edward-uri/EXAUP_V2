@@ -4,7 +4,7 @@ import { useFormularioBuilder } from '../hooks/useFormulario';
 import { FormHeader } from '../components/FormHeader';
 import { QuestionCard } from '../components/QuestionCard';
 import { FloatingToolbox } from '../components/FloatingToolbox';
-import { useToast } from '../../../../shared/components/Toast';
+import { useAlert } from '../../../../shared/components/Alert';
 import type { Pregunta } from '../../domain/Pregunta';
 
 export default function CrearFormularioPage() {
@@ -22,7 +22,7 @@ export default function CrearFormularioPage() {
         formularioData 
     } = useFormularioBuilder(formularioId);
     
-    const toast = useToast();
+    const alert = useAlert();
 
     // Estado del Formulario
     const [titulo, setTitulo] = useState('Formulario sin título');
@@ -77,21 +77,21 @@ export default function CrearFormularioPage() {
 
     const deleteQuestion = (id: string) => {
         if (preguntas.length === 1) {
-            toast.warning(
+            alert.warning(
                 'Acción no permitida',
                 'El formulario debe tener al menos una pregunta. No puedes eliminar la única pregunta.'
             );
             return;
         }
         setPreguntas(prev => prev.filter(p => p.id !== id));
-        toast.info('Pregunta eliminada', 'La pregunta se ha eliminado del formulario.');
+        alert.info('Pregunta eliminada', 'La pregunta se ha eliminado del formulario.');
     };
 
     // --- GUARDADO ---
     const handleSave = async () => {
         // Validación: Título obligatorio
         if (!titulo.trim() || titulo === 'Formulario sin título') {
-            toast.error(
+            alert.error(
                 'Título requerido',
                 'Por favor, ingresa un título descriptivo para el formulario. No puede estar vacío ni ser el título por defecto.'
             );
@@ -100,7 +100,7 @@ export default function CrearFormularioPage() {
 
         // Validación: Al menos una pregunta
         if (preguntas.length === 0) {
-            toast.error(
+            alert.error(
                 'Sin preguntas',
                 'El formulario debe tener al menos una pregunta. Añade preguntas antes de guardar.'
             );
@@ -109,7 +109,7 @@ export default function CrearFormularioPage() {
         
         // Validación: Todas las preguntas deben tener tipo
         if (preguntas.some(p => !p.tipoId)) {
-            toast.error(
+            alert.error(
                 'Tipo de pregunta faltante',
                 'Todas las preguntas deben tener un tipo seleccionado. Revisa las preguntas marcadas.'
             );
@@ -119,7 +119,7 @@ export default function CrearFormularioPage() {
         // Validación: Todas las preguntas deben tener texto
         const preguntasSinTexto = preguntas.filter(p => !p.texto.trim());
         if (preguntasSinTexto.length > 0) {
-            toast.error(
+            alert.error(
                 'Preguntas incompletas',
                 `${preguntasSinTexto.length} pregunta${preguntasSinTexto.length > 1 ? 's no tienen' : ' no tiene'} texto. Completa todas las preguntas antes de guardar.`
             );
@@ -129,19 +129,19 @@ export default function CrearFormularioPage() {
         try {
             if (isEditMode && formularioId) {
                 await updateFormulario(formularioId, titulo, descripcion, preguntas);
-                toast.success(
+                alert.success(
                     'Formulario actualizado',
                     `"${titulo}" se ha actualizado correctamente.`
                 );
             } else {
                 await saveFormularioCompleto(titulo, descripcion, preguntas);
-                toast.success(
+                alert.success(
                     'Formulario guardado',
                     `"${titulo}" se ha guardado correctamente con ${preguntas.length} pregunta${preguntas.length > 1 ? 's' : ''}.`
                 );
             }
         } catch (error) {
-            toast.error(
+            alert.error(
                 'Error al guardar',
                 'No se pudo guardar el formulario. Por favor, intenta nuevamente.'
             );

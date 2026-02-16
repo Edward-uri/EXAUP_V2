@@ -13,7 +13,7 @@ import {
   FaceFrownIcon,
   PaperAirplaneIcon
 } from "@heroicons/react/24/outline";
-import { useToast } from "../../../../shared/components/Toast";
+import { useAlert } from "../../../../shared/components/Alert";
 
 type AnswerValue = string | string[] | boolean | undefined;
 type FieldErrors = Record<string, string>;
@@ -24,7 +24,7 @@ const LIKERT_VALUES = ["1", "2", "3", "4", "5"];
 
 export default function ResponderEncuestaPage() {
   const { uuid } = useParams<{ uuid: string }>();
-  const { success, error: toastError, info } = useToast();
+  const { success, error: alertError, info } = useAlert();
 
   const [survey, setSurvey] = useState<PublicSurvey | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,7 +53,7 @@ export default function ResponderEncuestaPage() {
         } else if (code === 409) {
           setStatus("answered");
         } else {
-          toastError("No pudimos cargar la encuesta", "Intenta nuevamente en unos minutos.");
+          alertError("No pudimos cargar la encuesta", "Intenta nuevamente en unos minutos.");
         }
       } finally {
         setLoading(false);
@@ -61,7 +61,7 @@ export default function ResponderEncuestaPage() {
     };
 
     loadSurvey();
-  }, [toastError, uuid]);
+  }, [alertError, uuid]);
 
   const sortedQuestions = useMemo(() => {
     if (!survey) return [] as PublicQuestion[];
@@ -130,7 +130,7 @@ export default function ResponderEncuestaPage() {
       } else if (code === 404) {
         setStatus("not-found");
       } else {
-        toastError("No pudimos enviar tus respuestas", "Intenta nuevamente.");
+        alertError("No pudimos enviar tus respuestas", "Intenta nuevamente.");
       }
     } finally {
       setSubmitLoading(false);

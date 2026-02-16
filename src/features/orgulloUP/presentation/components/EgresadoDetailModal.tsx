@@ -2,7 +2,7 @@ import { XMarkIcon, BriefcaseIcon, AcademicCapIcon, CheckCircleIcon, XCircleIcon
 import type { OrgulloUPRecord } from '../../domain/OrgulloUP';
 import { useState } from 'react';
 import { OrgulloUPService } from '../../data/OrgulloUPService';
-import { useToast } from '../../../../shared/components/Toast';
+import { useAlert } from '../../../../shared/components/Alert';
 
 interface EgresadoDetailModalProps {
     isOpen: boolean;
@@ -16,7 +16,7 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
     const [isSaving, setIsSaving] = useState(false);
     const [editData, setEditData] = useState<any>(null);
     const [updatedRecord, setUpdatedRecord] = useState<OrgulloUPRecord | null>(null);
-    const toast = useToast();
+    const alert = useAlert();
     
     if (!isOpen || !record) return null;
 
@@ -65,11 +65,11 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
             
             setIsEditing(false);
             setEditData(null);
-            toast.success('Perfil actualizado', 'Los datos del egresado se han actualizado correctamente.');
+            alert.success('Perfil actualizado', 'Los datos del egresado se han actualizado correctamente.');
             if (onUpdate) onUpdate();
         } catch (error) {
             console.error('Error al actualizar perfil:', error);
-            toast.error('Error al actualizar', 'No se pudo actualizar el perfil del egresado. Intenta nuevamente.');
+            alert.error('Error al actualizar', 'No se pudo actualizar el perfil del egresado. Intenta nuevamente.');
         } finally {
             setIsSaving(false);
         }
@@ -100,11 +100,11 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
                 }
             });
             
-            toast.success('Estado actualizado', `El estado del egresado se cambió a "${estadoTexto}".`);
+            alert.success('Estado actualizado', `El estado del egresado se cambio a "${estadoTexto}".`);
             if (onUpdate) onUpdate();
         } catch (error) {
             console.error('Error al actualizar estado:', error);
-            toast.error('Error al actualizar', 'No se pudo cambiar el estado del egresado. Intenta nuevamente.');
+            alert.error('Error al actualizar', 'No se pudo cambiar el estado del egresado. Intenta nuevamente.');
         } finally {
             setIsSaving(false);
         }

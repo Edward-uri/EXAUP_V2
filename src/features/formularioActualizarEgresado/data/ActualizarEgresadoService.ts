@@ -1,119 +1,30 @@
-import { apiClient } from "../../../core/api.config";
-import type {
-  AuthEgresadoResponse,
-  LogroAcademicoInput,
-  LogroLaboralInput
-} from "../domain/ActualizarEgresado";
+import type { AuthEgresadoResponse } from "../domain/ActualizarEgresado";
+import { EgresadoAuthService } from "./egresado/EgresadoAuthService";
+import { EgresadoPerfilService } from "./egresado/EgresadoPerfilService";
+import { EgresadoPerfilGetService } from "./egresado/EgresadoPerfilGetService";
+import { DomicilioService } from "./domicilio/DomicilioService";
+import { LaboralService } from "./laboral/LaboralService";
+import { LogrosService } from "./logros/LogrosService";
 
 export const ActualizarEgresadoService = {
   login: async (curp: string): Promise<AuthEgresadoResponse> => {
-    const payload = {
-      data: {
-        type: "auth",
-        attributes: {
-          curp
-        }
-      }
-    };
-
-    const { data } = await apiClient.post<{
-      data: {
-        type: string;
-        id: string;
-        attributes: {
-          nombre?: string;
-          email?: string;
-          mensaje?: string;
-        };
-      };
-    }>("/auth/login", payload);
-
-    return {
-      id: data.data.id,
-      nombre: data.data.attributes?.nombre,
-      email: data.data.attributes?.email,
-      mensaje: data.data.attributes?.mensaje
-    };
+    return EgresadoAuthService.login(curp);
   },
 
-  createDatosDomiciliarios: async (data: {
-    calle: string;
-    colonia: string;
-    numero_exterior: string;
-    codigo_postal: string;
-    estado: string;
-    ciudad: string;
-  }): Promise<void> => {
-    const payload = {
-      data: {
-        type: "datos-domiciliarios",
-        attributes: data
-      }
-    };
+  getPerfilActual: EgresadoPerfilGetService.getPerfilActual,
 
-    await apiClient.post("/datos-domiciliarios", payload);
-  },
+  createDatosDomiciliarios: DomicilioService.createDatosDomiciliarios,
+  getDatosDomiciliarios: DomicilioService.getDatosDomiciliarios,
+  updateDatosDomiciliarios: DomicilioService.updateDatosDomiciliarios,
 
-  createDatosLaborales: async (data: {
-    trabaja_actualmente: boolean;
-    nombre_empresa: string;
-    puesto: string;
-    id_sector: number | null;
-    actividad_principal: string;
-  }): Promise<void> => {
-    const payload = {
-      data: {
-        type: "datos-laborales",
-        attributes: data
-      }
-    };
+  createDatosLaborales: LaboralService.createDatosLaborales,
+  getDatosLaborales: LaboralService.getDatosLaborales,
+  updateDatosLaborales: LaboralService.updateDatosLaborales,
 
-    await apiClient.post("/datos-laborales", payload);
-  },
+  updatePerfil: EgresadoPerfilService.updatePerfil,
 
-  updatePerfil: async (id: string, data: {
-    email?: string;
-    fecha_nacimiento?: string;
-    imagen_egresado?: string | null;
-  }): Promise<void> => {
-    const payload = {
-      data: {
-        type: "egresados",
-        id,
-        attributes: data
-      }
-    };
-
-    await apiClient.patch(`/egresado/${id}/perfil`, payload);
-  },
-
-  createLogroAcademico: async (egresadoId: string, logro: LogroAcademicoInput): Promise<void> => {
-    const payload = {
-      data: {
-        type: "logros-academicos",
-        attributes: {
-          titulo: logro.titulo,
-          institucion: logro.institucion,
-          fecha: logro.fecha
-        }
-      }
-    };
-
-    await apiClient.post(`/egresado/${egresadoId}/logros-academicos`, payload);
-  },
-
-  createLogroLaboral: async (egresadoId: string, logro: LogroLaboralInput): Promise<void> => {
-    const payload = {
-      data: {
-        type: "logros-laborales",
-        attributes: {
-          empresa: logro.empresa,
-          puesto: logro.puesto,
-          fecha: logro.fecha
-        }
-      }
-    };
-
-    await apiClient.post(`/egresado/${egresadoId}/logros-laborales`, payload);
-  }
+  createLogroAcademico: LogrosService.createLogroAcademico,
+  createLogroLaboral: LogrosService.createLogroLaboral,
+  getLogrosAcademicos: LogrosService.getLogrosAcademicos,
+  getLogrosLaborales: LogrosService.getLogrosLaborales,
 };

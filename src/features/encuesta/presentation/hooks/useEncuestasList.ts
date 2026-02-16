@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { EncuestaService } from '../../data/EncuestaService';
 import type { Encuesta } from '../../domain/Encuesta';
+import { useAlert } from '../../../../shared/components/Alert';
 
 export const useEncuestasList = () => {
     const [encuestas, setEncuestas] = useState<Encuesta[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const alert = useAlert();
 
     const loadEncuestas = async () => {
         try {
@@ -33,7 +35,7 @@ export const useEncuestasList = () => {
             setEncuestas(prev => prev.filter(e => e.id !== id));
         } catch (err) {
             console.error('Error eliminando encuesta:', err);
-            alert('No se pudo eliminar la encuesta');
+            alert.error('Error al eliminar', 'No se pudo eliminar la encuesta.');
         }
     };
 
@@ -43,7 +45,7 @@ export const useEncuestasList = () => {
             setEncuestas(prev => prev.map(e => e.id === id ? updated : e));
         } catch (err) {
             console.error('Error actualizando estado:', err);
-            alert('No se pudo actualizar el estado');
+            alert.error('Error al actualizar', 'No se pudo actualizar el estado.');
         }
     };
 

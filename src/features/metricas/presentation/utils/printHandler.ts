@@ -1,7 +1,7 @@
 interface GeneratePrintWindowOptions {
   images: string[];
   headerId: string;
-  metricsId: string;
+  onError?: (message: string) => void;
 }
 
 /**
@@ -11,12 +11,13 @@ interface GeneratePrintWindowOptions {
 export function generatePrintWindow({ 
   images, 
   headerId, 
-  metricsId 
+  onError
 }: GeneratePrintWindowOptions): void {
   const printWindow = window.open('', '_blank', 'width=1000,height=800');
+  const notify = onError ?? ((message: string) => window.alert(message));
   
   if (!printWindow) {
-    alert('No se pudo abrir la ventana de impresión. Por favor, permite las ventanas emergentes.');
+    notify('No se pudo abrir la ventana de impresión. Por favor, permite las ventanas emergentes.');
     return;
   }
 

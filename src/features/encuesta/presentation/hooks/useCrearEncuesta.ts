@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAlert } from '../../../../shared/components/Alert';
 import { FormularioService } from '../../../formulario/data/FormularioService';
 import { TemplateService } from '../../../template/data/TemplateService';
 import { EncuestaService } from '../../data/EncuestaService';
@@ -14,6 +15,7 @@ export const useCrearEncuesta = () => {
     const [saving, setSaving] = useState(false);
     
     const navigate = useNavigate();
+    const alert = useAlert();
 
     // 1. Cargar las listas (Dropdowns) al iniciar
     useEffect(() => {
@@ -29,7 +31,7 @@ export const useCrearEncuesta = () => {
                 setTemplates(templatesData);
             } catch (error) {
                 console.error("Error cargando dependencias:", error);
-                alert("Error al cargar formularios o plantillas. Revisa tu conexión.");
+                alert.error('Error al cargar', 'Error al cargar formularios o plantillas. Revisa tu conexión.');
             } finally {
                 setLoadingData(false);
             }
@@ -43,12 +45,12 @@ export const useCrearEncuesta = () => {
         setSaving(true);
         try {
             const encuestaCreada = await EncuestaService.create(nombre, descripcion, formId, templateId);
-            alert("¡Encuesta creada exitosamente!");
+            alert.success('Encuesta creada', 'La encuesta se ha creado exitosamente.');
             // Redirigir a la página de gestión
             navigate(`/encuestas/${encuestaCreada.id}/gestionar`);
         } catch (error) {
             console.error(error);
-            alert("Ocurrió un error al crear la encuesta.");
+            alert.error('Error al crear', 'Ocurrió un error al crear la encuesta.');
         } finally {
             setSaving(false);
         }

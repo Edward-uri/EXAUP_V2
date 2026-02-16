@@ -5,7 +5,7 @@ import { ParticipanteService, DistributionService } from '../../data/GestionEncu
 import { TemplateService } from '../../../template/data/TemplateService';
 import { AsignarGrupoModal } from '../components/AsignarGrupoModal';
 import { generatePreviewHtml } from '../../../template/presentation/utils/templateUtils';
-import { useToast } from '../../../../shared/components/Toast/ToastContext';
+import { useAlert } from '../../../../shared/components/Alert';
 import type { Encuesta } from '../../domain/Encuesta';
 import type { Participante, ParticipantesMeta } from '../../domain/GestionEncuesta';
 import {
@@ -24,7 +24,7 @@ import {
  */
 export default function GestionarEncuestaPage() {
     const { id } = useParams<{ id: string }>();
-    const toast = useToast();
+    const alert = useAlert();
     
     // Estado de la encuesta actual
     const [encuesta, setEncuesta] = useState<Encuesta | null>(null);
@@ -84,7 +84,7 @@ export default function GestionarEncuestaPage() {
             setEncuesta(data);
         } catch (error) {
             console.error('Error cargando encuesta:', error);
-            toast.error('Error al cargar', 'No se pudo cargar la información de la encuesta');
+            alert.error('Error al cargar', 'No se pudo cargar la información de la encuesta');
         } finally {
             setLoading(false);
         }
@@ -104,7 +104,7 @@ export default function GestionarEncuestaPage() {
             setTemplateContent(template.attributes.body);
         } catch (error) {
             console.error('Error cargando template:', error);
-            toast.error('Error', 'No se pudo cargar la plantilla de correo');
+            alert.error('Error', 'No se pudo cargar la plantilla de correo');
         }
     };
 
@@ -115,7 +115,7 @@ export default function GestionarEncuestaPage() {
         if (!encuesta || !currentTemplate) return;
         const templateId = encuesta.relationships?.['template-correo']?.data.id;
         if (!templateId) {
-            toast.warning('Plantilla no encontrada', 'Esta encuesta no tiene una plantilla de correo asignada');
+            alert.warning('Plantilla no encontrada', 'Esta encuesta no tiene una plantilla de correo asignada');
             return;
         }
 
@@ -136,11 +136,11 @@ export default function GestionarEncuestaPage() {
                 }
             });
             
-            toast.success('Plantilla actualizada', 'Los cambios se han guardado correctamente');
+            alert.success('Plantilla actualizada', 'Los cambios se han guardado correctamente');
             setEditingTemplate(false);
         } catch (error) {
             console.error('Error guardando template:', error);
-            toast.error('Error al guardar', 'No se pudo actualizar la plantilla');
+            alert.error('Error al guardar', 'No se pudo actualizar la plantilla');
         } finally {
             setSavingTemplate(false);
         }
@@ -187,11 +187,11 @@ export default function GestionarEncuestaPage() {
         
         try {
             await ParticipanteService.revocarParticipante(id, uuid);
-            toast.success('Acceso revocado', 'El participante ya no puede acceder a la encuesta');
+            alert.success('Acceso revocado', 'El participante ya no puede acceder a la encuesta');
             loadParticipantes();
         } catch (error) {
             console.error('Error revocando participante:', error);
-            toast.error('Error', 'No se pudo revocar el acceso');
+            alert.error('Error', 'No se pudo revocar el acceso');
         }
     };
 
@@ -211,7 +211,7 @@ export default function GestionarEncuestaPage() {
         try {
             const templateId = encuesta.relationships?.['template-correo']?.data.id;
             if (!templateId) {
-                toast.warning('Plantilla no encontrada', 'Esta encuesta no tiene plantilla de correo asignada');
+                alert.warning('Plantilla no encontrada', 'Esta encuesta no tiene plantilla de correo asignada');
                 return;
             }
 
@@ -221,7 +221,7 @@ export default function GestionarEncuestaPage() {
                 filtro: filtroEnvio
             });
 
-            toast.success(
+            alert.success(
                 'Envío completado', 
                 `${response.data.message}. Participantes: ${response.data.total_participants}, Lotes: ${response.data.batches_processed}`
             );
@@ -230,7 +230,7 @@ export default function GestionarEncuestaPage() {
             loadParticipantes();
         } catch (error) {
             console.error('Error enviando correos:', error);
-            toast.error('Error en el envío', 'No se pudieron enviar los correos');
+            alert.error('Error en el envio', 'No se pudieron enviar los correos');
         } finally {
             setSending(false);
         }

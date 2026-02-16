@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCrearEncuesta } from '../hooks/useCrearEncuesta';
 import { TemplatePreview } from '../components/TemplatePreview';
 import { FormularioPreviewModal } from '../components/FormularioPreviewModal';
-import { useToast } from '../../../../shared/components/Toast/ToastContext';
+import { useAlert } from '../../../../shared/components/Alert';
 import { 
     DocumentTextIcon, 
     EnvelopeIcon, 
@@ -90,7 +90,7 @@ const StepIndicator = ({
 export default function CrearEncuestaPage() {
     const navigate = useNavigate();
     const { formularios, templates, loadingData, saving, createEncuesta } = useCrearEncuesta();
-    const toast = useToast();
+    const alert = useAlert();
 
     // Estados
     const [nombre, setNombre] = useState('');
@@ -132,7 +132,7 @@ export default function CrearEncuestaPage() {
         
         if (!allStepsComplete) {
             setTouched({ nombre: true, form: true, template: true });
-            toast.warning('Formulario incompleto', 'Por favor completa todos los pasos antes de continuar');
+            alert.warning('Formulario incompleto', 'Por favor completa todos los pasos antes de continuar');
             return;
         }
         

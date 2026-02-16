@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { XMarkIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 import { GrupoService, AsignacionService } from '../../data/GestionEncuestaService';
 import type { Grupo } from '../../domain/GestionEncuesta';
+import { useAlert } from '../../../../shared/components/Alert';
 
 interface AsignarGrupoModalProps {
     isOpen: boolean;
@@ -15,6 +16,7 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess }: As
     const [selectedGrupoId, setSelectedGrupoId] = useState('');
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const alert = useAlert();
 
     useEffect(() => {
         if (isOpen) {
@@ -29,7 +31,7 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess }: As
             setGrupos(data);
         } catch (error) {
             console.error('Error cargando grupos:', error);
-            alert('Error al cargar los grupos');
+            alert.error('Error al cargar', 'Error al cargar los grupos.');
         } finally {
             setLoading(false);
         }
@@ -44,13 +46,16 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess }: As
             const response = await AsignacionService.asignarPorGrupo(encuestaId, selectedGrupoId);
             
             const totalAsignados = response.meta.created + response.meta.reactivated;
-            alert(`¡Asignación exitosa!\n\nNuevos: ${response.meta.created}\nReactivados: ${response.meta.reactivated}\nOmitidos: ${response.meta.skipped}\n\nTotal procesados: ${totalAsignados}`);
+            alert.success(
+                'Asignacion exitosa',
+                `Nuevos: ${response.meta.created} · Reactivados: ${response.meta.reactivated} · Omitidos: ${response.meta.skipped} · Total: ${totalAsignados}`
+            );
             
             onSuccess();
             onClose();
         } catch (error) {
             console.error('Error asignando grupo:', error);
-            alert('Error al asignar el grupo');
+            alert.error('Error al asignar', 'Error al asignar el grupo.');
         } finally {
             setSubmitting(false);
         }

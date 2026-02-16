@@ -1,6 +1,9 @@
 export interface AuthEgresadoResponse {
   id: string;
   nombre?: string;
+  apellidoPaterno?: string;
+  apellidoMaterno?: string;
+  fechaNacimiento?: string;
   email?: string;
   mensaje?: string;
 }

@@ -13,6 +13,8 @@ export const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  // Necesario para que el navegador envíe cookies (connect.sid) al backend
+  withCredentials: true,
 });
 
 apiClient.interceptors.request.use((config) => {
@@ -42,6 +44,7 @@ apiClient.interceptors.response.use(
             `${ENV.API_URL}/auth/refresh`, 
             { refreshToken }, 
             {
+              withCredentials: true,
               headers: {
                 Authorization: `Bearer ${refreshToken}`,
               },

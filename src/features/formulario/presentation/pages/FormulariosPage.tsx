@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFormulariosList } from '../hooks/useFormulariosList';
-import { useToast } from '../../../../shared/components/Toast';
+import { useAlert } from '../../../../shared/components/Alert';
 import { FormulariosTable } from '../components/FormulariosTable';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { Pagination } from '../../../../shared/components/Pagination';
@@ -14,7 +14,7 @@ import {
 
 export default function FormulariosPage() {
     const { formularios, loading, deleteFormulario, toggleFormularioActive, refresh } = useFormulariosList();
-    const toast = useToast();
+    const alert = useAlert();
     const navigate = useNavigate();
     
     // Estados para búsqueda y modal
@@ -73,9 +73,9 @@ export default function FormulariosPage() {
         setDeleteModal({ open: false, id: '', titulo: '' });
         
         if (success) {
-            toast.success('Formulario eliminado', `"${deleteModal.titulo}" se ha eliminado correctamente.`);
+            alert.success('Formulario eliminado', `"${deleteModal.titulo}" se ha eliminado correctamente.`);
         } else {
-            toast.error('Error al eliminar', 'No se pudo eliminar el formulario. Intenta nuevamente.');
+            alert.error('Error al eliminar', 'No se pudo eliminar el formulario. Intenta nuevamente.');
         }
     };
 
@@ -84,18 +84,18 @@ export default function FormulariosPage() {
         const success = await toggleFormularioActive(id, newState);
         
         if (success) {
-            toast.success(
+            alert.success(
                 newState ? 'Formulario activado' : 'Formulario desactivado',
                 `"${titulo}" ahora está ${newState ? 'activo y visible' : 'en modo borrador'}.`
             );
         } else {
-            toast.error('Error', 'No se pudo cambiar el estado del formulario.');
+            alert.error('Error', 'No se pudo cambiar el estado del formulario.');
         }
     };
 
     const handleRefresh = async () => {
         await refresh();
-        toast.info('Lista actualizada', 'Los formularios se han recargado correctamente.');
+        alert.info('Lista actualizada', 'Los formularios se han recargado correctamente.');
     };
 
     if (loading) {
