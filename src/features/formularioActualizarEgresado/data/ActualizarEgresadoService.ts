@@ -11,7 +11,7 @@ export const ActualizarEgresadoService = {
     return EgresadoAuthService.login(curp);
   },
 
-  getPerfilActual: EgresadoPerfilGetService.getPerfilActual,
+  getPerfilActual: (id: string) => EgresadoPerfilGetService.getPerfilActual(id),
 
   createDatosDomiciliarios: DomicilioService.createDatosDomiciliarios,
   getDatosDomiciliarios: DomicilioService.getDatosDomiciliarios,
@@ -27,4 +27,7 @@ export const ActualizarEgresadoService = {
   createLogroLaboral: LogrosService.createLogroLaboral,
   getLogrosAcademicos: LogrosService.getLogrosAcademicos,
   getLogrosLaborales: LogrosService.getLogrosLaborales,
+  // Sube la imagen de Orgullo UP actualizando el perfil completo del egresado
+  uploadOrgulloImage: (file: File, egresadoId: string) =>
+    EgresadoPerfilService.updatePerfilConImagen(egresadoId, file),
 };

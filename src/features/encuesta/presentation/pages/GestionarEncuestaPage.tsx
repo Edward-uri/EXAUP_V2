@@ -4,6 +4,7 @@ import { EncuestaService } from '../../data/EncuestaService';
 import { ParticipanteService, DistributionService } from '../../data/GestionEncuestaService';
 import { TemplateService } from '../../../template/data/TemplateService';
 import { AsignarGrupoModal } from '../components/AsignarGrupoModal';
+import { ConfirmModal } from '../../../../shared/components/ConfirmModal';
 import { generatePreviewHtml } from '../../../template/presentation/utils/templateUtils';
 import { useAlert } from '../../../../shared/components/Alert';
 import type { Encuesta } from '../../domain/Encuesta';
@@ -54,6 +55,13 @@ export default function GestionarEncuestaPage() {
     const [currentTemplate, setCurrentTemplate] = useState<any>(null);
     const [templateContent, setTemplateContent] = useState('');
     const [savingTemplate, setSavingTemplate] = useState(false);
+
+    // Confirmaciones
+    const [confirmState, setConfirmState] = useState<
+        | { type: 'revocar'; uuid: string }
+        | { type: 'enviar'; filtro: 'pendientes' | 'todos' }
+        | null
+    >(null);
 
     useEffect(() => {
         if (id) {
@@ -181,31 +189,16 @@ export default function GestionarEncuestaPage() {
     /**
      * Revocar el acceso de un participante a la encuesta
      */
-    const handleRevocarParticipante = async (uuid: string) => {
+    const handleRevocarParticipante = (uuid: string) => {
         if (!id) return;
-        if (!window.confirm('¿Estás seguro de revocar el acceso a este participante?')) return;
-        
-        try {
-            await ParticipanteService.revocarParticipante(id, uuid);
-            alert.success('Acceso revocado', 'El participante ya no puede acceder a la encuesta');
-            loadParticipantes();
-        } catch (error) {
-            console.error('Error revocando participante:', error);
-            alert.error('Error', 'No se pudo revocar el acceso');
-        }
+        setConfirmState({ type: 'revocar', uuid });
     };
 
     /**
      * Enviar correos electrónicos a los participantes de la encuesta
      */
-    const handleEnviar = async () => {
+    const executeEnviar = async (selectedFiltro: 'pendientes' | 'todos') => {
         if (!id || !encuesta) return;
-        
-        const confirmMsg = filtroEnvio === 'pendientes'
-            ? '¿Enviar correos solo a participantes pendientes?'
-            : '¿Enviar correos a TODOS los participantes?';
-            
-        if (!window.confirm(confirmMsg)) return;
 
         setSending(true);
         try {
@@ -218,14 +211,14 @@ export default function GestionarEncuestaPage() {
             const response = await DistributionService.dispatch({
                 id_encuesta: parseInt(id),
                 id_template: parseInt(templateId),
-                filtro: filtroEnvio
+                filtro: selectedFiltro,
             });
 
             alert.success(
-                'Envío completado', 
+                'Envío completado',
                 `${response.data.message}. Participantes: ${response.data.total_participants}, Lotes: ${response.data.batches_processed}`
             );
-            
+
             // Recargar la lista de participantes para ver el estado actualizado
             loadParticipantes();
         } catch (error) {
@@ -234,6 +227,11 @@ export default function GestionarEncuestaPage() {
         } finally {
             setSending(false);
         }
+    };
+
+    const handleEnviar = () => {
+        if (!id || !encuesta) return;
+        setConfirmState({ type: 'enviar', filtro: filtroEnvio });
     };
 
     if (loading) {
@@ -312,6 +310,45 @@ export default function GestionarEncuestaPage() {
                     setShowAsignarModal(false);
                     if (activeTab === 'participantes') {
                         loadParticipantes();
+                    }
+                }}
+            />
+
+            {/* Confirmaciones universales */}
+            <ConfirmModal
+                isOpen={!!confirmState}
+                title={
+                    confirmState?.type === 'revocar'
+                        ? 'Revocar acceso'
+                        : 'Confirmar envío de correos'
+                }
+                message={
+                    confirmState?.type === 'revocar'
+                        ? '¿Estás seguro de revocar el acceso a este participante?'
+                        : confirmState?.type === 'enviar' && confirmState.filtro === 'pendientes'
+                        ? '¿Enviar correos solo a participantes pendientes?'
+                        : '¿Enviar correos a TODOS los participantes?'
+                }
+                variant={confirmState?.type === 'revocar' ? 'warning' : 'info'}
+                onCancel={() => setConfirmState(null)}
+                onConfirm={async () => {
+                    if (!confirmState) return;
+                    if (!id) return;
+
+                    if (confirmState.type === 'revocar') {
+                        try {
+                            await ParticipanteService.revocarParticipante(id, confirmState.uuid);
+                            alert.success('Acceso revocado', 'El participante ya no puede acceder a la encuesta');
+                            loadParticipantes();
+                        } catch (error) {
+                            console.error('Error revocando participante:', error);
+                            alert.error('Error', 'No se pudo revocar el acceso');
+                        } finally {
+                            setConfirmState(null);
+                        }
+                    } else if (confirmState.type === 'enviar') {
+                        await executeEnviar(confirmState.filtro);
+                        setConfirmState(null);
                     }
                 }}
             />

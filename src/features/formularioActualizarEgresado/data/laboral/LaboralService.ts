@@ -1,17 +1,5 @@
 import { apiClient } from "../../../../core/api.config";
-
-export interface DatosLaboralesAttributes {
-  trabaja_actualmente?: boolean;
-  nombre_empresa?: string;
-  puesto?: string;
-  id_sector?: number | null;
-  actividad_principal?: string;
-}
-
-export interface DatosLaboralesResource {
-  id: string;
-  attributes: DatosLaboralesAttributes;
-}
+import type { DatosLaboralesAttributes, DatosLaboralesResource } from "../../domain/ActualizarEgresado";
 
 export const LaboralService = {
   createDatosLaborales: async (data: DatosLaboralesAttributes): Promise<void> => {

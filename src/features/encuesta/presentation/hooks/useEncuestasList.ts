@@ -28,8 +28,7 @@ export const useEncuestasList = () => {
     }, []);
 
     const deleteEncuesta = async (id: string) => {
-        if (!window.confirm('¿Estás seguro de eliminar esta encuesta?')) return;
-        
+        // La confirmación visual ahora debe hacerse desde la UI usando el Modal/ConfirmModal compartido
         try {
             await EncuestaService.delete(id);
             setEncuestas(prev => prev.filter(e => e.id !== id));

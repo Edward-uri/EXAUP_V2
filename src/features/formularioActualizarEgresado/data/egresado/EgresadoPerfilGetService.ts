@@ -1,39 +1,54 @@
 import { apiClient } from "../../../../core/api.config";
+import type { EgresadoPerfilAttributes, EgresadoPerfilResource } from "../../domain/ActualizarEgresado";
 
-export interface EgresadoPerfilAttributes {
-  nombre?: string;
-  apellido_paterno?: string;
-  apellido_materno?: string;
-  primer_apellido?: string;
-  segundo_apellido?: string;
-  fecha_nacimiento?: string;
-  email?: string;
-  imagen_egresado?: string | null;
-}
+const normalizeImageUrl = (url?: string | null): string | null | undefined => {
+  if (!url) return url ?? null;
+  return url.replace("/uploads/uploads/", "/uploads/");
+};
 
-export interface EgresadoPerfilResource {
-  id: string;
-  attributes: EgresadoPerfilAttributes;
+interface PerfilCompletoResponse {
+  success: boolean;
+  data?: {
+    egresado?: {
+      id?: number;
+      nombre?: string;
+      primer_apellido?: string;
+      segundo_apellido?: string | null;
+      email?: string | null;
+      imagen_egresado?: string | null;
+      fecha_nacimiento?: string | null;
+    };
+  };
 }
 
 export const EgresadoPerfilGetService = {
   /**
-   * Obtiene el perfil del egresado autenticado.
-   * El backend puede devolver distintos nombres para apellidos,
-   * por eso se incluyen ambas variantes en los atributos.
+   * Obtiene el perfil completo del egresado por id usando /egresado/{id}/perfil-completo.
+   * Normaliza los campos al shape de EgresadoPerfilResource.
    */
-  getPerfilActual: async (): Promise<EgresadoPerfilResource | null> => {
-    const { data } = await apiClient.get<{ data?: any }>("/egresado/perfil");
+  getPerfilActual: async (id: string): Promise<EgresadoPerfilResource | null> => {
+    const { data } = await apiClient.get<PerfilCompletoResponse>(`/egresado/${id}/perfil-completo`);
 
-    if (!data || !data.data) {
+    const eg = data?.data?.egresado;
+    if (!eg) {
       return null;
     }
 
-    const resource = data.data;
+    const attrs: EgresadoPerfilAttributes = {
+      nombre: eg.nombre,
+      primer_apellido: eg.primer_apellido,
+      segundo_apellido: eg.segundo_apellido ?? null,
+      // También llenamos las variantes *_paterno/*_materno para compatibilidad
+      apellido_paterno: eg.primer_apellido,
+      apellido_materno: eg.segundo_apellido ?? null,
+      email: eg.email ?? undefined,
+      fecha_nacimiento: eg.fecha_nacimiento ?? undefined,
+      imagen_egresado: normalizeImageUrl(eg.imagen_egresado) ?? null,
+    };
 
     return {
-      id: String(resource.id),
-      attributes: resource.attributes ?? {},
+      id: String(eg.id ?? id),
+      attributes: attrs,
     };
   },
 };

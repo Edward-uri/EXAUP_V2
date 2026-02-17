@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEncuestasList } from '../hooks/useEncuestasList';
 import { EncuestasTable } from '../components/EncuestasTable';
 import { ROUTES } from '../../../../constants/routes';
+import { ConfirmModal } from '../../../../shared/components/ConfirmModal';
 import { 
     PlusIcon, 
     FunnelIcon,
@@ -15,6 +16,8 @@ export default function EncuestasPage() {
     
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
+    const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
     // Filtrado
     const filteredEncuestas = encuestas.filter(encuesta => {
@@ -36,6 +39,10 @@ export default function EncuestasPage() {
 
     const handleGestionar = (id: string) => {
         navigate(`/encuestas/${id}/gestionar`);
+    };
+
+    const handleRequestDelete = (id: string) => {
+        setDeleteTargetId(id);
     };
 
     if (loading) {
@@ -135,7 +142,7 @@ export default function EncuestasPage() {
                 {/* Tabla */}
                 <EncuestasTable
                     encuestas={filteredEncuestas}
-                    onDelete={deleteEncuesta}
+                    onDelete={handleRequestDelete}
                     onToggleActive={toggleActive}
                     onViewMetrics={handleViewMetrics}
                     onGestionar={handleGestionar}
@@ -158,6 +165,29 @@ export default function EncuestasPage() {
                         </button>
                     </div>
                 )}
+
+                {/* Confirmación para eliminar encuesta */}
+                <ConfirmModal
+                    isOpen={!!deleteTargetId}
+                    title="Eliminar encuesta"
+                    message="¿Estás seguro de eliminar esta encuesta? Esta acción no se puede deshacer."
+                    variant="danger"
+                    loading={deleting}
+                    onCancel={() => {
+                        if (deleting) return;
+                        setDeleteTargetId(null);
+                    }}
+                    onConfirm={async () => {
+                        if (!deleteTargetId) return;
+                        try {
+                            setDeleting(true);
+                            await deleteEncuesta(deleteTargetId);
+                            setDeleteTargetId(null);
+                        } finally {
+                            setDeleting(false);
+                        }
+                    }}
+                />
             </div>
         </div>
     );

@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Calendar, Search, Upload, ImageIcon } from 'lucide-react';
-import type { FormData } from '../../../../../types';
+import type { FormData } from '../../types';
 
 interface EtapaUnoProps {
   data: FormData;
@@ -8,9 +8,9 @@ interface EtapaUnoProps {
   curpValidated: boolean;
   onValidateCurp: () => void;
   loadingCurp: boolean;
-  setCurpValidated: (val: boolean) => void;
   onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   centerCurp?: boolean;
+  isUploadingImage?: boolean;
 }
 
 const EtapaUno: React.FC<EtapaUnoProps> = ({ 
@@ -19,11 +19,14 @@ const EtapaUno: React.FC<EtapaUnoProps> = ({
   curpValidated, 
   onValidateCurp, 
   loadingCurp, 
-  setCurpValidated,
   onImageUpload,
-  centerCurp = false
+  centerCurp = false,
+  isUploadingImage = false
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  if (curpValidated) {
+    console.log('[Etapa1][Preview] Render con orgulloImagen =', data.orgulloImagen);
+  }
   return (
     <div className="animate-fade-in-up">
       <div className="mb-6 space-y-4">
@@ -82,8 +85,11 @@ const EtapaUno: React.FC<EtapaUnoProps> = ({
               onChange={onImageUpload} 
               className="hidden" 
               accept="image/*"
+              disabled={isUploadingImage}
             />
-            <p className="text-xs text-gray-500 mt-3 text-center">Haz clic para subir tu foto de perfil</p>
+            <p className={`text-xs mt-3 text-center ${isUploadingImage ? 'text-blue-700' : 'text-gray-500'}`}>
+              {isUploadingImage ? 'Subiendo foto...' : 'Haz clic para subir tu foto de perfil'}
+            </p>
           </div>
 
           {/* Campos de texto */}

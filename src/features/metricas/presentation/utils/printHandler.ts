@@ -14,7 +14,7 @@ export function generatePrintWindow({
   onError
 }: GeneratePrintWindowOptions): void {
   const printWindow = window.open('', '_blank', 'width=1000,height=800');
-  const notify = onError ?? ((message: string) => window.alert(message));
+  const notify = onError ?? ((message: string) => console.error('[printHandler]', message));
   
   if (!printWindow) {
     notify('No se pudo abrir la ventana de impresión. Por favor, permite las ventanas emergentes.');

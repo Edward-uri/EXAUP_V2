@@ -20,39 +20,42 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
     puesto: '',
     fecha: ''
   });
-  const [logrosAcademicos, setLogrosAcademicos] = useState<LogroAcademicoInput[]>([]);
-  const [logrosLaborales, setLogrosLaborales] = useState<LogroLaboralInput[]>([]);
   const [savingAcademico, setSavingAcademico] = useState(false);
   const [savingLaboral, setSavingLaboral] = useState(false);
-  const [showLogrosAcademicos, setShowLogrosAcademicos] = useState(false);
-  const [showLogrosLaborales, setShowLogrosLaborales] = useState(false);
+  const [hasLogroAcademico, setHasLogroAcademico] = useState(false);
+  const [hasLogroLaboral, setHasLogroLaboral] = useState(false);
 
-  // Precargar logros académicos y laborales ya registrados para el egresado
   useEffect(() => {
     const loadLogros = async () => {
       if (!data.egresadoId) return;
 
       try {
         const [academicos, laborales] = await Promise.all([
-          ActualizarEgresadoService.getLogrosAcademicos(data.egresadoId),
-          ActualizarEgresadoService.getLogrosLaborales(data.egresadoId),
-        ]);
+		  ActualizarEgresadoService.getLogrosAcademicos(data.egresadoId),
+		  ActualizarEgresadoService.getLogrosLaborales(data.egresadoId),
+		]);
 
-        setLogrosAcademicos(
-          (academicos || []).map((item: any) => ({
-            titulo: item.attributes?.titulo ?? '',
-            institucion: item.attributes?.institucion ?? '',
-            fecha: item.attributes?.fecha ?? '',
-          }))
-        );
+        const mappedAcademicos: LogroAcademicoInput[] = (academicos || []).map((item: any) => ({
+          titulo: item.attributes?.titulo ?? '',
+          institucion: item.attributes?.institucion ?? '',
+          fecha: item.attributes?.fecha ?? '',
+        }));
 
-        setLogrosLaborales(
-          (laborales || []).map((item: any) => ({
-            empresa: item.attributes?.empresa ?? '',
-            puesto: item.attributes?.puesto ?? '',
-            fecha: item.attributes?.fecha ?? '',
-          }))
-        );
+        const mappedLaborales: LogroLaboralInput[] = (laborales || []).map((item: any) => ({
+          empresa: item.attributes?.empresa ?? '',
+          puesto: item.attributes?.puesto ?? '',
+          fecha: item.attributes?.fecha ?? '',
+        }));
+
+        if (mappedAcademicos.length > 0) {
+          setLogroAcademico(mappedAcademicos[0]);
+          setHasLogroAcademico(true);
+        }
+
+        if (mappedLaborales.length > 0) {
+          setLogroLaboral(mappedLaborales[0]);
+          setHasLogroLaboral(true);
+        }
       } catch (error) {
         console.error('Error al cargar logros del egresado:', error);
       }
@@ -62,6 +65,11 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
   }, [data.egresadoId]);
 
   const handleGuardarLogroAcademico = async () => {
+    if (hasLogroAcademico) {
+      alert.warning('Ya registraste un logro académico', 'Solo puedes registrar un logro académico.');
+      return;
+    }
+
     if (!data.egresadoId) {
       alert.warning('CURP requerida', 'Primero valida tu CURP para obtener el ID del egresado.');
       return;
@@ -75,8 +83,7 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
     setSavingAcademico(true);
     try {
       await ActualizarEgresadoService.createLogroAcademico(data.egresadoId, logroAcademico);
-      setLogrosAcademicos(prev => [...prev, logroAcademico]);
-      setLogroAcademico({ titulo: '', institucion: '', fecha: '' });
+      setHasLogroAcademico(true);
     } catch (error) {
       console.error('Error al guardar logro académico:', error);
       alert.error('Error al guardar', 'No se pudo guardar el logro academico.');
@@ -86,6 +93,11 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
   };
 
   const handleGuardarLogroLaboral = async () => {
+    if (hasLogroLaboral) {
+      alert.warning('Ya registraste un logro laboral', 'Solo puedes registrar un logro laboral.');
+      return;
+    }
+
     if (!data.egresadoId) {
       alert.warning('CURP requerida', 'Primero valida tu CURP para obtener el ID del egresado.');
       return;
@@ -99,8 +111,7 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
     setSavingLaboral(true);
     try {
       await ActualizarEgresadoService.createLogroLaboral(data.egresadoId, logroLaboral);
-      setLogrosLaborales(prev => [...prev, logroLaboral]);
-      setLogroLaboral({ empresa: '', puesto: '', fecha: '' });
+      setHasLogroLaboral(true);
     } catch (error) {
       console.error('Error al guardar logro laboral:', error);
       alert.error('Error al guardar', 'No se pudo guardar el logro laboral.');
@@ -157,31 +168,6 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
                 {savingAcademico ? 'Guardando...' : 'Guardar logro académico'}
               </button>
             </div>
-
-            {logrosAcademicos.length > 0 && (
-              <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowLogrosAcademicos(prev => !prev)}
-                  className="text-xs font-semibold text-blue-900 hover:text-blue-700"
-                >
-                  {showLogrosAcademicos
-                    ? `Ocultar logros (${logrosAcademicos.length})`
-                    : `Ver logros (${logrosAcademicos.length})`}
-                </button>
-
-                {showLogrosAcademicos && (
-                  <div className="mt-3 space-y-2">
-                    {logrosAcademicos.map((item, index) => (
-                      <div key={`${item.titulo}-${index}`} className="text-xs text-gray-600 bg-blue-50 border border-blue-100 rounded-md p-2">
-                        <p className="font-semibold text-blue-900">{item.titulo}</p>
-                        <p>{item.institucion} · {item.fecha}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           <div className="bg-white border border-gray-200 rounded-lg p-4">
@@ -223,31 +209,6 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
                 {savingLaboral ? 'Guardando...' : 'Guardar logro laboral'}
               </button>
             </div>
-
-            {logrosLaborales.length > 0 && (
-              <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowLogrosLaborales(prev => !prev)}
-                  className="text-xs font-semibold text-emerald-900 hover:text-emerald-700"
-                >
-                  {showLogrosLaborales
-                    ? `Ocultar logros (${logrosLaborales.length})`
-                    : `Ver logros (${logrosLaborales.length})`}
-                </button>
-
-                {showLogrosLaborales && (
-                  <div className="mt-3 space-y-2">
-                    {logrosLaborales.map((item, index) => (
-                      <div key={`${item.empresa}-${index}`} className="text-xs text-gray-600 bg-emerald-50 border border-emerald-100 rounded-md p-2">
-                        <p className="font-semibold text-emerald-900">{item.empresa}</p>
-                        <p>{item.puesto} · {item.fecha}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
     </div>

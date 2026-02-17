@@ -121,9 +121,9 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
 
     return (
         <>
-            {/* Backdrop */}
+            {/* Backdrop (alineado al estilo del Modal compartido) */}
             <div
-                className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 ease-out"
+                className="fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ease-out"
                 onClick={onClose}
                 style={{
                     animation: 'fadeIn 0.3s ease-out'
@@ -142,21 +142,24 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
                         animation: 'slideUp 0.3s ease-out'
                     }}
                 >
-                    {/* Header con imagen */}
-                    <div className="relative h-48 bg-gradient-to-br from-blue-500 to-blue-600 overflow-hidden flex-shrink-0">
-                        {egresado.imagen_egresado ? (
-                            <img
-                                src={egresado.imagen_egresado}
-                                alt={nombreCompleto}
-                                className="w-full h-full object-cover"
-                            />
+                    {/* Header con imagen circular, alineado al estilo del formulario */}
+                    <div className="relative h-48 bg-gradient-to-br from-sky-300 via-sky-400 to-sky-500 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        {(() => {
+                            console.log('[OrgulloUP][Modal] Render header, imagen_egresado =', egresado.imagen_egresado);
+                            return egresado.imagen_egresado;
+                        })() ? (
+                            <div className="w-28 h-28 rounded-full border-2 border-white/80 shadow-lg overflow-hidden bg-white">
+                                <img
+                                    src={egresado.imagen_egresado!}
+                                    alt={nombreCompleto}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600">
-                                <div className="w-24 h-24 bg-blue-300 rounded-full flex items-center justify-center">
-                                    <span className="text-4xl font-bold text-white">
-                                        {egresado.nombre.charAt(0)}{egresado.primer_apellido.charAt(0)}
-                                    </span>
-                                </div>
+                            <div className="w-28 h-28 bg-sky-300 rounded-full flex items-center justify-center shadow-lg">
+                                <span className="text-3xl font-bold text-white">
+                                    {egresado.nombre.charAt(0)}{egresado.primer_apellido.charAt(0)}
+                                </span>
                             </div>
                         )}
 

@@ -1,18 +1,5 @@
 import { apiClient } from "../../../../core/api.config";
-
-export interface DomicilioAttributes {
-  calle?: string;
-  colonia?: string;
-  numero_exterior?: string;
-  codigo_postal?: string;
-  estado?: string;
-  ciudad?: string;
-}
-
-export interface DomicilioResource {
-  id: string;
-  attributes: DomicilioAttributes;
-}
+import type { DomicilioAttributes, DomicilioResource } from "../../domain/ActualizarEgresado";
 
 export const DomicilioService = {
   createDatosDomiciliarios: async (data: DomicilioAttributes): Promise<void> => {

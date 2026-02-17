@@ -1,4 +1,4 @@
-import type { FormData } from "../../types";
+import type { FormData } from "../../features/formularioActualizarEgresado/presentation/types";
 
 const EGRESADO_STATE_STORAGE_KEY = "actualizarEgresadoState";
 

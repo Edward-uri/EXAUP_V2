@@ -1,27 +1,10 @@
 import { apiClient } from "../../../../core/api.config";
-import type { LogroAcademicoInput, LogroLaboralInput } from "../../domain/ActualizarEgresado";
-
-interface LogroAcademicoAttributes {
-  titulo: string;
-  institucion: string;
-  fecha: string;
-}
-
-interface LogroAcademicoResource {
-  id: string;
-  attributes: LogroAcademicoAttributes;
-}
-
-interface LogroLaboralAttributes {
-  empresa: string;
-  puesto: string;
-  fecha: string;
-}
-
-interface LogroLaboralResource {
-  id: string;
-  attributes: LogroLaboralAttributes;
-}
+import type {
+  LogroAcademicoInput,
+  LogroLaboralInput,
+  LogroAcademicoResource,
+  LogroLaboralResource,
+} from "../../domain/ActualizarEgresado";
 
 export const LogrosService = {
   createLogroAcademico: async (egresadoId: string, logro: LogroAcademicoInput): Promise<void> => {

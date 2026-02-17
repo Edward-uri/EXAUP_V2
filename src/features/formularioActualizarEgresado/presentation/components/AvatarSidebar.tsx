@@ -5,6 +5,7 @@ interface AvatarSidebarProps {
 }
 
 const AvatarSidebar: React.FC<AvatarSidebarProps> = ({ imagePreview }) => {
+  console.log('[AvatarSidebar] Render con imagePreview =', imagePreview);
   return (
     <div className="w-full md:w-1/3 bg-white p-8 flex flex-col items-center border-r border-gray-100 pt-12">
       <div className="w-40 h-40 rounded-full border-2 border-blue-300 flex items-center justify-center overflow-hidden bg-white shadow-md">

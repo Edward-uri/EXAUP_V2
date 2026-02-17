@@ -1,6 +1,11 @@
 import { apiClient } from "../../../core/api.config";
 import type { OrgulloUPRecord, OrgulloUPMeta, PerfilActualizable } from "../domain/OrgulloUP";
 
+const normalizeImageUrl = (url?: string | null): string | null | undefined => {
+    if (!url) return url ?? null;
+    return url.replace("/uploads/uploads/", "/uploads/");
+};
+
 const ENDPOINT = "/egresado/perfiles-completos";
 
 export interface OrgulloUPListResponse {
@@ -84,7 +89,7 @@ export const OrgulloUPService = {
                             matricula: egresado.matricula,
                             curp: egresado.curp,
                             email: egresado.email,
-                            imagen_egresado: egresado.imagen_egresado,
+                            imagen_egresado: normalizeImageUrl(egresado.imagen_egresado) ?? null,
                             fecha_nacimiento: egresado.fecha_nacimiento,
                             is_active: egresado.is_active,
                             id_programa_educativo: egresado.id_programa_educativo,
@@ -152,7 +157,7 @@ export const OrgulloUPService = {
                     matricula: egresado.matricula,
                     curp: egresado.curp,
                     email: egresado.email,
-                    imagen_egresado: egresado.imagen_egresado,
+                    imagen_egresado: normalizeImageUrl(egresado.imagen_egresado) ?? null,
                     fecha_nacimiento: egresado.fecha_nacimiento,
                     is_active: egresado.is_active,
                     id_programa_educativo: egresado.id_programa_educativo,
