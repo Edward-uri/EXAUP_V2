@@ -1,5 +1,5 @@
 import { XMarkIcon, BriefcaseIcon, AcademicCapIcon, CheckCircleIcon, XCircleIcon, PencilIcon } from '@heroicons/react/24/outline';
-import type { OrgulloUPRecord } from '../../domain/OrgulloUP';
+import type { OrgulloUPRecord, LogroAcademico, LogroLaboral } from '../../domain/OrgulloUP';
 import { useState } from 'react';
 import { OrgulloUPService } from '../../data/OrgulloUPService';
 import { useAlert } from '../../../../shared/components/Alert';
@@ -9,9 +9,24 @@ interface EgresadoDetailModalProps {
     record: OrgulloUPRecord | null;
     onClose: () => void;
     onUpdate?: () => void;
+    sinopsis?: string | null;
+    loadingSinopsis?: boolean;
+    logrosAcademicos?: LogroAcademico[];
+    logrosLaborales?: LogroLaboral[];
+    loadingLogros?: boolean;
 }
 
-export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: EgresadoDetailModalProps) {
+export function EgresadoDetailModal({
+    isOpen,
+    record,
+    onClose,
+    onUpdate,
+    sinopsis,
+    loadingSinopsis,
+    logrosAcademicos,
+    logrosLaborales,
+    loadingLogros,
+}: EgresadoDetailModalProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [editData, setEditData] = useState<any>(null);
@@ -20,12 +35,19 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
     
     if (!isOpen || !record) return null;
 
-    // Usar el record actualizado si existe, sino el original
     const currentRecord = updatedRecord || record;
     const { egresado, logros_academicos = [], logros_laborales = [], status } = currentRecord.attributes;
     const nombreCompleto = `${egresado.nombre} ${egresado.primer_apellido} ${egresado.segundo_apellido || ''}`.trim();
 
-    // Inicializar datos de edición
+    const getEstadoActual = (): 1 | 2 | 3 => {
+        if (status === 'pendiente') return 1;
+        if (status === 'rechazado') return 2;
+        if (status === 'aprobado') return 3;
+        return 1; 
+    };
+
+    const estadoActual = getEstadoActual();
+
     const startEditing = () => {
         setEditData({
             nombre: egresado.nombre,
@@ -51,7 +73,6 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
         try {
             await OrgulloUPService.updatePerfil(record.id, editData);
             
-            // Actualizar el registro local
             setUpdatedRecord({
                 ...currentRecord,
                 attributes: {
@@ -91,7 +112,6 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
         try {
             await OrgulloUPService.updateEstado(record.id, estado);
             
-            // Actualizar el registro local con el nuevo estado
             setUpdatedRecord({
                 ...currentRecord,
                 attributes: {
@@ -110,18 +130,8 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
         }
     };
 
-    const getEstadoActual = (): 1 | 2 | 3 => {
-        if (status === 'pendiente') return 1;
-        if (status === 'rechazado') return 2;
-        if (status === 'aprobado') return 3;
-        return 1; // default
-    };
-
-    const estadoActual = getEstadoActual();
-
     return (
         <>
-            {/* Backdrop (alineado al estilo del Modal compartido) */}
             <div
                 className="fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ease-out"
                 onClick={onClose}
@@ -130,7 +140,6 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
                 }}
             />
 
-            {/* Modal */}
             <div
                 className="fixed top-0 right-0 bottom-0 left-64 z-50 flex items-center justify-center p-4"
                 onClick={onClose}
@@ -142,12 +151,8 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
                         animation: 'slideUp 0.3s ease-out'
                     }}
                 >
-                    {/* Header con imagen circular, alineado al estilo del formulario */}
                     <div className="relative h-48 bg-gradient-to-br from-sky-300 via-sky-400 to-sky-500 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                        {(() => {
-                            console.log('[OrgulloUP][Modal] Render header, imagen_egresado =', egresado.imagen_egresado);
-                            return egresado.imagen_egresado;
-                        })() ? (
+                        {egresado.imagen_egresado ? (
                             <div className="w-28 h-28 rounded-full border-2 border-white/80 shadow-lg overflow-hidden bg-white">
                                 <img
                                     src={egresado.imagen_egresado!}
@@ -163,7 +168,6 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
                             </div>
                         )}
 
-                        {/* Close button */}
                         <button
                             onClick={onClose}
                             className="absolute top-4 right-4 bg-white rounded-full p-2 hover:bg-gray-100 transition-colors shadow-lg"
@@ -172,9 +176,7 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
                         </button>
                     </div>
 
-                    {/* Content */}
                     <div className="p-8 overflow-y-auto flex-1">
-                        {/* Nombre y info básica */}
                         <div className="text-center mb-8">
                             <div className="flex items-center justify-center gap-2 mb-2">
                                 <h2 className="text-3xl font-bold text-gray-900">
@@ -285,7 +287,6 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
                             )}
                         </div>
 
-                        {/* Botones de Estado */}
                         {!isEditing && (
                             <div className="mb-8">
                                 <p className="text-sm font-semibold text-gray-600 text-center mb-3">Estado del Egresado</p>
@@ -330,15 +331,31 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
                             </div>
                         )}
 
-                        {/* Logros Académicos */}
+                        <div className="mb-8">
+                            <h3 className="text-sm font-semibold text-gray-700 mb-1">Sinopsis profesional</h3>
+                            {loadingSinopsis ? (
+                                <p className="text-sm text-gray-400 italic">Cargando sinopsis...</p>
+                            ) : sinopsis ? (
+                                <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 border border-gray-100 rounded-lg p-3">
+                                    {sinopsis}
+                                </p>
+                            ) : (
+                                <p className="text-sm text-gray-400 italic">Sin sinopsis registrada.</p>
+                            )}
+                        </div>
+
                         <div className="mb-8">
                             <div className="flex items-center gap-2 mb-4">
                                 <AcademicCapIcon className="w-6 h-6 text-blue-600" />
                                 <h3 className="text-lg font-bold text-gray-900">Logros Académicos</h3>
                             </div>
-                            {logros_academicos.length > 0 ? (
+                            {loadingLogros ? (
+                                <p className="text-gray-400 text-sm italic py-4 text-center">
+                                    Cargando logros académicos...
+                                </p>
+                            ) : (logrosAcademicos ?? logros_academicos).length > 0 ? (
                                 <div className="space-y-3">
-                                    {logros_academicos.map((logro) => (
+                                    {(logrosAcademicos ?? logros_academicos).map((logro) => (
                                         <div
                                             key={logro.id_academic_achievement}
                                             className="bg-blue-50 p-4 rounded-lg border border-blue-100"
@@ -364,15 +381,18 @@ export function EgresadoDetailModal({ isOpen, record, onClose, onUpdate }: Egres
                             )}
                         </div>
 
-                        {/* Logros Laborales */}
                         <div>
                             <div className="flex items-center gap-2 mb-4">
                                 <BriefcaseIcon className="w-6 h-6 text-green-600" />
                                 <h3 className="text-lg font-bold text-gray-900">Logros Laborales</h3>
                             </div>
-                            {logros_laborales.length > 0 ? (
+                            {loadingLogros ? (
+                                <p className="text-gray-400 text-sm italic py-4 text-center">
+                                    Cargando logros laborales...
+                                </p>
+                            ) : (logrosLaborales ?? logros_laborales).length > 0 ? (
                                 <div className="space-y-3">
-                                    {logros_laborales.map((logro) => (
+                                    {(logrosLaborales ?? logros_laborales).map((logro) => (
                                         <div
                                             key={logro.id_labor_achievement}
                                             className="bg-green-50 p-4 rounded-lg border border-green-100"

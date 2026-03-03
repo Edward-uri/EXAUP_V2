@@ -10,6 +10,7 @@ export interface Egresado {
     fecha_nacimiento: string | null;
     is_active: boolean;
     id_programa_educativo: number | null;
+    programa_educativo?: string | null;
     id_periodo: number | null;
 }
 

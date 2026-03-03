@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
-import { OrgulloUPService } from '../../data/OrgulloUPService';
 import type { OrgulloUPRecord, OrgulloUPMeta } from '../../domain/OrgulloUP';
+import { EgresadosSearchService } from '../../data/EgresadosSearchService';
+
+interface UseOrgulloUPListParams {
+  page: number;
+  limit: number;
+  searchTerm: string;
+}
 
 interface UseOrgulloUPListResult {
   records: OrgulloUPRecord[];
@@ -10,24 +16,21 @@ interface UseOrgulloUPListResult {
   refetch: () => Promise<void>;
 }
 
-export const useOrgulloUPList = (): UseOrgulloUPListResult => {
+export const useOrgulloUPList = ({ page, limit, searchTerm }: UseOrgulloUPListParams): UseOrgulloUPListResult => {
   const [records, setRecords] = useState<OrgulloUPRecord[]>([]);
   const [meta, setMeta] = useState<OrgulloUPMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const sortByMostRecent = (items: OrgulloUPRecord[]) =>
-    items.slice().sort((a, b) => Number(b.id) - Number(a.id));
-
   const loadRecords = async () => {
     try {
       setLoading(true);
-      const response = await OrgulloUPService.getAll(1, 1000);
-      console.log('[OrgulloUP][List] Registros cargados:', response.data.map(r => ({
-        id: r.id,
-        imagen_egresado: r.attributes.egresado.imagen_egresado,
-      })));
-      setRecords(sortByMostRecent(response.data));
+      const response = await EgresadosSearchService.search({
+        page,
+        limit,
+        busqueda: searchTerm || undefined,
+      });
+      setRecords(response.data);
       setMeta(response.meta);
       setError(null);
     } catch (err: any) {
@@ -54,7 +57,8 @@ export const useOrgulloUPList = (): UseOrgulloUPListResult => {
 
   useEffect(() => {
     void loadRecords();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, limit, searchTerm]);
 
   return {
     records,

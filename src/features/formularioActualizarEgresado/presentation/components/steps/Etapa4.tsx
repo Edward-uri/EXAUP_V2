@@ -24,27 +24,54 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
   const [savingLaboral, setSavingLaboral] = useState(false);
   const [hasLogroAcademico, setHasLogroAcademico] = useState(false);
   const [hasLogroLaboral, setHasLogroLaboral] = useState(false);
+  const [sinopsis, setSinopsis] = useState<string>("");
+  const [savingSinopsis, setSavingSinopsis] = useState(false);
+
+  const normalizeDateToYMD = (value?: string | null): string => {
+    if (!value) return "";
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value;
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      if (value.includes("T")) {
+        const [ymd] = value.split("T");
+        if (/^\d{4}-\d{2}-\d{2}$/.test(ymd)) {
+          return ymd;
+        }
+      }
+      return "";
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   useEffect(() => {
     const loadLogros = async () => {
       if (!data.egresadoId) return;
 
       try {
-        const [academicos, laborales] = await Promise.all([
-		  ActualizarEgresadoService.getLogrosAcademicos(data.egresadoId),
-		  ActualizarEgresadoService.getLogrosLaborales(data.egresadoId),
-		]);
+        const [academicos, laborales, sinopsisExistente] = await Promise.all([
+          ActualizarEgresadoService.getLogrosAcademicos(data.egresadoId),
+          ActualizarEgresadoService.getLogrosLaborales(data.egresadoId),
+          ActualizarEgresadoService.getSinopsis(data.egresadoId),
+        ]);
 
         const mappedAcademicos: LogroAcademicoInput[] = (academicos || []).map((item: any) => ({
           titulo: item.attributes?.titulo ?? '',
           institucion: item.attributes?.institucion ?? '',
-          fecha: item.attributes?.fecha ?? '',
+          fecha: normalizeDateToYMD(item.attributes?.fecha),
         }));
 
         const mappedLaborales: LogroLaboralInput[] = (laborales || []).map((item: any) => ({
           empresa: item.attributes?.empresa ?? '',
           puesto: item.attributes?.puesto ?? '',
-          fecha: item.attributes?.fecha ?? '',
+          fecha: normalizeDateToYMD(item.attributes?.fecha),
         }));
 
         if (mappedAcademicos.length > 0) {
@@ -55,6 +82,10 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
         if (mappedLaborales.length > 0) {
           setLogroLaboral(mappedLaborales[0]);
           setHasLogroLaboral(true);
+        }
+
+        if (sinopsisExistente) {
+          setSinopsis(sinopsisExistente);
         }
       } catch (error) {
         console.error('Error al cargar logros del egresado:', error);
@@ -89,6 +120,58 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
       alert.error('Error al guardar', 'No se pudo guardar el logro academico.');
     } finally {
       setSavingAcademico(false);
+    }
+  };
+
+  const countWords = (text: string): number => {
+    return text
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean).length;
+  };
+
+  const handleSinopsisChange: React.ChangeEventHandler<HTMLTextAreaElement> = (e) => {
+    const value = e.target.value;
+    const words = countWords(value);
+    if (words <= 100) {
+      setSinopsis(value);
+    } else {
+      // Si se pasa de 100 palabras, recortar al límite
+      const limited = value
+        .trim()
+        .split(/\s+/)
+        .slice(0, 100)
+        .join(' ');
+      setSinopsis(limited);
+    }
+  };
+
+  const handleGuardarSinopsis = async () => {
+    if (!data.egresadoId) {
+      alert.warning('CURP requerida', 'Primero valida tu CURP para obtener el ID del egresado.');
+      return;
+    }
+
+    const words = countWords(sinopsis);
+    if (words === 0) {
+      alert.warning('Sinopsis vacía', 'Por favor escribe una breve sinopsis de tu perfil profesional.');
+      return;
+    }
+
+    if (words > 100) {
+      alert.warning('Límite de palabras', 'La sinopsis debe tener máximo 100 palabras.');
+      return;
+    }
+
+    setSavingSinopsis(true);
+    try {
+      await ActualizarEgresadoService.updateSinopsis(data.egresadoId, sinopsis.trim());
+      alert.success('Sinopsis guardada', 'Tu sinopsis profesional se actualizó correctamente.');
+    } catch (error) {
+      console.error('Error al guardar sinopsis:', error);
+      alert.error('Error al guardar', 'No se pudo guardar la sinopsis. Intenta nuevamente.');
+    } finally {
+      setSavingSinopsis(false);
     }
   };
 
@@ -210,6 +293,32 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Sección de Sinopsis Profesional */}
+        <div className="mt-8 bg-white border border-gray-200 rounded-lg p-4">
+          <h4 className="text-sm font-bold text-blue-900 mb-3">Sinopsis profesional</h4>
+          <p className="text-xs text-gray-500 mb-3">
+            Escribe un breve resumen (máximo 100 palabras) sobre tu perfil profesional. Esta sinopsis se utilizará en tu perfil y en las interfaces de logros.
+          </p>
+          <textarea
+            value={sinopsis}
+            onChange={handleSinopsisChange}
+            rows={4}
+            className="w-full p-3 border border-gray-300 rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Ejemplo: Profesional con experiencia en..."
+          />
+          <div className="mt-2 flex items-center justify-end text-xs text-gray-500">
+            <span>{countWords(sinopsis)} / 100 palabras</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleGuardarSinopsis}
+            disabled={savingSinopsis}
+            className="w-full mt-2 bg-blue-100 text-blue-900 py-2 rounded-md font-semibold hover:bg-blue-200 border border-blue-200 disabled:opacity-50"
+          >
+            {savingSinopsis ? 'Guardando...' : 'Guardar sinopsis'}
+          </button>
         </div>
     </div>
   );

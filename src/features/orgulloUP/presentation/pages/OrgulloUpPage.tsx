@@ -3,31 +3,45 @@ import { OrgulloUPFilter } from '../components/OrgulloUPFilter';
 import { OrgulloUPTable } from '../components/OrgulloUPTable';
 import { EgresadoDetailModal } from '../components/EgresadoDetailModal';
 import { useOrgulloUPList } from '../hooks/useOrgulloUPList';
+import { useOrgulloUPDetail } from '../hooks/useOrgulloUPDetail';
+import type { OrgulloUPRecord } from '../../domain/OrgulloUP';
+import { Pagination } from '../../../../shared/components/Pagination';
 
 export default function OrgulloUpPage() {
-    const { records, meta, loading, error, refetch } = useOrgulloUPList();
-    
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<'all' | 'pendiente' | 'rechazado' | 'aprobado'>('all');
+    const [currentPage, setCurrentPage] = useState<number>(1);
+
+    const ITEMS_PER_PAGE = 10;
+
+    const { records, meta, loading, error, refetch } = useOrgulloUPList({
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        searchTerm,
+    });
 
 
     const [selectedRecord, setSelectedRecord] = useState<OrgulloUPRecord | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    const {
+        sinopsis,
+        logrosAcademicos,
+        logrosLaborales,
+        loading: detailLoading,
+    } = useOrgulloUPDetail({
+        id: selectedRecord?.id ?? null,
+        isOpen: isModalOpen,
+    });
+
     // Filtrado
     const filteredRecords = records.filter(record => {
         const { egresado, status } = record.attributes;
-        const nombreCompleto = `${egresado.nombre} ${egresado.primer_apellido} ${egresado.segundo_apellido || ''}`.toLowerCase();
-        const email = (egresado.email || '').toLowerCase();
-        
-        const matchesSearch = nombreCompleto.includes(searchTerm.toLowerCase()) || 
-                             email.includes(searchTerm.toLowerCase());
-        
-        const matchesStatus = 
+        const matchesStatus =
             filterStatus === 'all' ||
             status === filterStatus;
 
-        return matchesSearch && matchesStatus;
+        return matchesStatus;
     });
 
     // Contar estados
@@ -57,7 +71,9 @@ export default function OrgulloUpPage() {
         }
     };
 
-    if (loading) {
+    const isInitialLoading = loading && !records.length && !searchTerm;
+
+    if (isInitialLoading) {
         return (
             <div className="flex h-screen items-center justify-center bg-slate-50">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
@@ -98,7 +114,7 @@ export default function OrgulloUpPage() {
                     onSearchChange={setSearchTerm}
                     filterStatus={filterStatus}
                     onFilterStatusChange={setFilterStatus}
-                    totalRecords={records.length}
+                    totalRecords={meta?.total_records ?? records.length}
                     pendienteCount={pendienteCount}
                     rechazadoCount={rechazadoCount}
                     aprobadoCount={aprobadoCount}
@@ -110,6 +126,21 @@ export default function OrgulloUpPage() {
                     meta={meta}
                     onView={handleView}
                 />
+
+                {/* Paginación backend */}
+                {meta && meta.total_records > 0 && (
+                    <Pagination
+                        currentPage={meta.page}
+                        totalPages={Math.max(1, Math.ceil(meta.total_records / meta.limit))}
+                        totalItems={meta.total_records}
+                        itemsPerPage={meta.limit}
+                        onPageChange={(page) => {
+                            const totalPages = Math.max(1, Math.ceil(meta.total_records / meta.limit));
+                            if (page < 1 || page > totalPages) return;
+                            setCurrentPage(page);
+                        }}
+                    />
+                )}
 
                 {/* Empty State si hay filtros activos */}
                 {filteredRecords.length === 0 && records.length > 0 && (
@@ -136,6 +167,11 @@ export default function OrgulloUpPage() {
                 record={selectedRecord}
                 onClose={handleCloseModal}
                 onUpdate={handleUpdateRecord}
+                sinopsis={sinopsis}
+                loadingSinopsis={detailLoading}
+                logrosAcademicos={logrosAcademicos}
+                logrosLaborales={logrosLaborales}
+                loadingLogros={detailLoading}
             />
         </div>
     );
