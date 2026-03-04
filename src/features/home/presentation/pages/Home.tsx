@@ -6,6 +6,7 @@ import {
 import { useHomeStats } from '../hooks/useHomeStats';
 import { StatCard, QuickActionCard, RecentSurveysList } from '../components';
 import { ROUTES } from '../../../../constants/routes';
+import { ConnectionErrorPageAlert } from '../../../../shared/components/PageAlert/ConnectionErrorPageAlert';
 
 export default function HomePage() {
     const { stats, recentSurveys, loading, error, refetch } = useHomeStats();
@@ -34,6 +35,10 @@ export default function HomePage() {
         },
     ];
 
+    if (error === 'CONNECTION_ERROR') {
+        return <ConnectionErrorPageAlert onRetry={refetch} />;
+    }
+
     if (error) {
         return (
             <div className="min-h-screen pb-20">
@@ -53,7 +58,7 @@ export default function HomePage() {
     }
 
     return (
-        <div className="min-h-screen pb-20">
+        <div className="min-h-screen pb-20 bg-gradient-to-br from-blue-50 via-sky-100 to-blue-100">
             <div className="max-w-5xl mx-auto">
                 
                 <div className="mb-8">

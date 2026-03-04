@@ -52,9 +52,14 @@ export function useHomeStats(): UseHomeStatsReturn {
             });
             
             setRecentSurveys(sorted.slice(0, 5));
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error fetching home stats:', err);
-            setError('No se pudo cargar la información del dashboard');
+
+            if (!err?.response) {
+                setError('CONNECTION_ERROR');
+            } else {
+                setError('No se pudo cargar la información del dashboard');
+            }
         } finally {
             setLoading(false);
         }

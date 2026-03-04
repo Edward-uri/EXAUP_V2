@@ -1,5 +1,6 @@
 export const ROUTES = {
-    HOME: '/',
+    LOGIN: '/',
+    HOME: '/home',
     ENCUESTAS: '/encuestas',
     ENCUESTAS_CREAR: '/encuestas/crear',
     ENCUESTAS_GESTIONAR: (id: string) => `/encuestas/${id}/gestionar`,

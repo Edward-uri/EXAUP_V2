@@ -9,10 +9,11 @@ import {
     FunnelIcon,
     MagnifyingGlassIcon 
 } from '@heroicons/react/24/outline';
+import { ConnectionErrorPageAlert } from '../../../../shared/components/PageAlert/ConnectionErrorPageAlert';
 
 export default function EncuestasPage() {
     const navigate = useNavigate();
-    const { encuestas, loading, error, deleteEncuesta, toggleActive } = useEncuestasList();
+    const { encuestas, loading, error, deleteEncuesta, toggleActive, refetch } = useEncuestasList();
     
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
@@ -51,6 +52,10 @@ export default function EncuestasPage() {
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
             </div>
         );
+    }
+
+    if (error === 'CONNECTION_ERROR') {
+        return <ConnectionErrorPageAlert onRetry={refetch} />;
     }
 
     if (error) {

@@ -6,6 +6,7 @@ interface UseOrgulloUPListParams {
   page: number;
   limit: number;
   searchTerm: string;
+  status: 'all' | 'pendiente' | 'rechazado' | 'aprobado';
 }
 
 interface UseOrgulloUPListResult {
@@ -16,7 +17,7 @@ interface UseOrgulloUPListResult {
   refetch: () => Promise<void>;
 }
 
-export const useOrgulloUPList = ({ page, limit, searchTerm }: UseOrgulloUPListParams): UseOrgulloUPListResult => {
+export const useOrgulloUPList = ({ page, limit, searchTerm, status }: UseOrgulloUPListParams): UseOrgulloUPListResult => {
   const [records, setRecords] = useState<OrgulloUPRecord[]>([]);
   const [meta, setMeta] = useState<OrgulloUPMeta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,6 +30,14 @@ export const useOrgulloUPList = ({ page, limit, searchTerm }: UseOrgulloUPListPa
         page,
         limit,
         busqueda: searchTerm || undefined,
+        id_estado:
+          status === 'pendiente'
+            ? 1
+            : status === 'rechazado'
+            ? 2
+            : status === 'aprobado'
+            ? 3
+            : undefined,
       });
       setRecords(response.data);
       setMeta(response.meta);
@@ -39,7 +48,7 @@ export const useOrgulloUPList = ({ page, limit, searchTerm }: UseOrgulloUPListPa
       const status = err?.response?.status as number | undefined;
 
       if (!err?.response) {
-        setError('No se pudo conectar con el servidor. Verifica tu conexión e inténtalo de nuevo.');
+        setError('CONNECTION_ERROR');
       } else if (status === 404) {
         setError('No se encontraron registros de Orgullo UP.');
       } else if (status && status >= 500) {
@@ -58,7 +67,7 @@ export const useOrgulloUPList = ({ page, limit, searchTerm }: UseOrgulloUPListPa
   useEffect(() => {
     void loadRecords();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit, searchTerm]);
+  }, [page, limit, searchTerm, status]);
 
   return {
     records,

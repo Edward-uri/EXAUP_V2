@@ -15,9 +15,14 @@ export const useEncuestasList = () => {
             setError(null);
             const data = await EncuestaService.getAll(true);
             setEncuestas(data);
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error cargando encuestas:', err);
-            setError('No se pudieron cargar las encuestas');
+
+            if (!err?.response) {
+                setError('CONNECTION_ERROR');
+            } else {
+                setError('No se pudieron cargar las encuestas');
+            }
         } finally {
             setLoading(false);
         }

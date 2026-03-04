@@ -6,6 +6,7 @@ import { useOrgulloUPList } from '../hooks/useOrgulloUPList';
 import { useOrgulloUPDetail } from '../hooks/useOrgulloUPDetail';
 import type { OrgulloUPRecord } from '../../domain/OrgulloUP';
 import { Pagination } from '../../../../shared/components/Pagination';
+import { ConnectionErrorPageAlert } from '../../../../shared/components/PageAlert/ConnectionErrorPageAlert';
 
 export default function OrgulloUpPage() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -18,6 +19,7 @@ export default function OrgulloUpPage() {
         page: currentPage,
         limit: ITEMS_PER_PAGE,
         searchTerm,
+        status: filterStatus,
     });
 
 
@@ -34,17 +36,7 @@ export default function OrgulloUpPage() {
         isOpen: isModalOpen,
     });
 
-    // Filtrado
-    const filteredRecords = records.filter(record => {
-        const { egresado, status } = record.attributes;
-        const matchesStatus =
-            filterStatus === 'all' ||
-            status === filterStatus;
-
-        return matchesStatus;
-    });
-
-    // Contar estados
+    // Contar estados (sobre los registros de la página actual)
     const pendienteCount = records.filter(r => r.attributes.status === 'pendiente').length;
     const rechazadoCount = records.filter(r => r.attributes.status === 'rechazado').length;
     const aprobadoCount = records.filter(r => r.attributes.status === 'aprobado').length;
@@ -79,6 +71,10 @@ export default function OrgulloUpPage() {
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
             </div>
         );
+    }
+
+    if (error === 'CONNECTION_ERROR') {
+        return <ConnectionErrorPageAlert onRetry={refetch} />;
     }
 
     if (error) {
@@ -122,7 +118,7 @@ export default function OrgulloUpPage() {
 
                 {/* Tabla */}
                 <OrgulloUPTable
-                    records={filteredRecords}
+                    records={records}
                     meta={meta}
                     onView={handleView}
                 />
@@ -143,7 +139,7 @@ export default function OrgulloUpPage() {
                 )}
 
                 {/* Empty State si hay filtros activos */}
-                {filteredRecords.length === 0 && records.length > 0 && (
+                {records.length === 0 && (searchTerm || filterStatus !== 'all') && (
                     <div className="text-center py-12 bg-white rounded-lg border border-gray-200 mt-6">
                         <p className="text-gray-500">
                             No se encontraron registros con los filtros aplicados

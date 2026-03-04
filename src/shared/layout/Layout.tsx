@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { 
     Dialog, 
@@ -22,6 +22,9 @@ import {
     StarIcon,
 } from '@heroicons/react/24/outline'
 import { ROUTES } from '../../constants/routes'
+import { STORAGE_KEYS } from '../../core/api.config'
+import { RequireAuthPageAlert } from '../components/PageAlert/RequireAuthPageAlert'
+import { SessionExpiredPageAlert } from '../components/PageAlert/SessionExpiredPageAlert'
 
 interface NavItem {
     name: string;
@@ -55,9 +58,70 @@ function classNames(...classes: (string | undefined | null | false)[]) {
     return classes.filter(Boolean).join(' ')
 }
 
+function getInitials(source?: string | null): string {
+    if (!source) return 'EX'
+    const cleaned = source.trim()
+    if (!cleaned) return 'EX'
+
+    const parts = cleaned.split(/\s+/)
+    const firstTwo = parts.slice(0, 2)
+    const initials = firstTwo
+        .map((p) => p.charAt(0).toUpperCase())
+        .join('')
+        .slice(0, 2)
+
+    return initials || 'EX'
+}
+
 export default function DashboardLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const location = useLocation()
+    const [userName, setUserName] = useState<string | null>(null)
+    const [userEmail, setUserEmail] = useState<string | null>(null)
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+    const [hasSessionExpired, setHasSessionExpired] = useState(false)
+
+    useEffect(() => {
+        const handleSessionExpired = () => {
+            setHasSessionExpired(true)
+            setIsAuthenticated(false)
+        }
+
+        try {
+            const expiredFlag = localStorage.getItem(STORAGE_KEYS.SESSION_EXPIRED) === '1'
+            setHasSessionExpired(expiredFlag)
+
+            const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
+            const hasToken = !!token
+
+            const stored = localStorage.getItem(STORAGE_KEYS.USER)
+            if (!stored) {
+                setIsAuthenticated(hasToken ? true : false)
+            } else {
+                const parsed = JSON.parse(stored) as { nombre?: string; email?: string }
+                if (parsed?.nombre) {
+                    setUserName(parsed.nombre)
+                }
+                if (parsed?.email) {
+                    setUserEmail(parsed.email)
+                }
+
+                setIsAuthenticated(hasToken && (!!parsed?.email || !!parsed?.nombre))
+            }
+        } catch {
+            setIsAuthenticated(false)
+        }
+
+        if (typeof window !== 'undefined') {
+            window.addEventListener('session-expired', handleSessionExpired)
+        }
+
+        return () => {
+            if (typeof window !== 'undefined') {
+                window.removeEventListener('session-expired', handleSessionExpired)
+            }
+        }
+    }, [])
 
     const isCurrent = (href: string | undefined) => {
         if (!href) return false
@@ -152,6 +216,18 @@ export default function DashboardLayout() {
         )
     }
 
+    if (isAuthenticated === null) {
+        return null
+    }
+
+    if (isAuthenticated === false) {
+        if (hasSessionExpired) {
+            return <SessionExpiredPageAlert />
+        }
+
+        return <RequireAuthPageAlert />
+    }
+
     return (
         <>
             <div>
@@ -218,11 +294,11 @@ export default function DashboardLayout() {
                                     <div className="border-t border-blue-900/10 -mx-2 mb-4"></div>
                                     <div className="flex items-center gap-x-3 px-2 py-2 mb-2 rounded-xl bg-white/10 border border-white/10">
                                         <div className="h-9 w-9 rounded-full bg-white flex items-center justify-center text-blue-600 font-bold text-sm shadow-sm">
-                                            DE
+                                            {getInitials(userName || userEmail)}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-bold text-blue-950 truncate">Demo</p>
-                                            <p className="text-xs text-blue-900/70 truncate">demo@exaup.edu.mx</p>
+                                            <p className="text-sm font-bold text-blue-950 truncate">{userName || 'Usuario'}</p>
+                                            <p className="text-xs text-blue-900/70 truncate">{userEmail || 'usuario@exaup.edu.mx'}</p>
                                         </div>
                                     </div>
 

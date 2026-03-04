@@ -13,8 +13,13 @@ import ActualizarEgresadoPage from "../features/formularioActualizarEgresado/pre
 import ResponderEncuestaPage from "../features/encuesta/presentation/pages/ResponderEncuestaPage";
 import { ROUTES } from "../constants/routes";
 import HomePage from "../features/home/presentation/pages/Home";
+import LoginPage from "../features/login/presentation/pages/LoginPage";
 
 export const router = createBrowserRouter([
+  {
+    path: ROUTES.LOGIN,
+    element: <LoginPage />,
+  },
   // Ruta aislada para ver la página sin el layout principal
   {
     path: "/actualizar-egresado",
@@ -34,7 +39,7 @@ export const router = createBrowserRouter([
     element: <DashboardLayout />, 
     children: [
       {
-        index: true, 
+        path: "home",
         element: <HomePage />
       },
       {

@@ -14,6 +14,7 @@ interface BackendEgresadoItem {
   imagen_egresado: string | null;
   fecha_nacimiento: string | null;
   is_active: boolean;
+  id_estado?: number | null;
   id_programa_educativo: number | null;
   programa_educativo?: string | null;
   id_periodo: number | null;
@@ -38,6 +39,7 @@ export interface EgresadosSearchParams {
   cohorte?: number;
   prefijo_matricula?: string;
   busqueda?: string;
+  id_estado?: 1 | 2 | 3;
 }
 
 export interface OrgulloUPListResponse {
@@ -45,8 +47,18 @@ export interface OrgulloUPListResponse {
   meta: OrgulloUPMeta;
 }
 
-const mapStatusFromIsActive = (isActive: boolean): "pendiente" | "rechazado" | "aprobado" => {
-  return isActive ? "aprobado" : "rechazado";
+const mapStatusFromBackend = (item: BackendEgresadoItem): "pendiente" | "rechazado" | "aprobado" => {
+  const code = item.id_estado ?? null;
+
+  if (code === 1) return "pendiente";
+  if (code === 2) return "rechazado";
+  if (code === 3) return "aprobado";
+
+  // Fallback por si aún no viene id_estado: usamos is_active
+  if (item.is_active === true) return "aprobado";
+  if (item.is_active === false) return "rechazado";
+
+  return "pendiente";
 };
 
 export const EgresadosSearchService = {
@@ -63,6 +75,7 @@ export const EgresadosSearchService = {
         cohorte: params.cohorte,
         prefijo_matricula: params.prefijo_matricula,
         busqueda: params.busqueda,
+        id_estado: params.id_estado,
       },
     });
 
@@ -70,7 +83,7 @@ export const EgresadosSearchService = {
       type: "orgullo_up",
       id: String(item.id_egresado),
       attributes: {
-        status: mapStatusFromIsActive(item.is_active),
+        status: mapStatusFromBackend(item),
         egresado: {
           id_egresado: item.id_egresado,
           nombre: item.nombre,

@@ -4,7 +4,8 @@ import { ENV } from './env.config';
 export const STORAGE_KEYS = {
     ACCESS_TOKEN : "user_access_token",
     REFRESH_TOKEN: "user_refresh_token",
-    USER: "user_data"
+  USER: "user_data",
+  SESSION_EXPIRED: "session_expired_flag",
 } as const;
 
 export const apiClient = axios.create({
@@ -66,6 +67,11 @@ apiClient.interceptors.response.use(
           localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
           localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
           localStorage.removeItem(STORAGE_KEYS.USER);
+          localStorage.setItem(STORAGE_KEYS.SESSION_EXPIRED, '1');
+
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('session-expired'));
+          }
           
           
           return Promise.reject(refreshError);
@@ -74,6 +80,11 @@ apiClient.interceptors.response.use(
         localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
         localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
         localStorage.removeItem(STORAGE_KEYS.USER);
+        localStorage.setItem(STORAGE_KEYS.SESSION_EXPIRED, '1');
+
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('session-expired'));
+        }
         
         return Promise.reject(new Error('No refresh token available'));
       }
