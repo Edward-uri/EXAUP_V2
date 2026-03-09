@@ -8,6 +8,7 @@ export interface AuthUser {
   id: string;
   nombre?: string;
   email?: string;
+  // Roles de negocio devueltos por el backend (p.ej. "super_admin")
   roles?: string[];
 }
 

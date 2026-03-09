@@ -14,7 +14,11 @@ export function RequireAuthPageAlert() {
     const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     const user = localStorage.getItem(STORAGE_KEYS.USER);
 
-    if (token && user) {
+    const hasToken = !!token;
+    const hasUser = !!user;
+
+    // Consideramos autenticado si existe token O datos de usuario
+    if (hasToken || hasUser) {
       setIsAuthenticated(true);
     } else {
       setIsAuthenticated(false);

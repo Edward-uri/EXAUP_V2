@@ -23,6 +23,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { ROUTES } from '../../constants/routes'
 import { STORAGE_KEYS } from '../../core/api.config'
+import { ALL_ROLES, type UserRole } from '../../features/login/domain/Roles'
 import { RequireAuthPageAlert } from '../components/PageAlert/RequireAuthPageAlert'
 import { SessionExpiredPageAlert } from '../components/PageAlert/SessionExpiredPageAlert'
 
@@ -31,6 +32,8 @@ interface NavItem {
     href?: string;
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     children?: { name: string; href: string }[];
+    /** Roles permitidos para ver este item. Si se omite, se asume que todos los roles pueden verlo. */
+    allowedRoles?: UserRole[];
 }
 
 const navigation: NavItem[] = [
@@ -78,6 +81,7 @@ export default function DashboardLayout() {
     const location = useLocation()
     const [userName, setUserName] = useState<string | null>(null)
     const [userEmail, setUserEmail] = useState<string | null>(null)
+    const [userRoles, setUserRoles] = useState<UserRole[] | null>(null)
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
     const [hasSessionExpired, setHasSessionExpired] = useState(false)
 
@@ -96,9 +100,10 @@ export default function DashboardLayout() {
 
             const stored = localStorage.getItem(STORAGE_KEYS.USER)
             if (!stored) {
+                // Si no hay información de usuario, usamos únicamente la presencia del token
                 setIsAuthenticated(hasToken ? true : false)
             } else {
-                const parsed = JSON.parse(stored) as { nombre?: string; email?: string }
+                const parsed = JSON.parse(stored) as { nombre?: string; email?: string; roles?: string[] }
                 if (parsed?.nombre) {
                     setUserName(parsed.nombre)
                 }
@@ -106,7 +111,17 @@ export default function DashboardLayout() {
                     setUserEmail(parsed.email)
                 }
 
-                setIsAuthenticated(hasToken && (!!parsed?.email || !!parsed?.nombre))
+                if (Array.isArray(parsed?.roles)) {
+                    // Normalizamos/filtramos solo roles conocidos
+                    const normalizedRoles = parsed.roles.filter((r): r is UserRole =>
+                        ALL_ROLES.includes(r as UserRole)
+                    )
+                    setUserRoles(normalizedRoles.length > 0 ? normalizedRoles : null)
+                }
+
+                const hasUserInfo = !!parsed?.email || !!parsed?.nombre
+                // Consideramos autenticado si hay token O hay información de usuario almacenada
+                setIsAuthenticated(hasToken || hasUserInfo)
             }
         } catch {
             setIsAuthenticated(false)
@@ -133,7 +148,24 @@ export default function DashboardLayout() {
         return children.some(child => location.pathname === child.href);
     }
 
+    const canAccessNavItem = (item: NavItem): boolean => {
+        // Si no se definieron roles específicos, todos los roles autenticados pueden verlo
+        if (!item.allowedRoles || item.allowedRoles.length === 0) {
+            return true
+        }
+
+        if (!userRoles || userRoles.length === 0) {
+            return false
+        }
+
+        return item.allowedRoles.some((role) => userRoles.includes(role))
+    }
+
     const renderNavItem = (item: NavItem) => {
+        if (!canAccessNavItem(item)) {
+            return null
+        }
+
         if (!item.children) {
             const active = isCurrent(item.href)
             return (
