@@ -58,7 +58,7 @@ export default function HomePage() {
     }
 
     return (
-        <div className="min-h-screen pb-20 bg-gradient-to-br from-blue-50 via-sky-100 to-blue-100">
+        <div className="min-h-screen pb-20 bg-white">
             <div className="max-w-5xl mx-auto">
                 
                 <div className="mb-8">

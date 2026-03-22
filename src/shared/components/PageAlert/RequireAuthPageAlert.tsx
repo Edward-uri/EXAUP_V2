@@ -17,12 +17,8 @@ export function RequireAuthPageAlert() {
     const hasToken = !!token;
     const hasUser = !!user;
 
-    // Consideramos autenticado si existe token O datos de usuario
-    if (hasToken || hasUser) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
+    // Aceptamos sesión por token o por usuario persistido (backend por cookie)
+    setIsAuthenticated(hasToken || hasUser);
 
     setChecking(false);
   }, []);

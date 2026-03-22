@@ -24,6 +24,7 @@ import {
 import { ROUTES } from '../../constants/routes'
 import { STORAGE_KEYS } from '../../core/api.config'
 import { ALL_ROLES, type UserRole } from '../../features/login/domain/Roles'
+import { LoginService } from '../../features/login/data/LoginService'
 import { RequireAuthPageAlert } from '../components/PageAlert/RequireAuthPageAlert'
 import { SessionExpiredPageAlert } from '../components/PageAlert/SessionExpiredPageAlert'
 
@@ -100,8 +101,8 @@ export default function DashboardLayout() {
 
             const stored = localStorage.getItem(STORAGE_KEYS.USER)
             if (!stored) {
-                // Si no hay información de usuario, usamos únicamente la presencia del token
-                setIsAuthenticated(hasToken ? true : false)
+                // Aceptamos sesión por token o por usuario persistido (backend por cookie)
+                setIsAuthenticated(hasToken)
             } else {
                 const parsed = JSON.parse(stored) as { nombre?: string; email?: string; roles?: string[] }
                 if (parsed?.nombre) {
@@ -120,7 +121,7 @@ export default function DashboardLayout() {
                 }
 
                 const hasUserInfo = !!parsed?.email || !!parsed?.nombre
-                // Consideramos autenticado si hay token O hay información de usuario almacenada
+                // Aceptamos sesión por token o por usuario persistido (backend por cookie)
                 setIsAuthenticated(hasToken || hasUserInfo)
             }
         } catch {
@@ -137,6 +138,16 @@ export default function DashboardLayout() {
             }
         }
     }, [])
+
+    const handleLogout = () => {
+        LoginService.logout()
+        setHasSessionExpired(false)
+        setIsAuthenticated(false)
+        setUserName(null)
+        setUserEmail(null)
+        setUserRoles(null)
+        setSidebarOpen(false)
+    }
 
     const isCurrent = (href: string | undefined) => {
         if (!href) return false
@@ -335,7 +346,11 @@ export default function DashboardLayout() {
                                     </div>
 
                                     <div className="space-y-1">
-                                        <button className="w-full flex items-center gap-x-3 px-2 py-2 text-sm font-medium text-blue-900/80 hover:bg-red-500/10 hover:text-red-700 rounded-lg transition-colors">
+                                        <button
+                                            type="button"
+                                            onClick={handleLogout}
+                                            className="w-full flex items-center gap-x-3 px-2 py-2 text-sm font-medium text-blue-900/80 hover:bg-red-500/10 hover:text-red-700 rounded-lg transition-colors"
+                                        >
                                             <ArrowRightStartOnRectangleIcon className="size-5" />
                                             Cerrar sesión
                                         </button>

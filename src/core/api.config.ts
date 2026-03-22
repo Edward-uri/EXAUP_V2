@@ -33,8 +33,18 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const requestUrl = String(originalRequest?.url ?? '').toLowerCase();
+    const isAuthEndpoint =
+      requestUrl.includes('/auth/staff/login') ||
+      requestUrl.includes('/auth/login') ||
+      requestUrl.includes('/auth/refresh');
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // En endpoints de autenticación no intentamos refresh para no ocultar 401 reales.
+    if (error.response?.status === 401 && isAuthEndpoint) {
+      return Promise.reject(error);
+    }
+
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true;
 
       const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
@@ -86,7 +96,7 @@ apiClient.interceptors.response.use(
           window.dispatchEvent(new Event('session-expired'));
         }
         
-        return Promise.reject(new Error('No refresh token available'));
+        return Promise.reject(error);
       }
     }
 
