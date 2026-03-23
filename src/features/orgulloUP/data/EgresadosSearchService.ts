@@ -39,7 +39,7 @@ export interface EgresadosSearchParams {
   cohorte?: number;
   prefijo_matricula?: string;
   busqueda?: string;
-  id_estado?: 1 | 2 | 3;
+  estatus?: 1 | 2 | 3;
 }
 
 export interface OrgulloUPListResponse {
@@ -75,7 +75,7 @@ export const EgresadosSearchService = {
         cohorte: params.cohorte,
         prefijo_matricula: params.prefijo_matricula,
         busqueda: params.busqueda,
-        id_estado: params.id_estado,
+        estatus: params.estatus,
       },
     });
 

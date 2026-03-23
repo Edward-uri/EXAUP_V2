@@ -30,7 +30,7 @@ export const useOrgulloUPList = ({ page, limit, searchTerm, status }: UseOrgullo
         page,
         limit,
         busqueda: searchTerm || undefined,
-        id_estado:
+        estatus:
           status === 'pendiente'
             ? 1
             : status === 'rechazado'
