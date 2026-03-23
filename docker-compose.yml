@@ -28,7 +28,7 @@ services:
       dockerfile: Dockerfile.nginx
     container_name: exaup-app-prod
     ports:
-      - "${APP_PORT:-8080}:80"
+      - "${APP_PORT:-8081}:80"
     environment:
       - NODE_ENV=production
     restart: unless-stopped
