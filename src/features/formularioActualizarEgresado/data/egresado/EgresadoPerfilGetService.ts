@@ -37,10 +37,10 @@ export const EgresadoPerfilGetService = {
     const attrs: EgresadoPerfilAttributes = {
       nombre: eg.nombre,
       primer_apellido: eg.primer_apellido,
-      segundo_apellido: eg.segundo_apellido ?? null,
+      segundo_apellido: eg.segundo_apellido ?? undefined,
       // También llenamos las variantes *_paterno/*_materno para compatibilidad
       apellido_paterno: eg.primer_apellido,
-      apellido_materno: eg.segundo_apellido ?? null,
+      apellido_materno: eg.segundo_apellido ?? undefined,
       email: eg.email ?? undefined,
       fecha_nacimiento: eg.fecha_nacimiento ?? undefined,
       imagen_egresado: normalizeImageUrl(eg.imagen_egresado) ?? null,

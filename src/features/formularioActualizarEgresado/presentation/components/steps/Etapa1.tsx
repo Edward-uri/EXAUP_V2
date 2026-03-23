@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Calendar, Search, Upload, ImageIcon } from 'lucide-react';
+import { Search, Upload, ImageIcon } from 'lucide-react';
 import type { FormData } from '../../types';
 
 interface EtapaUnoProps {

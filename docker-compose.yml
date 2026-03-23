@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Servicio de desarrollo con serve
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: exaup-app-dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+    networks:
+      - exaup-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://45.85.249.128:3000/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    profiles:
+      - dev
+
+  # Servicio de producción con Nginx
+  app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: exaup-app-prod
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - exaup-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://45.85.249.128/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    profiles:
+      - prod
+
+networks:
+  exaup-network:
+    driver: bridge
