@@ -9,5 +9,8 @@ export const ROUTES = {
     ENCUESTAS_RESPONDER_SHORT: (uuid: string) => `/survey/${uuid}`,
     FORMULARIOS: '/formularios',
     FORMULARIOS_CREAR: '/formularios/crear',
-    ORGULLO_UP: '/orgullo-up'
+    ORGULLO_UP: '/orgullo-up',
+    ACERCA_DE: '/acerca-de',
+    CURSOS: '/cursos',
+    ACTUALIZAR_EGRESADO: '/actualizar-egresado'
 } as const;

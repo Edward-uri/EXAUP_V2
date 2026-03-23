@@ -2,6 +2,7 @@ import React from 'react';
 import { User, MapPin, Briefcase, Heart, ChevronRight, ChevronLeft, Save, Check } from 'lucide-react';
 import type { StepItem } from '../types';
 import { useActualizarEgresadoForm } from '../hooks/useActualizarEgresadoForm';
+import Header from '../../../../shared/components/LandingHeader/Header';
 
 // Importación de componentes
 import Stepper from '../components/Stepper';
@@ -43,8 +44,10 @@ const ActualizarEgresadoPage: React.FC = () => {
   const showSidebar = currentStep !== 1;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-6xl bg-white shadow-xl rounded-2xl overflow-hidden flex flex-col" style={{ minHeight: '650px' }}>
+    <>
+      <Header />
+      <div className="min-h-screen flex items-center justify-center p-4 font-sans" style={{ background: '#f2f3f4' }}>
+        <div className="w-full max-w-6xl bg-white shadow-xl rounded-2xl overflow-hidden flex flex-col" style={{ minHeight: '650px' }}>
         
         <Stepper steps={steps} currentStep={currentStep} />
 
@@ -134,7 +137,8 @@ const ActualizarEgresadoPage: React.FC = () => {
             </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

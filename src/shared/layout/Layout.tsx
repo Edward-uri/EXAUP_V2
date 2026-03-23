@@ -33,7 +33,6 @@ interface NavItem {
     href?: string;
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     children?: { name: string; href: string }[];
-    /** Roles permitidos para ver este item. Si se omite, se asume que todos los roles pueden verlo. */
     allowedRoles?: UserRole[];
 }
 
@@ -121,7 +120,6 @@ export default function DashboardLayout() {
                 }
 
                 const hasUserInfo = !!parsed?.email || !!parsed?.nombre
-                // Aceptamos sesión por token o por usuario persistido (backend por cookie)
                 setIsAuthenticated(hasToken || hasUserInfo)
             }
         } catch {
@@ -160,7 +158,6 @@ export default function DashboardLayout() {
     }
 
     const canAccessNavItem = (item: NavItem): boolean => {
-        // Si no se definieron roles específicos, todos los roles autenticados pueden verlo
         if (!item.allowedRoles || item.allowedRoles.length === 0) {
             return true
         }

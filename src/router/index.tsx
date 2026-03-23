@@ -14,6 +14,8 @@ import ResponderEncuestaPage from "../features/encuesta/presentation/pages/Respo
 import { ROUTES } from "../constants/routes";
 import HomePage from "../features/home/presentation/pages/Home";
 import LoginPage from "../features/login/presentation/pages/LoginPage";
+import AcercaDePage from "../features/landing/presentation/pages/AcercaDePage";
+import CursosTalleresPage from "../features/landing/presentation/pages/CursosPage";
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +35,16 @@ export const router = createBrowserRouter([
   {
     path: "/encuestas/responder/:uuid",
     element: <ResponderEncuestaPage />
+  },
+  // Ruta aislada para Acerca de
+  {
+    path: ROUTES.ACERCA_DE,
+    element: <AcercaDePage />
+  },
+  // Ruta aislada para Cursos
+  {
+    path: ROUTES.CURSOS,
+    element: <CursosTalleresPage />
   },
   {
     path: "/",
