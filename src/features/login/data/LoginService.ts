@@ -73,6 +73,9 @@ export const LoginService = {
       localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
     }
 
+    localStorage.setItem(STORAGE_KEYS.AUTH_SCOPE, "staff");
+    localStorage.removeItem(STORAGE_KEYS.EGRESADO_ID);
+
     const user: AuthUser = {
       id: (data as any)?.data?.id,
       nombre:
@@ -110,5 +113,7 @@ export const LoginService = {
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER);
     localStorage.removeItem(STORAGE_KEYS.SESSION_EXPIRED);
+    localStorage.removeItem(STORAGE_KEYS.AUTH_SCOPE);
+    localStorage.removeItem(STORAGE_KEYS.EGRESADO_ID);
   },
 };

@@ -1,4 +1,5 @@
 import { apiClient } from "../../../../core/api.config";
+import { hasInternalRole, resolveEgresadoPerfilUpdateId } from "../../../../core/auth-context";
 
 const normalizeImageUrl = (url?: string | null): string | null | undefined => {
   if (!url) return url ?? null;
@@ -12,19 +13,25 @@ export const EgresadoPerfilService = {
     fecha_nacimiento?: string;
     imagen_egresado?: string | null;
   }): Promise<void> => {
+    const internalRole = hasInternalRole();
+    const resolvedId = resolveEgresadoPerfilUpdateId(id);
+    const endpoint = internalRole
+      ? `/egresado/admin/${resolvedId}/perfil-completo`
+      : `/egresado/${resolvedId}/perfil`;
+
     const payload = {
       data: {
         type: "egresados",
-        id,
+        id: resolvedId,
         attributes: data,
       },
     };
 
-    console.log("[EgresadoPerfilService.updatePerfil] URL", `/egresado/${id}/perfil`);
+    console.log("[EgresadoPerfilService.updatePerfil] URL", endpoint);
     console.log("[EgresadoPerfilService.updatePerfil] Payload", payload);
 
     try {
-      const response = await apiClient.patch(`/egresado/${id}/perfil`, payload);
+      const response = await apiClient.patch(endpoint, payload);
       console.log("[EgresadoPerfilService.updatePerfil] Success", response.status, response.data);
     } catch (error: any) {
       console.error("[EgresadoPerfilService.updatePerfil] Error status", error?.response?.status);
@@ -38,12 +45,18 @@ export const EgresadoPerfilService = {
    * Devuelve la URL de la imagen de perfil que responda el backend.
    */
   updatePerfilConImagen: async (id: string, file: File): Promise<string> => {
+    const internalRole = hasInternalRole();
+    const resolvedId = resolveEgresadoPerfilUpdateId(id);
+    const endpoint = internalRole
+      ? `/egresado/admin/${resolvedId}/perfil-completo`
+      : `/egresado/${resolvedId}/perfil-completo`;
+
     const formData = new FormData();
     formData.append("file", file);
 
-    console.log("[EgresadoPerfilService.updatePerfilConImagen] URL", `/egresado/${id}/perfil-completo`);
+    console.log("[EgresadoPerfilService.updatePerfilConImagen] URL", endpoint);
 
-    const response = await apiClient.patch(`/egresado/${id}/perfil-completo`, formData, {
+    const response = await apiClient.patch(endpoint, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

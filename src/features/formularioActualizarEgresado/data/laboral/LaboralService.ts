@@ -1,4 +1,5 @@
 import { apiClient } from "../../../../core/api.config";
+import axios from "axios";
 import type { DatosLaboralesAttributes, DatosLaboralesResource } from "../../domain/ActualizarEgresado";
 
 export const LaboralService = {
@@ -14,7 +15,16 @@ export const LaboralService = {
   },
 
   getDatosLaborales: async (): Promise<DatosLaboralesResource | null> => {
-    const { data } = await apiClient.get<{ data?: any }>("/datos-laborales");
+    let data: { data?: any };
+    try {
+      const response = await apiClient.get<{ data?: any }>("/datos-laborales");
+      data = response.data;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    }
 
     if (!data || !data.data) {
       return null;

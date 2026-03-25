@@ -6,6 +6,8 @@ export const STORAGE_KEYS = {
     REFRESH_TOKEN: "user_refresh_token",
   USER: "user_data",
   SESSION_EXPIRED: "session_expired_flag",
+  AUTH_SCOPE: "auth_scope",
+  EGRESADO_ID: "egresado_session_id",
 } as const;
 
 export const apiClient = axios.create({

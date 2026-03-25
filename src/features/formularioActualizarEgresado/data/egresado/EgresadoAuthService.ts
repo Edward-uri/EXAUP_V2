@@ -34,15 +34,32 @@ export const EgresadoAuthService = {
 
     console.log("[EgresadoAuthService.login] Raw response", data);
 
+    const attrs = data.data.attributes ?? {};
+
     const accessToken =
       (data as any)?.meta?.accessToken ||
+      (data as any)?.meta?.access_token ||
+      (data as any)?.meta?.token ||
       (data as any)?.accessToken ||
-      (data as any)?.access_token;
+      (data as any)?.access_token ||
+      (data as any)?.token ||
+      (data as any)?.data?.accessToken ||
+      (data as any)?.data?.access_token ||
+      (data as any)?.data?.token ||
+      (attrs as any)?.accessToken ||
+      (attrs as any)?.access_token ||
+      (attrs as any)?.token ||
+      (attrs as any)?.jwt;
 
     const refreshToken =
       (data as any)?.meta?.refreshToken ||
+      (data as any)?.meta?.refresh_token ||
       (data as any)?.refreshToken ||
-      (data as any)?.refresh_token;
+      (data as any)?.refresh_token ||
+      (data as any)?.data?.refreshToken ||
+      (data as any)?.data?.refresh_token ||
+      (attrs as any)?.refreshToken ||
+      (attrs as any)?.refresh_token;
 
     if (accessToken) {
       console.log("[EgresadoAuthService.login] Guardando accessToken en localStorage");
@@ -56,7 +73,8 @@ export const EgresadoAuthService = {
       localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
     }
 
-    const attrs = data.data.attributes ?? {};
+    localStorage.setItem(STORAGE_KEYS.AUTH_SCOPE, "egresado");
+    localStorage.setItem(STORAGE_KEYS.EGRESADO_ID, data.data.id);
 
     return {
       id: data.data.id,

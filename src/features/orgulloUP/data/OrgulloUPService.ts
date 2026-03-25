@@ -23,7 +23,7 @@ export const OrgulloUPService = {
                 attributes: perfilData
             }
         };
-        await apiClient.patch(`/egresado/${id}/perfil`, payload);
+        await apiClient.patch(`/egresado/admin/${id}/perfil-completo`, payload);
     },
 };
 

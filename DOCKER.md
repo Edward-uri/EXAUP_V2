@@ -65,6 +65,14 @@ docker-compose --profile dev down
 
 **Iniciar:**
 ```bash
+docker-compose --profile prod up -d --build
+```
+
+Si ya tenías una imagen previa y quieres forzar un rebuild limpio:
+
+```bash
+docker-compose --profile prod down
+docker-compose --profile prod build --no-cache
 docker-compose --profile prod up -d
 ```
 
@@ -116,13 +124,19 @@ curl http://localhost/health
 
 ## Variables de entorno
 
-Puedes agregar un archivo `.env` (no incluido en el docker build):
+Para producción, crea un archivo `.env` en la raíz del proyecto usando como base `.env.example`:
 
-**En docker-compose.yml, agrega:**
-```yaml
-env_file:
-  - .env
+```bash
+cp .env.example .env
 ```
+
+Variables clave:
+
+- `APP_PORT`: puerto externo donde publicarás el frontend.
+- `VITE_API_BASE_URL`: URL base del backend (por ejemplo `http://45.85.249.128:8080/api`).
+
+Importante: `VITE_API_BASE_URL` se inyecta durante el **build** de Vite.
+Si cambias su valor, debes reconstruir la imagen.
 
 ---
 

@@ -3,6 +3,10 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Variable de entorno de Vite (se evalúa en build time)
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
 # Copiar archivos de dependencias
 COPY package*.json ./
 COPY tsconfig*.json ./
