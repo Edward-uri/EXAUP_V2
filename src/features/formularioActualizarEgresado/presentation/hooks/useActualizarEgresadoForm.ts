@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useActualizarEgresadoFormState } from './useActualizarEgresadoFormState';
 import { useActualizarEgresadoStep1 } from './useActualizarEgresadoStep1';
 import { useActualizarEgresadoStep2 } from './useActualizarEgresadoStep2';
@@ -12,6 +13,7 @@ export const useActualizarEgresadoForm = () => {
     setCurpValidated,
     nextStep,
     prevStep,
+    resetFormToStep1,
     handleChange,
   } = useActualizarEgresadoFormState();
 
@@ -35,6 +37,7 @@ export const useActualizarEgresadoForm = () => {
     setFormData,
     curpValidated,
     nextStep,
+    resetStep: resetFormToStep1,
   });
 
   return {

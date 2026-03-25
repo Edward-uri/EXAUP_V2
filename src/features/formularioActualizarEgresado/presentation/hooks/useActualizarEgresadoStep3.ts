@@ -10,6 +10,7 @@ interface UseActualizarEgresadoStep3Params {
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
   curpValidated: boolean;
   nextStep: () => void;
+  resetStep: () => void;
 }
 
 export const useActualizarEgresadoStep3 = ({
@@ -17,6 +18,7 @@ export const useActualizarEgresadoStep3 = ({
   setFormData,
   curpValidated,
   nextStep,
+  resetStep,
 }: UseActualizarEgresadoStep3Params) => {
   const alert = useAlert();
   const getApiErrorMessage = useApiErrorMessage();
@@ -154,7 +156,8 @@ export const useActualizarEgresadoStep3 = ({
       'Los datos se actualizaron correctamente (sin Orgullo UP).',
     );
     console.log('Enviando datos parciales:', formData);
-  }, [alert, formData, handleGuardarDatosLaborales]);
+    resetStep();
+  }, [alert, formData, handleGuardarDatosLaborales, resetStep]);
 
   const handleUnirseOrgulloUp = useCallback(async () => {
     const saved = await handleGuardarDatosLaborales();
@@ -178,7 +181,8 @@ export const useActualizarEgresadoStep3 = ({
       'Tus datos han sido actualizados y te has unido a Orgullo UP.',
     );
     console.log('Enviando todos los datos:', formData);
-  }, [alert, formData]);
+    resetStep();
+  }, [alert, formData, resetStep]);
 
   return {
     loadingLaboral,

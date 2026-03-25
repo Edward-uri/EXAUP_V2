@@ -22,6 +22,11 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+  console.log("[apiClient.interceptor.request]", {
+    url: config.url,
+    hasToken: !!token,
+    tokenValue: token ? `${token.substring(0, 20)}...` : null,
+  });
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -32,7 +37,21 @@ apiClient.interceptors.request.use((config) => {
 });
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const requestUrl = String(response.config?.url ?? '').toLowerCase();
+    const isAuthEndpoint = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/refresh');
+    
+    if (isAuthEndpoint) {
+      console.log("[apiClient.interceptor.response] Auth endpoint response", {
+        url: response.config.url,
+        status: response.status,
+        headers: response.headers,
+        dataKeys: Object.keys(response.data),
+      });
+    }
+    
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
     const requestUrl = String(originalRequest?.url ?? '').toLowerCase();

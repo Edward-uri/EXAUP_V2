@@ -26,22 +26,10 @@ export const useActualizarEgresadoFormState = () => {
 
     const restoredCurpValidated =
       typeof saved.curpValidated === 'boolean' ? saved.curpValidated : hasEgresadoId;
-    setCurpValidated(restoredCurpValidated);
+    setCurpValidated(false);
 
-    let targetStep =
-      saved.currentStep && saved.currentStep >= 1 && saved.currentStep <= TOTAL_STEPS
-        ? saved.currentStep
-        : 1;
-
-    if (restoredCurpValidated && targetStep < 2) {
-      targetStep = 2;
-    }
-
-    if (hasDomicilio && targetStep < 3) {
-      targetStep = 3;
-    }
-
-    setCurrentStep(targetStep);
+    // Siempre regresar al paso 1 (validación de CURP)
+    setCurrentStep(1);
 
     const { orgulloImagen: storedImagen, ...restStored } = savedForm;
     setFormData(prev => ({
@@ -82,7 +70,13 @@ export const useActualizarEgresadoFormState = () => {
         [name]: type === 'checkbox' ? checked : value,
       }));
     },
-  []);
+    [],
+  );
+
+  const resetFormToStep1 = useCallback(() => {
+    setCurrentStep(1);
+    setCurpValidated(false);
+  }, []);
 
   return {
     formData,
@@ -92,6 +86,7 @@ export const useActualizarEgresadoFormState = () => {
     setCurpValidated,
     nextStep,
     prevStep,
+    resetFormToStep1,
     handleChange,
   };
 };
