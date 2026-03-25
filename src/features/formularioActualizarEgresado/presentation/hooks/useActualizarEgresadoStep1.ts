@@ -277,6 +277,11 @@ export const useActualizarEgresadoStep1 = ({
       const imagenPayload = sanitizeImageValue(formData.orgulloImagen ?? undefined) ?? undefined;
 
       await ActualizarEgresadoService.updatePerfil(formData.egresadoId, {
+        nombre: formData.nombre || undefined,
+        apellido_paterno: formData.apellidoPaterno || undefined,
+        apellido_materno: formData.apellidoMaterno || undefined,
+        primer_apellido: formData.apellidoPaterno || undefined,
+        segundo_apellido: formData.apellidoMaterno || undefined,
         email: formData.email || undefined,
         fecha_nacimiento: formData.fechaNacimiento || undefined,
         imagen_egresado: imagenPayload,

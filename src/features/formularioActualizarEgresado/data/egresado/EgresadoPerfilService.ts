@@ -9,6 +9,11 @@ const normalizeImageUrl = (url?: string | null): string | null | undefined => {
 
 export const EgresadoPerfilService = {
   updatePerfil: async (id: string, data: {
+    nombre?: string;
+    apellido_paterno?: string;
+    apellido_materno?: string;
+    primer_apellido?: string;
+    segundo_apellido?: string;
     email?: string;
     fecha_nacimiento?: string;
     imagen_egresado?: string | null;
