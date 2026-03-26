@@ -1,10 +1,21 @@
 import React from 'react';
 import type { FormData } from '../../types';
 
+const SECTORES_ECONOMICOS = [
+  { value: '1', label: 'Agricultura y ganaderia' },
+  { value: '2', label: 'Comercio' },
+  { value: '3', label: 'Comunicaciones y transportes' },
+  { value: '4', label: 'Educacion y Inv.' },
+  { value: '5', label: 'Gobierno' },
+  { value: '6', label: 'Ind.Construccion' },
+  { value: '7', label: 'Ind. Transformacion' },
+  { value: '8', label: 'Servicios' },
+  { value: '9', label: 'Sector privado' },
+];
+
 interface EtapaTresProps {
   data: FormData;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
-  // Para actualizar el booleano 'trabajaActualmente'
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
 }
 
@@ -48,15 +59,20 @@ const EtapaTres: React.FC<EtapaTresProps> = ({ data, onChange, setFormData }) =>
               <input type="text" name="puesto" value={data.puesto} onChange={onChange} className="w-full p-2 border border-gray-300 rounded-md mt-1" />
             </div>
             <div>
-              <label className="text-xs text-blue-900 font-semibold">ID de sector</label>
-              <input
-                type="number"
+              <label className="text-xs text-blue-900 font-semibold">Sector economico</label>
+              <select
                 name="sector"
                 value={data.sector}
                 onChange={onChange}
-                placeholder="Ej. 9"
                 className="w-full p-2 border border-gray-300 rounded-md mt-1"
-              />
+              >
+                <option value="">Selecciona un sector</option>
+                {SECTORES_ECONOMICOS.map((sector) => (
+                  <option key={sector.value} value={sector.value}>
+                    {sector.value}. {sector.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="text-xs text-blue-900 font-semibold">Actividad Principal</label>

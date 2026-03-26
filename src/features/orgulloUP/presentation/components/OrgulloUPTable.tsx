@@ -80,7 +80,7 @@ export function OrgulloUPTable({ records, onView }: OrgulloUPTableProps) {
                                         {egresado.email || '-'}
                                     </td>
                                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        {egresado.id_programa_educativo || '-'}
+                                        {egresado.programa_educativo || '-'}
                                     </td>
                                     <td className="whitespace-nowrap px-3 py-4 text-sm">
                                         {getStatusBadge(status)}
