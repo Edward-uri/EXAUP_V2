@@ -1,17 +1,18 @@
 import axios from "axios";
 import type { AnalyticsApiResponse } from "../domain/types/AnalyticsApiTypes";
+import { ENV } from "../../../core/env.config";
 
 /**
  * Servicio para comunicación con el endpoint de analytics
  * Usa una URL directa porque este endpoint no tiene el prefijo /api
  */
 export class AnalyticsService {
-  private baseURL = 'http://localhost:3000';
+  private baseURL = ENV.API_URL.replace(/\/api\/?$/, '');
   private basePath = '/analytics/survey';
 
   /**
    * Obtiene las estadísticas de una encuesta específica
-   * GET http://localhost:3000/analytics/survey/{id_encuesta}
+    * GET {API_BASE}/analytics/survey/{id_encuesta}
    */
   async fetchSurveyAnalytics(surveyId: string): Promise<AnalyticsApiResponse> {
     try {

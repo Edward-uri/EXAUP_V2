@@ -274,12 +274,22 @@ export const useActualizarEgresadoStep1 = ({
 
     setLoadingPerfil(true);
     try {
-      const imagenPayload = sanitizeImageValue(formData.orgulloImagen ?? undefined) ?? undefined;
-
+      console.log("[useActualizarEgresadoStep1] About to update with egresadoId:", formData.egresadoId);
+      console.log("[useActualizarEgresadoStep1] Form data to send:", {
+        nombre: formData.nombre,
+        apellidoPaterno: formData.apellidoPaterno,
+        apellidoMaterno: formData.apellidoMaterno,
+        email: formData.email,
+        fechaNacimiento: formData.fechaNacimiento,
+      });
       await ActualizarEgresadoService.updatePerfil(formData.egresadoId, {
+        nombre: formData.nombre || undefined,
+        apellido_paterno: formData.apellidoPaterno || undefined,
+        apellido_materno: formData.apellidoMaterno || undefined,
+        primer_apellido: formData.apellidoPaterno || undefined,
+        segundo_apellido: formData.apellidoMaterno || undefined,
         email: formData.email || undefined,
         fecha_nacimiento: formData.fechaNacimiento || undefined,
-        imagen_egresado: imagenPayload,
       });
       nextStep();
     } catch (err) {

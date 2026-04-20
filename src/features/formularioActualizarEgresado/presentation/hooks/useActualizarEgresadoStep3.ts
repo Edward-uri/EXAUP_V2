@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAlert } from '../../../../shared/components/Alert';
 import { ActualizarEgresadoService } from '../../data/ActualizarEgresadoService';
 import { EgresadoFormStorageService } from '../../../../storage/service/EgresadoFormStorageService';
+import { clearEgresadoSession } from '../../../../core/auth-context';
 import type { FormData } from '../types';
 import { useApiErrorMessage } from './useApiErrorMessage';
 
@@ -151,6 +152,7 @@ export const useActualizarEgresadoStep3 = ({
       return;
     }
     EgresadoFormStorageService.clearState();
+    clearEgresadoSession();
     alert.success(
       'Datos actualizados',
       'Los datos se actualizaron correctamente (sin Orgullo UP).',
@@ -176,6 +178,7 @@ export const useActualizarEgresadoStep3 = ({
 
   const handleFinalizarTodo = useCallback(() => {
     EgresadoFormStorageService.clearState();
+    clearEgresadoSession();
     alert.success(
       'Actualizacion completa',
       'Tus datos han sido actualizados y te has unido a Orgullo UP.',

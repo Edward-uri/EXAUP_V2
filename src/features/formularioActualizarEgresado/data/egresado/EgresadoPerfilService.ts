@@ -9,6 +9,11 @@ const normalizeImageUrl = (url?: string | null): string | null | undefined => {
 
 export const EgresadoPerfilService = {
   updatePerfil: async (id: string, data: {
+    nombre?: string;
+    apellido_paterno?: string;
+    apellido_materno?: string;
+    primer_apellido?: string;
+    segundo_apellido?: string;
     email?: string;
     fecha_nacimiento?: string;
     imagen_egresado?: string | null;
@@ -27,8 +32,9 @@ export const EgresadoPerfilService = {
       },
     };
 
+    console.log("[EgresadoPerfilService.updatePerfil] Params: id=", id, "resolvedId=", resolvedId, "internalRole=", internalRole);
     console.log("[EgresadoPerfilService.updatePerfil] URL", endpoint);
-    console.log("[EgresadoPerfilService.updatePerfil] Payload", payload);
+    console.log("[EgresadoPerfilService.updatePerfil] Payload", JSON.stringify(payload, null, 2));
 
     try {
       const response = await apiClient.patch(endpoint, payload);

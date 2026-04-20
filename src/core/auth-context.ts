@@ -36,6 +36,8 @@ export function getStoredUserRoles(): string[] {
 }
 
 export function hasInternalRole(): boolean {
+  // Solo consideramos roles internos en contexto explícito de staff.
+  if (getAuthScope() !== "staff") return false;
   const roles = getStoredUserRoles();
   return roles.some((role) => INTERNAL_ROLES.includes(role as KnownInternalRole));
 }
@@ -71,4 +73,17 @@ export function resolveEgresadoPerfilUpdateId(requestedId: string): string {
   }
 
   return requestedId;
+}
+
+export function clearEgresadoSession(): void {
+  if (typeof window === "undefined") return;
+
+  const scope = getAuthScope();
+  if (scope !== "egresado") return;
+
+  localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+  localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+  localStorage.removeItem(STORAGE_KEYS.AUTH_SCOPE);
+  localStorage.removeItem(STORAGE_KEYS.EGRESADO_ID);
+  localStorage.removeItem("auth_method");
 }
