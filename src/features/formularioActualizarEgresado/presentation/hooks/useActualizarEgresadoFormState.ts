@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState, type ChangeEvent } from 'react';
 import type { FormData } from '../types';
 import { EgresadoFormStorageService } from '../../../../storage/service/EgresadoFormStorageService';
-import { INITIAL_FORM_STATE, TOTAL_STEPS, sanitizeImageValue } from './formUtils';
+import { clearEgresadoSession } from '../../../../core/auth-context';
+import { INITIAL_FORM_STATE, TOTAL_STEPS } from './formUtils';
 
 export const useActualizarEgresadoFormState = () => {
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_STATE);
@@ -9,49 +10,28 @@ export const useActualizarEgresadoFormState = () => {
   const [curpValidated, setCurpValidated] = useState<boolean>(false);
 
   useEffect(() => {
-    const saved = EgresadoFormStorageService.loadState();
-    if (!saved) return;
-    const savedForm = saved.formData ?? {};
-
-    const hasEgresadoId =
-      typeof savedForm.egresadoId === 'string' && savedForm.egresadoId.trim() !== '';
-    const hasDomicilio = Boolean(
-      savedForm.calle ||
-        savedForm.colonia ||
-        savedForm.numero ||
-        savedForm.codigoPostal ||
-        savedForm.estado ||
-        savedForm.ciudad,
-    );
-
-    const restoredCurpValidated =
-      typeof saved.curpValidated === 'boolean' ? saved.curpValidated : hasEgresadoId;
+    // Este flujo debe iniciar siempre limpio al entrar a la vista.
+    EgresadoFormStorageService.clearState();
+    setFormData(INITIAL_FORM_STATE);
+    setCurrentStep(1);
     setCurpValidated(false);
 
-    // Siempre regresar al paso 1 (validación de CURP)
-    setCurrentStep(1);
+    const clearFlowSession = () => {
+      EgresadoFormStorageService.clearState();
+      clearEgresadoSession();
+    };
 
-    const { orgulloImagen: storedImagen, ...restStored } = savedForm;
-    setFormData(prev => ({
-      ...prev,
-      ...restStored,
-      orgulloImagen: sanitizeImageValue(storedImagen) ?? prev.orgulloImagen,
-    }));
+    const handleBeforeUnload = () => {
+      clearFlowSession();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      clearFlowSession();
+    };
   }, []);
-
-  useEffect(() => {
-    const { orgulloImagen, ...restFormData } = formData;
-    const sanitizedImagen = sanitizeImageValue(orgulloImagen ?? undefined);
-
-    EgresadoFormStorageService.saveState({
-      currentStep,
-      curpValidated,
-      formData: {
-        ...restFormData,
-        ...(sanitizedImagen ? { orgulloImagen: sanitizedImagen } : {}),
-      },
-    });
-  }, [currentStep, curpValidated, formData]);
 
   const nextStep = useCallback(() => {
     setCurrentStep(prev => Math.min(prev + 1, TOTAL_STEPS));

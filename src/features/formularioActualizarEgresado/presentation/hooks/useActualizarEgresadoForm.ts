@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { useActualizarEgresadoFormState } from './useActualizarEgresadoFormState';
 import { useActualizarEgresadoStep1 } from './useActualizarEgresadoStep1';
 import { useActualizarEgresadoStep2 } from './useActualizarEgresadoStep2';
