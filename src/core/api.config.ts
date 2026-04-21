@@ -10,6 +10,11 @@ export const STORAGE_KEYS = {
   EGRESADO_ID: "egresado_session_id",
 } as const;
 
+export const getAuthHeaders = () => {
+  const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export const apiClient = axios.create({
   baseURL: ENV.API_URL,  
   timeout: 10000,

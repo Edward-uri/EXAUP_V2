@@ -12,5 +12,8 @@ export const ROUTES = {
     ORGULLO_UP: '/orgullo-up',
     ACERCA_DE: '/acerca-de',
     CURSOS: '/cursos',
-    ACTUALIZAR_EGRESADO: '/actualizar-egresado'
+    ACTUALIZAR_EGRESADO: '/actualizar-egresado',
+    GRUPOS: '/grupos',
+    GRUPOS_CREAR: '/grupos/crear',
+    GRUPOS_EDITAR: (id: string) => `/grupos/editar/${id}`
 } as const;

@@ -16,6 +16,9 @@ import HomePage from "../features/home/presentation/pages/Home";
 import LoginPage from "../features/login/presentation/pages/LoginPage";
 import AcercaDePage from "../features/landing/presentation/pages/AcercaDePage";
 import CursosTalleresPage from "../features/landing/presentation/pages/CursosPage";
+import GruposPage from "../features/grupos/presentation/pages/GruposPage";
+import CrearGrupoWizard from "../features/grupos/presentation/pages/CrearGrupoWizard";
+import EditarGrupoPage from "../features/grupos/presentation/pages/EditarGrupoPage";
 
 export const router = createBrowserRouter([
   {
@@ -89,6 +92,18 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.ORGULLO_UP,
         element: <OrgulloUpPage/>
+      },
+      {
+        path: ROUTES.GRUPOS,
+        element: <GruposPage/>
+      },
+      {
+        path: ROUTES.GRUPOS_CREAR,
+        element: <CrearGrupoWizard/>
+      },
+      {
+        path: "grupos/editar/:id",
+        element: <EditarGrupoPage/>
       }
     ]
   }
