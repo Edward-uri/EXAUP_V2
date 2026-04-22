@@ -1,11 +1,13 @@
-import { apiClient } from "../../../core/api.config"; 
+import { apiClient, getAuthHeaders } from "../../../core/api.config"; 
 import type { TemplateCorreo, TemplateListResponse } from "../domain/TemplateCorreo";
 
 const ENDPOINT = "/templates-correo"; 
 
 export const TemplateService = {
   getAll: async (): Promise<TemplateCorreo[]> => {
-    const { data } = await apiClient.get<TemplateListResponse>(ENDPOINT);
+    const { data } = await apiClient.get<TemplateListResponse>(ENDPOINT, {
+        headers: getAuthHeaders()
+    });
     return data.data;
   },
 

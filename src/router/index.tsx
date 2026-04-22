@@ -19,6 +19,9 @@ import CursosTalleresPage from "../features/landing/presentation/pages/CursosPag
 import GruposPage from "../features/grupos/presentation/pages/GruposPage";
 import CrearGrupoWizard from "../features/grupos/presentation/pages/CrearGrupoWizard";
 import EditarGrupoPage from "../features/grupos/presentation/pages/EditarGrupoPage";
+import AutomaticEventsPage from "../features/automaticEvents/presentation/pages/AutomaticEventsPage";
+import EventFormPage from "../features/automaticEvents/presentation/pages/EventFormPage";
+import EventHistoryPage from "../features/automaticEvents/presentation/pages/EventHistoryPage";
 
 export const router = createBrowserRouter([
   {
@@ -104,6 +107,22 @@ export const router = createBrowserRouter([
       {
         path: "grupos/editar/:id",
         element: <EditarGrupoPage/>
+      },
+      {
+        path: ROUTES.EVENTOS_AUTOMATICOS,
+        element: <AutomaticEventsPage/>
+      },
+      {
+        path: ROUTES.EVENTOS_AUTOMATICOS_CREAR,
+        element: <EventFormPage/>
+      },
+      {
+        path: "eventos-automaticos/editar/:id",
+        element: <EventFormPage/>
+      },
+      {
+        path: "eventos-automaticos/historial/:id",
+        element: <EventHistoryPage/>
       }
     ]
   }

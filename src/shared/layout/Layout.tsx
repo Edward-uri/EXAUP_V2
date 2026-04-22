@@ -27,7 +27,7 @@ import { ALL_ROLES, type UserRole } from '../../features/login/domain/Roles'
 import { LoginService } from '../../features/login/data/LoginService'
 import { RequireAuthPageAlert } from '../components/PageAlert/RequireAuthPageAlert'
 import { SessionExpiredPageAlert } from '../components/PageAlert/SessionExpiredPageAlert'
-import { UsersIcon } from 'lucide-react'
+import {BoltIcon, UsersIcon } from 'lucide-react'
 
 interface NavItem {
     name: string;
@@ -61,6 +61,14 @@ const navigation: NavItem[] = [
         children: [
             { name: 'Crear nuevo', href: ROUTES.GRUPOS_CREAR }, 
             { name: 'Ver todos', href: ROUTES.GRUPOS },
+        ]
+    },
+    { 
+        name: 'Eventos Automáticos', 
+        icon: BoltIcon,
+        children: [
+            { name: 'Crear nuevo', href: ROUTES.EVENTOS_AUTOMATICOS_CREAR }, 
+            { name: 'Ver todos', href: ROUTES.EVENTOS_AUTOMATICOS },
         ]
     },
     { name: 'Orgullo UP', href: ROUTES.ORGULLO_UP, icon: StarIcon },

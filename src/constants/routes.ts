@@ -15,5 +15,9 @@ export const ROUTES = {
     ACTUALIZAR_EGRESADO: '/actualizar-egresado',
     GRUPOS: '/grupos',
     GRUPOS_CREAR: '/grupos/crear',
-    GRUPOS_EDITAR: (id: string) => `/grupos/editar/${id}`
+    GRUPOS_EDITAR: (id: string) => `/grupos/editar/${id}`,
+    EVENTOS_AUTOMATICOS: '/eventos-automaticos',
+    EVENTOS_AUTOMATICOS_CREAR: '/eventos-automaticos/crear',
+    EVENTOS_AUTOMATICOS_EDITAR: (id: string | number) => `/eventos-automaticos/editar/${id}`,
+    EVENTOS_AUTOMATICOS_HISTORIAL: (id: string | number) => `/eventos-automaticos/historial/${id}`
 } as const;
