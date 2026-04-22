@@ -11,15 +11,6 @@ import {
 } from 'lucide-react';
 import { ConfirmModal } from '../../../../shared/components/ConfirmModal';
 
-const formatCronToSpanish = (cron: string) => {
-    if (cron === '0 9 * * *') return 'Diario a las 9:00 AM';
-    if (cron.startsWith('0 ') && cron.endsWith(' * * *')) {
-        const hour = cron.split(' ')[1];
-        return `Diario a las ${hour}:00`;
-    }
-    return cron; // Fallback
-};
-
 export default function AutomaticEventsPage() {
     const navigate = useNavigate();
     const { events, loading, toggleStatus, triggerEvent } = useAutomaticEventsList();

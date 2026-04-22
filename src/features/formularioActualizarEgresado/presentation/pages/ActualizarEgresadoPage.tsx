@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, MapPin, Briefcase, Heart, ChevronRight, ChevronLeft, Save, Check, Award } from 'lucide-react';
+import { User, MapPin, Briefcase, Heart, ChevronRight, ChevronLeft, Check, Award } from 'lucide-react';
 import type { StepItem } from '../types';
 import { useActualizarEgresadoForm } from '../hooks/useActualizarEgresadoForm';
 import Header from '../../../../shared/components/LandingHeader/Header';
