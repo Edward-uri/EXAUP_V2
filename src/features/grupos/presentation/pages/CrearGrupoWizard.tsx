@@ -78,18 +78,9 @@ export default function CrearGrupoWizard() {
                                         ))}
                                     </select>
                                 </div>
+                                
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700">Cohorte</label>
-                                    <input
-                                        type="number"
-                                        placeholder="Ej. 241"
-                                        value={wizard.filtros.cohorte || ''}
-                                        onChange={(e) => wizard.setFiltros({ ...wizard.filtros, cohorte: e.target.value ? Number(e.target.value) : undefined })}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3 py-2 border"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Prefijo Matrícula</label>
+                                    <label className="block text-sm font-medium text-gray-700">Cohorte generacional</label>
                                     <input
                                         type="text"
                                         placeholder="Ej. 113"
