@@ -49,12 +49,7 @@ export default function GestionarEncuestaPage() {
     // Estados para el envío de correos
     const [sending, setSending] = useState(false);
     const [filtroEnvio, setFiltroEnvio] = useState<'pendientes' | 'todos'>('pendientes');
-    
-    // Estados para la edición de la plantilla de correo
-    const [editingTemplate, setEditingTemplate] = useState(false);
     const [currentTemplate, setCurrentTemplate] = useState<any>(null);
-    const [templateContent, setTemplateContent] = useState('');
-    const [savingTemplate, setSavingTemplate] = useState(false);
 
     // Confirmaciones
     const [confirmState, setConfirmState] = useState<
@@ -99,60 +94,22 @@ export default function GestionarEncuestaPage() {
     };
 
     /**
-     * Cargar el contenido de la plantilla de correo asociada a la encuesta
+     * Cargar la plantilla de correo asociada a la encuesta
      */
     const loadTemplateContent = async () => {
         if (!encuesta) return;
         const templateId = encuesta.relationships?.['template-correo']?.data.id;
         if (!templateId) return;
-        
+
         try {
             const template = await TemplateService.getById(templateId);
             setCurrentTemplate(template);
-            setTemplateContent(template.attributes.body);
         } catch (error) {
             console.error('Error cargando template:', error);
             alert.error('Error', 'No se pudo cargar la plantilla de correo');
         }
     };
 
-    /**
-     * Guardar las modificaciones realizadas en la plantilla de correo
-     */
-    const handleSaveTemplate = async () => {
-        if (!encuesta || !currentTemplate) return;
-        const templateId = encuesta.relationships?.['template-correo']?.data.id;
-        if (!templateId) {
-            alert.warning('Plantilla no encontrada', 'Esta encuesta no tiene una plantilla de correo asignada');
-            return;
-        }
-
-        setSavingTemplate(true);
-        try {
-            await TemplateService.update(templateId, {
-                subject: currentTemplate.attributes.subject,
-                body: templateContent,
-                layout_html: currentTemplate.attributes.layout_html
-            });
-            
-            // Actualizar el template local para reflejar los cambios
-            setCurrentTemplate({
-                ...currentTemplate,
-                attributes: {
-                    ...currentTemplate.attributes,
-                    body: templateContent
-                }
-            });
-            
-            alert.success('Plantilla actualizada', 'Los cambios se han guardado correctamente');
-            setEditingTemplate(false);
-        } catch (error) {
-            console.error('Error guardando template:', error);
-            alert.error('Error al guardar', 'No se pudo actualizar la plantilla');
-        } finally {
-            setSavingTemplate(false);
-        }
-    };
 
     const loadParticipantes = async () => {
         if (!id) return;
@@ -278,22 +235,12 @@ export default function GestionarEncuestaPage() {
                         />
                     )}
 
-                    {activeTab === 'enviar' && currentTemplate && (
+                    {activeTab === 'enviar' && encuesta && (
                         <EnviarTab
-                            editingTemplate={editingTemplate}
-                            savingTemplate={savingTemplate}
-                            templateContent={templateContent}
                             filtroEnvio={filtroEnvio}
                             sending={sending}
                             currentTemplate={currentTemplate}
-                            previewHtml={generatePreviewHtml(currentTemplate, templateContent)}
-                            onTemplateChange={setTemplateContent}
-                            onEditToggle={setEditingTemplate}
-                            onSaveTemplate={handleSaveTemplate}
-                            onCancelEdit={() => {
-                                setEditingTemplate(false);
-                                loadTemplateContent();
-                            }}
+                            previewHtml={currentTemplate ? generatePreviewHtml(currentTemplate) : ''}
                             onFiltroChange={setFiltroEnvio}
                             onEnviar={handleEnviar}
                         />

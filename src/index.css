@@ -8,3 +8,13 @@
   --color-brand-500: #4f46e5;
   --color-sidebar-background: #87CEFA; 
 }
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}

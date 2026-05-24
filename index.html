@@ -1,13 +1,25 @@
 <!doctype html>
-<html lang="en">
+<html lang="es" translate="no" class="notranslate">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/LogoExaup.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google" content="notranslate" />
+    <script>
+      document.documentElement.setAttribute('translate', 'no');
+      document.documentElement.classList.add('notranslate');
+      document.addEventListener('DOMContentLoaded', function () {
+        var root = document.getElementById('root');
+        if (root) {
+          root.setAttribute('translate', 'no');
+          root.classList.add('notranslate');
+        }
+      });
+    </script>
     <title>EXAUP</title>
   </head>
-  <body>
-    <div id="root"></div>
+  <body translate="no" class="notranslate">
+    <div id="root" translate="no" class="notranslate"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

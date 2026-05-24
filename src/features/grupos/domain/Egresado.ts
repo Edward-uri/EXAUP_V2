@@ -24,5 +24,4 @@ export interface FiltrosImportacion {
     id_periodo_egreso?: number;
     cohorte?: number;
     prefijo_matricula?: string;
-    busqueda?: string;
 }

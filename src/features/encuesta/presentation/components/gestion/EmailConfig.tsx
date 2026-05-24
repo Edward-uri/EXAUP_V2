@@ -1,103 +1,42 @@
 import { PaperAirplaneIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import { EmailEditor } from '../../../../template/presentation/components/EmailEditor';
 
 interface EmailConfigProps {
-    editingTemplate: boolean;
-    savingTemplate: boolean;
-    templateContent: string;
     filtroEnvio: 'pendientes' | 'todos';
     sending: boolean;
-    onTemplateChange: (content: string) => void;
-    onEditToggle: (editing: boolean) => void;
-    onSaveTemplate: () => void;
-    onCancelEdit: () => void;
     onFiltroChange: (filtro: 'pendientes' | 'todos') => void;
     onEnviar: () => void;
 }
 
 export function EmailConfig({
-    editingTemplate,
-    savingTemplate,
-    templateContent,
     filtroEnvio,
     sending,
-    onTemplateChange,
-    onEditToggle,
-    onSaveTemplate,
-    onCancelEdit,
     onFiltroChange,
     onEnviar
 }: EmailConfigProps) {
     return (
-        <div className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl p-8">
-            <div className="text-center mb-8">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 mb-4">
+        <div className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl p-6 sm:p-8">
+            <div className="flex items-start gap-4 mb-8">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-100 shrink-0">
                     <PaperAirplaneIcon className="h-6 w-6 text-green-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Enviar Encuesta por Correo
-                </h3>
-                <p className="text-sm text-gray-500">
-                    Personaliza y envía correos a los participantes
-                </p>
+                <div className="min-w-0">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                        Enviar Encuesta por Correo
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                        Elige a quién enviar y confirma el lote de distribución.
+                    </p>
+                </div>
             </div>
 
             <div className="space-y-6">
-                {/* Sección de edición de plantilla de correo */}
-                <div className="border border-blue-200 rounded-lg p-5 bg-blue-50/50">
-                    <div className="flex items-center justify-between mb-4">
-                        <div>
-                            <h4 className="font-semibold text-gray-900">Contenido del Correo</h4>
-                            <p className="text-xs text-gray-600 mt-1">Personaliza el mensaje antes de enviar</p>
-                        </div>
-                        {!editingTemplate ? (
-                            <button
-                                onClick={() => onEditToggle(true)}
-                                className="text-sm text-blue-600 hover:text-blue-700 font-medium px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors"
-                            >
-                                Editar Contenido
-                            </button>
-                        ) : (
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={onSaveTemplate}
-                                    disabled={savingTemplate}
-                                    className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-medium"
-                                >
-                                    {savingTemplate ? 'Guardando...' : 'Guardar Cambios'}
-                                </button>
-                                <button
-                                    onClick={onCancelEdit}
-                                    className="text-sm text-gray-600 hover:text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-                                >
-                                    Cancelar
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                    
-                    {editingTemplate ? (
-                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                            <EmailEditor
-                                value={templateContent}
-                                onChange={onTemplateChange}
-                                placeholder="Escribe el contenido del correo..."
-                            />
-                        </div>
-                    ) : (
-                        <div className="text-sm text-gray-600 bg-white rounded-lg p-4 border border-gray-200">
-                            <p>Haz clic en "Editar Contenido" para personalizar el mensaje del correo antes de enviarlo a los participantes.</p>
-                        </div>
-                    )}
-                </div>
-
                 {/* Opciones de envío */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-5">
+                    <label className="block text-sm font-semibold text-gray-900 mb-3">
                         Filtro de Envío
                     </label>
                     <div className="space-y-3">
-                        <label className="flex items-start gap-3 p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <label className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${filtroEnvio === 'pendientes' ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:bg-gray-50'}`}>
                             <input
                                 type="radio"
                                 value="pendientes"
@@ -112,7 +51,7 @@ export function EmailConfig({
                                 </div>
                             </div>
                         </label>
-                        <label className="flex items-start gap-3 p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <label className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${filtroEnvio === 'todos' ? 'border-green-500 bg-green-50' : 'border-gray-200 bg-white hover:bg-gray-50'}`}>
                             <input
                                 type="radio"
                                 value="todos"
@@ -131,11 +70,11 @@ export function EmailConfig({
                 </div>
 
                 {/* Botón de envío */}
-                <div className="pt-4">
+                <div className="pt-2">
                     <button
                         onClick={onEnviar}
-                        disabled={sending || editingTemplate}
-                        className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        disabled={sending}
+                        className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5 disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                         {sending ? (
                             <>
@@ -145,7 +84,7 @@ export function EmailConfig({
                         ) : (
                             <>
                                 <PaperAirplaneIcon className="w-5 h-5" />
-                                {editingTemplate ? 'Guarda antes de enviar' : 'Enviar Correos'}
+                                Enviar Correos
                             </>
                         )}
                     </button>

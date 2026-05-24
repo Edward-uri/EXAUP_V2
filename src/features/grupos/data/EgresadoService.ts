@@ -12,7 +12,6 @@ export const EgresadoService = {
         if (filtros.id_periodo_egreso) params.append('id_periodo_egreso', filtros.id_periodo_egreso.toString());
         if (filtros.cohorte) params.append('cohorte', filtros.cohorte.toString());
         if (filtros.prefijo_matricula) params.append('prefijo_matricula', filtros.prefijo_matricula);
-        if (filtros.busqueda) params.append('busqueda', filtros.busqueda);
         
         params.append('page', page.toString());
         params.append('limit', limit.toString());
