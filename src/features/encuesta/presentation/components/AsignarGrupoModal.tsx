@@ -9,9 +9,10 @@ interface AsignarGrupoModalProps {
     onClose: () => void;
     encuestaId: string;
     onSuccess: () => void;
+    onGrupoChange?: (grupoId: string) => void;
 }
 
-export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess }: AsignarGrupoModalProps) {
+export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess, onGrupoChange }: AsignarGrupoModalProps) {
     const [grupos, setGrupos] = useState<Grupo[]>([]);
     const [selectedGrupoId, setSelectedGrupoId] = useState('');
     const [loading, setLoading] = useState(false);
@@ -105,7 +106,11 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess }: As
                                                 </label>
                                                 <select
                                                     value={selectedGrupoId}
-                                                    onChange={(e) => setSelectedGrupoId(e.target.value)}
+                                                    onChange={(e) => {
+                                                        const grupoId = e.target.value;
+                                                        setSelectedGrupoId(grupoId);
+                                                        onGrupoChange?.(grupoId);
+                                                    }}
                                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm py-2 px-3 border"
                                                     required
                                                 >

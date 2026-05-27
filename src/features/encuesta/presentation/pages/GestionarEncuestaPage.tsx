@@ -50,6 +50,7 @@ export default function GestionarEncuestaPage() {
     const [sending, setSending] = useState(false);
     const [filtroEnvio, setFiltroEnvio] = useState<'pendientes' | 'todos'>('pendientes');
     const [currentTemplate, setCurrentTemplate] = useState<any>(null);
+    const [selectedGrupoId, setSelectedGrupoId] = useState('');
 
     // Confirmaciones
     const [confirmState, setConfirmState] = useState<
@@ -156,6 +157,10 @@ export default function GestionarEncuestaPage() {
      */
     const executeEnviar = async (selectedFiltro: 'pendientes' | 'todos') => {
         if (!id || !encuesta) return;
+        if (!selectedGrupoId) {
+            alert.warning('Grupo no seleccionado', 'Selecciona un grupo antes de enviar los correos.');
+            return;
+        }
 
         setSending(true);
         try {
@@ -168,6 +173,7 @@ export default function GestionarEncuestaPage() {
             const response = await DistributionService.dispatch({
                 id_encuesta: parseInt(id),
                 id_template: parseInt(templateId),
+                id_group: parseInt(selectedGrupoId),
                 filtro: selectedFiltro,
             });
 
@@ -253,6 +259,7 @@ export default function GestionarEncuestaPage() {
                 isOpen={showAsignarModal}
                 onClose={() => setShowAsignarModal(false)}
                 encuestaId={id!}
+                onGrupoChange={setSelectedGrupoId}
                 onSuccess={() => {
                     setShowAsignarModal(false);
                     if (activeTab === 'participantes') {
