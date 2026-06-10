@@ -81,13 +81,16 @@ export default function CrearGrupoWizard() {
                                 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Cohorte generacional</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Ej. 113"
-                                        value={wizard.filtros.prefijo_matricula || ''}
-                                        onChange={(e) => wizard.setFiltros({ ...wizard.filtros, prefijo_matricula: e.target.value })}
+                                    <select
+                                        value={wizard.filtros.cohorte ?? ''}
+                                        onChange={(e) => wizard.setFiltros({ ...wizard.filtros, cohorte: e.target.value ? Number(e.target.value) : undefined })}
                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-3 py-2 border"
-                                    />
+                                    >
+                                        <option value="" disabled>Selecciona una cohorte</option>
+                                        {wizard.cohortes.map(c => (
+                                            <option key={c.value} value={c.value}>{c.label}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -156,7 +159,10 @@ export default function CrearGrupoWizard() {
                             <button
                                 type="button"
                                 onClick={wizard.nextStep}
-                                disabled={wizard.step === 1 && (!wizard.nombre.trim() || !wizard.descripcion.trim())}
+                                disabled={
+                                    (wizard.step === 1 && (!wizard.nombre.trim() || !wizard.descripcion.trim())) ||
+                                    (wizard.step === 2 && !wizard.filtros.cohorte)
+                                }
                                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
                             >
                                 Siguiente

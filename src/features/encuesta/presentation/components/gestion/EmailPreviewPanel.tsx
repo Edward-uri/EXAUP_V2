@@ -7,7 +7,7 @@ interface EmailPreviewPanelProps {
 
 export function EmailPreviewPanel({ htmlContent, subject }: EmailPreviewPanelProps) {
     return (
-        <div className="lg:sticky lg:top-8 h-fit">
+        <div className="lg:sticky lg:top-8 lg:max-h-[calc(100vh-4rem)] flex flex-col">
             <TemplatePreview
                 htmlContent={htmlContent}
                 subject={subject}

@@ -431,15 +431,15 @@ export default function CrearEncuestaPage() {
                     </form>
 
                     {/* Vista Previa de Plantilla */}
-                    <div className="lg:sticky lg:top-8 h-fit">
+                    <div className="lg:sticky lg:top-8 lg:max-h-[calc(100vh-4rem)] flex flex-col">
                         {selectedTemplate ? (
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between px-1">
+                            <div className="space-y-3 flex flex-col flex-1 min-h-0">
+                                <div className="flex items-center justify-between px-1 flex-shrink-0">
                                     <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                                         Paso 3
                                     </span>
                                 </div>
-                                <TemplatePreview 
+                                <TemplatePreview
                                     htmlContent={selectedTemplate.attributes.layout_html 
                                         ? selectedTemplate.attributes.layout_html.replace('{{DYNAMIC_CONTENT}}', selectedTemplate.attributes.body)
                                         : selectedTemplate.attributes.body

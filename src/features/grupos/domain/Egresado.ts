@@ -19,6 +19,14 @@ export interface ProgramaEducativo {
     nombre: string;
 }
 
+export interface Cohorte {
+    value: number;
+    label: string;
+    cohorte: string;
+    periodo_id: number;
+    name_period: string | null;
+}
+
 export interface FiltrosImportacion {
     id_programa_educativo?: number;
     id_periodo_egreso?: number;

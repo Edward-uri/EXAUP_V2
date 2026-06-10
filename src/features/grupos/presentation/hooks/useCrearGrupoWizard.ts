@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { GrupoService } from '../../data/GrupoService';
 import { EgresadoService } from '../../data/EgresadoService';
-import type { FiltrosImportacion, ProgramaEducativo, Egresado } from '../../domain/Egresado';
+import type { FiltrosImportacion, ProgramaEducativo, Cohorte, Egresado } from '../../domain/Egresado';
 import { useAlert } from '../../../../shared/components/Alert';
 
 export function useCrearGrupoWizard() {
@@ -15,6 +15,7 @@ export function useCrearGrupoWizard() {
     // Step 2: Filtros
     const [filtros, setFiltros] = useState<FiltrosImportacion>({});
     const [programas, setProgramas] = useState<ProgramaEducativo[]>([]);
+    const [cohortes, setCohortes] = useState<Cohorte[]>([]);
     
     // Step 3: Preview
     const [egresadosPreview, setEgresadosPreview] = useState<Egresado[]>([]);
@@ -27,6 +28,9 @@ export function useCrearGrupoWizard() {
     useEffect(() => {
         EgresadoService.getProgramasEducativos()
             .then(setProgramas)
+            .catch(console.error);
+        EgresadoService.getCohortes()
+            .then(setCohortes)
             .catch(console.error);
     }, []);
 
@@ -83,6 +87,7 @@ export function useCrearGrupoWizard() {
         descripcion, setDescripcion,
         filtros, setFiltros,
         programas,
+        cohortes,
         egresadosPreview,
         totalMatches,
         loadingPreview,

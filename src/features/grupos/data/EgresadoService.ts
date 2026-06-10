@@ -1,9 +1,13 @@
 import { apiClient } from '../../../core/api.config';
-import type { Egresado, ProgramaEducativo, FiltrosImportacion } from '../domain/Egresado';
+import type { Egresado, ProgramaEducativo, Cohorte, FiltrosImportacion } from '../domain/Egresado';
 
 export const EgresadoService = {
     getProgramasEducativos: async (): Promise<ProgramaEducativo[]> => {
         const { data } = await apiClient.get('/egresado/programas-educativos');
+        return data.data;
+    },
+    getCohortes: async (): Promise<Cohorte[]> => {
+        const { data } = await apiClient.get('/egresado/cohortes');
         return data.data;
     },
     getEgresados: async (filtros: FiltrosImportacion, page = 1, limit = 20): Promise<{ data: Egresado[], meta: { total: number, page: number, limit: number } }> => {
