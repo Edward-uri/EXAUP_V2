@@ -146,7 +146,7 @@ export default function FormulariosPage() {
 
                         <Link
                             to="/formularios/crear"
-                            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all hover:shadow-md"
+                            className="inline-flex items-center gap-2 bg-blue-950 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-all hover:shadow-md"
                         >
                             <PlusIcon className="w-5 h-5" />
                             Crear Nuevo

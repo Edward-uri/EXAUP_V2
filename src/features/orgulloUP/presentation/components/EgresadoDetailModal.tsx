@@ -1,8 +1,27 @@
-import { XMarkIcon, BriefcaseIcon, AcademicCapIcon, CheckCircleIcon, XCircleIcon, PencilIcon } from '@heroicons/react/24/outline';
-import type { OrgulloUPRecord, LogroAcademico, LogroLaboral } from '../../domain/OrgulloUP';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import {
+    BriefcaseIcon,
+    CalendarIcon,
+    CircleCheckBigIcon,
+    CircleXIcon,
+    ClockIcon,
+    FingerprintIcon,
+    GraduationCapIcon,
+    IdCardIcon,
+    LoaderCircleIcon,
+    MailIcon,
+    PencilIcon,
+    XIcon,
+} from 'lucide-react';
+import type {
+    LogroAcademico,
+    LogroLaboral,
+    OrgulloUPRecord,
+    PerfilActualizable,
+} from '../../domain/OrgulloUP';
 import { OrgulloUPService } from '../../data/OrgulloUPService';
 import { useAlert } from '../../../../shared/components/Alert';
+import { ConfirmModal } from '../../../../shared/components/ConfirmModal';
 
 interface EgresadoDetailModalProps {
     isOpen: boolean;
@@ -14,6 +33,98 @@ interface EgresadoDetailModalProps {
     logrosAcademicos?: LogroAcademico[];
     logrosLaborales?: LogroLaboral[];
     loadingLogros?: boolean;
+}
+
+type Status = OrgulloUPRecord['attributes']['status'];
+
+/* El backend identifica el estado por número; la UI por nombre. */
+const ESTADO_ID: Record<Status, 1 | 2 | 3> = { pendiente: 1, rechazado: 2, aprobado: 3 };
+
+const STATUS_META: Record<Status, {
+    label: string;
+    badge: string;
+    icon: typeof ClockIcon;
+    descripcion: string;
+}> = {
+    pendiente: {
+        label: 'Pendiente',
+        badge: 'bg-amber-400 text-amber-950',
+        icon: ClockIcon,
+        descripcion: 'Este perfil aún no ha sido revisado.',
+    },
+    aprobado: {
+        label: 'Aprobado',
+        badge: 'bg-emerald-400 text-emerald-950',
+        icon: CircleCheckBigIcon,
+        descripcion: 'Este perfil es visible en Orgullo UP.',
+    },
+    rechazado: {
+        label: 'Rechazado',
+        badge: 'bg-red-500 text-white',
+        icon: CircleXIcon,
+        descripcion: 'Este perfil no se publica en Orgullo UP.',
+    },
+};
+
+const formatFecha = (iso: string | null | undefined) =>
+    iso
+        ? new Date(iso).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })
+        : '—';
+
+function DatoField({ icon: Icon, label, value }: {
+    icon: typeof MailIcon;
+    label: string;
+    value: string | null | undefined;
+}) {
+    return (
+        <div className="flex items-start gap-3">
+            <Icon className="size-4 shrink-0 text-blue-600 mt-0.5" aria-hidden="true" />
+            <div className="min-w-0">
+                <p className="text-xs font-medium text-gray-500">{label}</p>
+                <p className="text-sm text-gray-900 break-words">{value || '—'}</p>
+            </div>
+        </div>
+    );
+}
+
+function Seccion({ titulo, icon: Icon, count, children }: {
+    titulo: string;
+    icon?: typeof GraduationCapIcon;
+    count?: number;
+    children: React.ReactNode;
+}) {
+    return (
+        <section className="border-t border-gray-100 px-6 py-5 sm:px-8">
+            <div className="mb-4 flex items-center gap-2">
+                {Icon && <Icon className="size-5 text-blue-600" aria-hidden="true" />}
+                <h3 className="font-display text-base font-medium text-gray-900">{titulo}</h3>
+                {count !== undefined && (
+                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-semibold text-gray-600">
+                        {count}
+                    </span>
+                )}
+            </div>
+            {children}
+        </section>
+    );
+}
+
+function Skeleton({ rows = 2 }: { rows?: number }) {
+    return (
+        <div className="space-y-2" aria-hidden="true">
+            {Array.from({ length: rows }).map((_, i) => (
+                <div key={i} className="h-14 animate-pulse rounded-xl bg-gray-100" />
+            ))}
+        </div>
+    );
+}
+
+function VacioMsg({ children }: { children: React.ReactNode }) {
+    return (
+        <p className="rounded-xl border border-dashed border-gray-200 py-6 text-center text-sm text-gray-400">
+            {children}
+        </p>
+    );
 }
 
 export function EgresadoDetailModal({
@@ -29,24 +140,48 @@ export function EgresadoDetailModal({
 }: EgresadoDetailModalProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [editData, setEditData] = useState<any>(null);
+    const [editData, setEditData] = useState<PerfilActualizable | null>(null);
     const [updatedRecord, setUpdatedRecord] = useState<OrgulloUPRecord | null>(null);
+    const [imgFallo, setImgFallo] = useState(false);
+    const [confirmarRechazo, setConfirmarRechazo] = useState(false);
     const alert = useAlert();
-    
+
+    /* Cada registro arranca limpio: sin overrides, sin modo edición y sin el
+       fallo de imagen del egresado anterior. */
+    useEffect(() => {
+        setUpdatedRecord(null);
+        setIsEditing(false);
+        setEditData(null);
+        setImgFallo(false);
+        setConfirmarRechazo(false);
+    }, [record?.id]);
+
+    // Esc para cerrar y bloqueo del scroll de fondo mientras el modal está abierto.
+    useEffect(() => {
+        if (!isOpen) return;
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && !isSaving) onClose();
+        };
+        document.addEventListener('keydown', onKey);
+        const overflowPrevio = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.removeEventListener('keydown', onKey);
+            document.body.style.overflow = overflowPrevio;
+        };
+    }, [isOpen, isSaving, onClose]);
+
     if (!isOpen || !record) return null;
 
     const currentRecord = updatedRecord || record;
     const { egresado, logros_academicos = [], logros_laborales = [], status } = currentRecord.attributes;
     const nombreCompleto = `${egresado.nombre} ${egresado.primer_apellido} ${egresado.segundo_apellido || ''}`.trim();
+    const iniciales = `${egresado.nombre.charAt(0)}${egresado.primer_apellido.charAt(0)}`.toUpperCase();
+    const meta = STATUS_META[status] ?? STATUS_META.pendiente;
+    const StatusIcon = meta.icon;
 
-    const getEstadoActual = (): 1 | 2 | 3 => {
-        if (status === 'pendiente') return 1;
-        if (status === 'rechazado') return 2;
-        if (status === 'aprobado') return 3;
-        return 1; 
-    };
-
-    const estadoActual = getEstadoActual();
+    const academicos = logrosAcademicos ?? logros_academicos;
+    const laborales = logrosLaborales ?? logros_laborales;
 
     const startEditing = () => {
         setEditData({
@@ -56,7 +191,7 @@ export function EgresadoDetailModal({
             curp: egresado.curp,
             email: egresado.email,
             fecha_nacimiento: egresado.fecha_nacimiento,
-            id_programa_educativo: egresado.id_programa_educativo
+            id_programa_educativo: egresado.id_programa_educativo,
         });
         setIsEditing(true);
     };
@@ -68,26 +203,20 @@ export function EgresadoDetailModal({
 
     const saveChanges = async () => {
         if (!editData) return;
-        
         setIsSaving(true);
         try {
             await OrgulloUPService.updatePerfil(record.id, editData);
-            
             setUpdatedRecord({
                 ...currentRecord,
                 attributes: {
                     ...currentRecord.attributes,
-                    egresado: {
-                        ...currentRecord.attributes.egresado,
-                        ...editData
-                    }
-                }
+                    egresado: { ...currentRecord.attributes.egresado, ...editData },
+                },
             });
-            
             setIsEditing(false);
             setEditData(null);
             alert.success('Perfil actualizado', 'Los datos del egresado se han actualizado correctamente.');
-            if (onUpdate) onUpdate();
+            onUpdate?.();
         } catch (error) {
             console.error('Error al actualizar perfil:', error);
             alert.error('Error al actualizar', 'No se pudo actualizar el perfil del egresado. Intenta nuevamente.');
@@ -96,32 +225,16 @@ export function EgresadoDetailModal({
         }
     };
 
-    const mapEstadoToStatus = (estado: 1 | 2 | 3): 'pendiente' | 'rechazado' | 'aprobado' => {
-        switch (estado) {
-            case 1: return 'pendiente';
-            case 2: return 'rechazado';
-            case 3: return 'aprobado';
-            default: return 'pendiente';
-        }
-    };
-
-    const handleEstadoChange = async (estado: 1 | 2 | 3) => {
-        const estadoTexto = estado === 1 ? 'Pendiente' : estado === 2 ? 'Rechazado' : 'Aprobado';
-        
+    const aplicarEstado = async (nuevo: Status) => {
         setIsSaving(true);
         try {
-            await OrgulloUPService.updateEstado(record.id, estado);
-            
+            await OrgulloUPService.updateEstado(record.id, ESTADO_ID[nuevo]);
             setUpdatedRecord({
                 ...currentRecord,
-                attributes: {
-                    ...currentRecord.attributes,
-                    status: mapEstadoToStatus(estado)
-                }
+                attributes: { ...currentRecord.attributes, status: nuevo },
             });
-            
-            alert.success('Estado actualizado', `El estado del egresado se cambio a "${estadoTexto}".`);
-            if (onUpdate) onUpdate();
+            alert.success('Estado actualizado', `El perfil se marcó como "${STATUS_META[nuevo].label}".`);
+            onUpdate?.();
         } catch (error) {
             console.error('Error al actualizar estado:', error);
             alert.error('Error al actualizar', 'No se pudo cambiar el estado del egresado. Intenta nuevamente.');
@@ -130,318 +243,280 @@ export function EgresadoDetailModal({
         }
     };
 
+    /* Rechazar oculta el perfil del sitio público, así que pide confirmación.
+       Aprobar y volver a pendiente son reversibles y no la necesitan. */
+    const handleEstado = (nuevo: Status) => {
+        if (nuevo === status) return;
+        if (nuevo === 'rechazado') setConfirmarRechazo(true);
+        else void aplicarEstado(nuevo);
+    };
+
+    const accionClase = (destino: Status) => {
+        if (destino === status) return 'cursor-default border-gray-200 bg-gray-50 text-gray-400';
+        if (destino === 'aprobado') return 'border-emerald-600 bg-emerald-600 text-white hover:bg-emerald-700 hover:border-emerald-700';
+        if (destino === 'rechazado') return 'border-red-200 bg-white text-red-600 hover:bg-red-50 hover:border-red-300';
+        return 'border-amber-200 bg-white text-amber-700 hover:bg-amber-50 hover:border-amber-300';
+    };
+
+    const acciones: { destino: Status; label: string; icon: typeof ClockIcon }[] = [
+        { destino: 'aprobado', label: 'Aprobar', icon: CircleCheckBigIcon },
+        { destino: 'rechazado', label: 'Rechazar', icon: CircleXIcon },
+        { destino: 'pendiente', label: 'Dejar pendiente', icon: ClockIcon },
+    ];
+
+    const campos: { key: keyof PerfilActualizable; label: string; type?: string }[] = [
+        { key: 'nombre', label: 'Nombre' },
+        { key: 'primer_apellido', label: 'Primer apellido' },
+        { key: 'segundo_apellido', label: 'Segundo apellido' },
+        { key: 'curp', label: 'CURP' },
+        { key: 'email', label: 'Correo electrónico', type: 'email' },
+        { key: 'fecha_nacimiento', label: 'Fecha de nacimiento', type: 'date' },
+    ];
+
     return (
         <>
             <div
-                className="fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ease-out"
+                className="fixed inset-0 z-40 bg-blue-950/60 backdrop-blur-sm"
                 onClick={onClose}
-                style={{
-                    animation: 'fadeIn 0.3s ease-out'
-                }}
+                aria-hidden="true"
             />
 
-            <div
-                className="fixed top-0 right-0 bottom-0 left-64 z-50 flex items-center justify-center p-4"
-                onClick={onClose}
-            >
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 lg:pl-64">
                 <div
-                    className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden transform transition-all duration-300 ease-out flex flex-col"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={`Perfil de ${nombreCompleto}`}
+                    className="flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
-                    style={{
-                        animation: 'slideUp 0.3s ease-out'
-                    }}
                 >
-                    <div className="relative h-48 bg-gradient-to-br from-sky-300 via-sky-400 to-sky-500 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                        {egresado.imagen_egresado ? (
-                            <div className="w-28 h-28 rounded-full border-2 border-white/80 shadow-lg overflow-hidden bg-white">
-                                <img
-                                    src={egresado.imagen_egresado!}
-                                    alt={nombreCompleto}
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                        ) : (
-                            <div className="w-28 h-28 bg-sky-300 rounded-full flex items-center justify-center shadow-lg">
-                                <span className="text-3xl font-bold text-white">
-                                    {egresado.nombre.charAt(0)}{egresado.primer_apellido.charAt(0)}
-                                </span>
-                            </div>
-                        )}
-
+                    {/* Encabezado: identidad + estado, siempre visible */}
+                    <div className="relative shrink-0 bg-blue-950 px-6 py-6 sm:px-8">
                         <button
                             onClick={onClose}
-                            className="absolute top-4 right-4 bg-white rounded-full p-2 hover:bg-gray-100 transition-colors shadow-lg"
+                            className="absolute right-4 top-4 rounded-lg p-2 text-blue-200 transition-colors hover:bg-white/10 hover:text-white"
+                            aria-label="Cerrar"
                         >
-                            <XMarkIcon className="w-5 h-5 text-gray-600" />
+                            <XIcon className="size-5" />
                         </button>
+
+                        <div className="flex items-center gap-4 pr-10">
+                            {egresado.imagen_egresado && !imgFallo ? (
+                                <img
+                                    src={egresado.imagen_egresado}
+                                    alt=""
+                                    onError={() => setImgFallo(true)}
+                                    className="size-16 shrink-0 rounded-full border-2 border-white/20 object-cover"
+                                />
+                            ) : (
+                                <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-turquesa font-display text-xl font-semibold text-blue-950">
+                                    {iniciales}
+                                </div>
+                            )}
+
+                            <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                    <h2 className="truncate font-display text-2xl font-semibold text-white">
+                                        {nombreCompleto}
+                                    </h2>
+                                    {!isEditing && (
+                                        <button
+                                            onClick={startEditing}
+                                            className="shrink-0 rounded-lg p-1.5 text-blue-200 transition-colors hover:bg-white/10 hover:text-white"
+                                            title="Editar datos del egresado"
+                                        >
+                                            <PencilIcon className="size-4" />
+                                        </button>
+                                    )}
+                                </div>
+                                <p className="mt-0.5 truncate text-sm text-blue-200/80">
+                                    {egresado.matricula || 'Sin matrícula'}
+                                    {egresado.programa_educativo ? ` · ${egresado.programa_educativo}` : ''}
+                                </p>
+                                <span
+                                    className={`mt-2.5 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${meta.badge}`}
+                                >
+                                    <StatusIcon className="size-3.5" aria-hidden="true" />
+                                    {meta.label}
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="p-8 overflow-y-auto flex-1">
-                        <div className="text-center mb-8">
-                            <div className="flex items-center justify-center gap-2 mb-2">
-                                <h2 className="text-3xl font-bold text-gray-900">
-                                    {isEditing ? 'Editar Perfil' : nombreCompleto}
-                                </h2>
-                                {!isEditing && (
-                                    <button
-                                        onClick={startEditing}
-                                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                                        title="Editar perfil"
-                                    >
-                                        <PencilIcon className="w-5 h-5 text-gray-600" />
-                                    </button>
-                                )}
-                            </div>
-
-                            {isEditing ? (
-                                <div className="space-y-4 text-left max-w-md mx-auto mt-6">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-1">Nombre</label>
-                                        <input
-                                            type="text"
-                                            value={editData.nombre}
-                                            onChange={(e) => setEditData({...editData, nombre: e.target.value})}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-1">Primer Apellido</label>
-                                        <input
-                                            type="text"
-                                            value={editData.primer_apellido}
-                                            onChange={(e) => setEditData({...editData, primer_apellido: e.target.value})}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-1">Segundo Apellido</label>
-                                        <input
-                                            type="text"
-                                            value={editData.segundo_apellido || ''}
-                                            onChange={(e) => setEditData({...editData, segundo_apellido: e.target.value || null})}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-1">CURP</label>
-                                        <input
-                                            type="text"
-                                            value={editData.curp}
-                                            onChange={(e) => setEditData({...editData, curp: e.target.value})}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
-                                        <input
-                                            type="email"
-                                            value={editData.email || ''}
-                                            onChange={(e) => setEditData({...editData, email: e.target.value || null})}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-1">Fecha de Nacimiento</label>
-                                        <input
-                                            type="date"
-                                            value={editData.fecha_nacimiento || ''}
-                                            onChange={(e) => setEditData({...editData, fecha_nacimiento: e.target.value || null})}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        />
-                                    </div>
-                                    <div className="flex gap-2 pt-4">
-                                        <button
-                                            onClick={saveChanges}
-                                            disabled={isSaving}
-                                            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                        >
-                                            {isSaving ? 'Guardando...' : 'Guardar'}
-                                        </button>
-                                        <button
-                                            onClick={cancelEditing}
-                                            disabled={isSaving}
-                                            className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                        >
-                                            Cancelar
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <>
-                                    <p className="text-gray-500 mb-4">{egresado.email || 'Sin correo'}</p>
-                                    <div className="flex justify-center gap-4 flex-wrap">
-                                        <div className="bg-blue-50 px-4 py-2 rounded-lg">
-                                            <p className="text-xs text-gray-600 font-semibold">MATRÍCULA</p>
-                                            <p className="text-sm font-bold text-blue-600">{egresado.matricula}</p>
-                                        </div>
-                                        <div className="bg-purple-50 px-4 py-2 rounded-lg">
-                                            <p className="text-xs text-gray-600 font-semibold">CURP</p>
-                                            <p className="text-sm font-bold text-purple-600">{egresado.curp || '-'}</p>
-                                        </div>
-                                        <div className="bg-green-50 px-4 py-2 rounded-lg">
-                                            <p className="text-xs text-gray-600 font-semibold">PERÍODO</p>
-                                            <p className="text-sm font-bold text-green-600">{egresado.id_periodo || '-'}</p>
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-
-                        {!isEditing && (
-                            <div className="mb-8">
-                                <p className="text-sm font-semibold text-gray-600 text-center mb-3">Estado del Egresado</p>
-                                <div className="flex justify-center gap-3">
-                                    <button
-                                        onClick={() => handleEstadoChange(1)}
-                                        disabled={isSaving}
-                                        className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all text-sm ${
-                                            estadoActual === 1
-                                                ? 'bg-yellow-600 text-white shadow-lg'
-                                                : 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200'
-                                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                                    >
-                                        <CheckCircleIcon className="w-4 h-4" />
-                                        Pendiente
-                                    </button>
-                                    <button
-                                        onClick={() => handleEstadoChange(2)}
-                                        disabled={isSaving}
-                                        className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all text-sm ${
-                                            estadoActual === 2
-                                                ? 'bg-red-600 text-white shadow-lg'
-                                                : 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
-                                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                                    >
-                                        <XCircleIcon className="w-4 h-4" />
-                                        Rechazado
-                                    </button>
-                                    <button
-                                        onClick={() => handleEstadoChange(3)}
-                                        disabled={isSaving}
-                                        className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all text-sm ${
-                                            estadoActual === 3
-                                                ? 'bg-green-600 text-white shadow-lg'
-                                                : 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-200'
-                                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                                    >
-                                        <CheckCircleIcon className="w-4 h-4" />
-                                        Aprobado
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="mb-8">
-                            <h3 className="text-sm font-semibold text-gray-700 mb-1">Sinopsis profesional</h3>
-                            {loadingSinopsis ? (
-                                <p className="text-sm text-gray-400 italic">Cargando sinopsis...</p>
-                            ) : sinopsis ? (
-                                <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 border border-gray-100 rounded-lg p-3">
-                                    {sinopsis}
-                                </p>
-                            ) : (
-                                <p className="text-sm text-gray-400 italic">Sin sinopsis registrada.</p>
-                            )}
-                        </div>
-
-                        <div className="mb-8">
-                            <div className="flex items-center gap-2 mb-4">
-                                <AcademicCapIcon className="w-6 h-6 text-blue-600" />
-                                <h3 className="text-lg font-bold text-gray-900">Logros Académicos</h3>
-                            </div>
-                            {loadingLogros ? (
-                                <p className="text-gray-400 text-sm italic py-4 text-center">
-                                    Cargando logros académicos...
-                                </p>
-                            ) : (logrosAcademicos ?? logros_academicos).length > 0 ? (
-                                <div className="space-y-3">
-                                    {(logrosAcademicos ?? logros_academicos).map((logro) => (
-                                        <div
-                                            key={logro.id_academic_achievement}
-                                            className="bg-blue-50 p-4 rounded-lg border border-blue-100"
-                                        >
-                                            <h4 className="font-semibold text-gray-900 mb-1">
-                                                {logro.name}
-                                            </h4>
-                                            <p className="text-sm text-gray-600 mb-2">{logro.institution}</p>
-                                            <p className="text-xs text-gray-500">
-                                                {new Date(logro.date).toLocaleDateString('es-MX', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric'
-                                                })}
-                                            </p>
+                    {isEditing ? (
+                        <>
+                            <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-8">
+                                <h3 className="mb-4 font-display text-base font-medium text-gray-900">
+                                    Editar datos del egresado
+                                </h3>
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    {campos.map(({ key, label, type }) => (
+                                        <div key={key} className={key === 'email' ? 'sm:col-span-2' : ''}>
+                                            <label
+                                                htmlFor={`campo-${key}`}
+                                                className="mb-1 block text-sm font-medium text-gray-700"
+                                            >
+                                                {label}
+                                            </label>
+                                            <input
+                                                id={`campo-${key}`}
+                                                type={type ?? 'text'}
+                                                value={(editData?.[key] as string) ?? ''}
+                                                onChange={(e) =>
+                                                    setEditData({ ...editData, [key]: e.target.value || null })
+                                                }
+                                                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30"
+                                            />
                                         </div>
                                     ))}
                                 </div>
-                            ) : (
-                                <p className="text-gray-500 text-sm text-center py-4">
-                                    Sin logros académicos registrados
-                                </p>
-                            )}
-                        </div>
-
-                        <div>
-                            <div className="flex items-center gap-2 mb-4">
-                                <BriefcaseIcon className="w-6 h-6 text-green-600" />
-                                <h3 className="text-lg font-bold text-gray-900">Logros Laborales</h3>
                             </div>
-                            {loadingLogros ? (
-                                <p className="text-gray-400 text-sm italic py-4 text-center">
-                                    Cargando logros laborales...
-                                </p>
-                            ) : (logrosLaborales ?? logros_laborales).length > 0 ? (
-                                <div className="space-y-3">
-                                    {(logrosLaborales ?? logros_laborales).map((logro) => (
-                                        <div
-                                            key={logro.id_labor_achievement}
-                                            className="bg-green-50 p-4 rounded-lg border border-green-100"
-                                        >
-                                            <h4 className="font-semibold text-gray-900 mb-1">
-                                                {logro.position}
-                                            </h4>
-                                            <p className="text-sm text-gray-600 mb-2">{logro.company}</p>
-                                            <p className="text-xs text-gray-500">
-                                                {new Date(logro.date).toLocaleDateString('es-MX', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric'
-                                                })}
-                                            </p>
-                                        </div>
-                                    ))}
+
+                            <div className="flex shrink-0 justify-end gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4 sm:px-8">
+                                <button
+                                    onClick={cancelEditing}
+                                    disabled={isSaving}
+                                    className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300 disabled:opacity-50"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={saveChanges}
+                                    disabled={isSaving}
+                                    className="inline-flex items-center gap-2 rounded-lg bg-blue-950 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-800 disabled:opacity-50"
+                                >
+                                    {isSaving && <LoaderCircleIcon className="size-4 animate-spin" />}
+                                    {isSaving ? 'Guardando…' : 'Guardar cambios'}
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            {/* Decisión: qué es hoy y qué puedo hacer */}
+                            <div className="shrink-0 border-b border-gray-100 bg-gray-50 px-6 py-4 sm:px-8">
+                                <p className="text-sm text-gray-600">{meta.descripcion}</p>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {acciones.map(({ destino, label, icon: Icon }) => {
+                                        const esActual = destino === status;
+                                        return (
+                                            <button
+                                                key={destino}
+                                                onClick={() => handleEstado(destino)}
+                                                disabled={isSaving || esActual}
+                                                aria-current={esActual}
+                                                className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed ${accionClase(destino)} ${isSaving && !esActual ? 'opacity-50' : ''}`}
+                                            >
+                                                <Icon className="size-4" aria-hidden="true" />
+                                                {esActual ? `${label} · actual` : label}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
-                            ) : (
-                                <p className="text-gray-500 text-sm text-center py-4">
-                                    Sin logros laborales registrados
-                                </p>
-                            )}
-                        </div>
-                    </div>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto">
+                                <Seccion titulo="Datos del egresado">
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <DatoField icon={MailIcon} label="Correo" value={egresado.email} />
+                                        <DatoField icon={IdCardIcon} label="Matrícula" value={egresado.matricula} />
+                                        <DatoField icon={FingerprintIcon} label="CURP" value={egresado.curp} />
+                                        <DatoField
+                                            icon={GraduationCapIcon}
+                                            label="Programa educativo"
+                                            value={egresado.programa_educativo}
+                                        />
+                                        <DatoField
+                                            icon={CalendarIcon}
+                                            label="Fecha de nacimiento"
+                                            value={egresado.fecha_nacimiento ? formatFecha(egresado.fecha_nacimiento) : null}
+                                        />
+                                        <DatoField
+                                            icon={CalendarIcon}
+                                            label="Período"
+                                            value={egresado.id_periodo ? String(egresado.id_periodo) : null}
+                                        />
+                                    </div>
+                                </Seccion>
+
+                                <Seccion titulo="Sinopsis profesional">
+                                    {loadingSinopsis ? (
+                                        <Skeleton rows={1} />
+                                    ) : sinopsis ? (
+                                        <p className="rounded-xl border border-gray-100 bg-gray-50 p-4 text-sm leading-relaxed text-gray-700">
+                                            {sinopsis}
+                                        </p>
+                                    ) : (
+                                        <VacioMsg>Sin sinopsis registrada.</VacioMsg>
+                                    )}
+                                </Seccion>
+
+                                <Seccion
+                                    titulo="Logros académicos"
+                                    icon={GraduationCapIcon}
+                                    count={loadingLogros ? undefined : academicos.length}
+                                >
+                                    {loadingLogros ? (
+                                        <Skeleton />
+                                    ) : academicos.length > 0 ? (
+                                        <ul className="space-y-2">
+                                            {academicos.map((logro) => (
+                                                <li
+                                                    key={logro.id_academic_achievement}
+                                                    className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm"
+                                                >
+                                                    <p className="font-medium text-gray-900">{logro.name}</p>
+                                                    <p className="mt-0.5 text-sm text-gray-600">{logro.institution}</p>
+                                                    <p className="mt-1 text-xs text-gray-400">{formatFecha(logro.date)}</p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <VacioMsg>Sin logros académicos registrados.</VacioMsg>
+                                    )}
+                                </Seccion>
+
+                                <Seccion
+                                    titulo="Logros laborales"
+                                    icon={BriefcaseIcon}
+                                    count={loadingLogros ? undefined : laborales.length}
+                                >
+                                    {loadingLogros ? (
+                                        <Skeleton />
+                                    ) : laborales.length > 0 ? (
+                                        <ul className="space-y-2">
+                                            {laborales.map((logro) => (
+                                                <li
+                                                    key={logro.id_labor_achievement}
+                                                    className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm"
+                                                >
+                                                    <p className="font-medium text-gray-900">{logro.position}</p>
+                                                    <p className="mt-0.5 text-sm text-gray-600">{logro.company}</p>
+                                                    <p className="mt-1 text-xs text-gray-400">{formatFecha(logro.date)}</p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <VacioMsg>Sin logros laborales registrados.</VacioMsg>
+                                    )}
+                                </Seccion>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 
-            <style>{`
-                @keyframes fadeIn {
-                    from {
-                        opacity: 0;
-                    }
-                    to {
-                        opacity: 1;
-                    }
-                }
-
-                @keyframes slideUp {
-                    from {
-                        opacity: 0;
-                        transform: translateY(20px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-            `}</style>
+            <ConfirmModal
+                isOpen={confirmarRechazo}
+                title="¿Rechazar este perfil?"
+                message={`${nombreCompleto} dejará de aparecer en Orgullo UP. Puedes revertirlo después.`}
+                confirmText="Sí, rechazar"
+                variant="danger"
+                loading={isSaving}
+                onConfirm={async () => {
+                    await aplicarEstado('rechazado');
+                    setConfirmarRechazo(false);
+                }}
+                onCancel={() => setConfirmarRechazo(false)}
+            />
         </>
     );
 }

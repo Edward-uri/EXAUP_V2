@@ -15,7 +15,7 @@ const Stepper: React.FC<StepperProps> = ({ steps, currentStep }) => {
         <div className="absolute top-5 left-0 w-full h-1 bg-slate-100 rounded-full -z-0"></div>
         {/* Progress Bar Fill */}
         <div 
-            className="absolute top-5 left-0 h-1 bg-blue-600 rounded-full -z-0 transition-all duration-500 ease-out"
+            className="absolute top-5 left-0 h-1 bg-blue-950 rounded-full -z-0 transition-all duration-500 ease-out"
             style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
         ></div>
         
@@ -27,8 +27,8 @@ const Stepper: React.FC<StepperProps> = ({ steps, currentStep }) => {
             <div key={step.id} className="relative z-10 flex flex-col items-center">
               <div 
                 className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-500 ease-out shadow-sm
-                ${isActive ? 'bg-blue-600 text-white shadow-blue-600/30 scale-110' 
-                  : isCompleted ? 'bg-blue-600 text-white' 
+                ${isActive ? 'bg-blue-950 text-white shadow-blue-600/30 scale-110' 
+                  : isCompleted ? 'bg-blue-950 text-white' 
                   : 'bg-white border border-slate-200 text-slate-400'}`}
               >
                 {isCompleted ? <Check size={18} strokeWidth={3} /> : step.icon}

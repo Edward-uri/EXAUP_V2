@@ -27,7 +27,7 @@ export function ConnectionErrorPageAlert({ onRetry }: ConnectionErrorPageAlertPr
             No podemos conectarnos al servidor
           </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Parece que hubo un problema con tu conexión o con el servidor de EXAUP. Revisa tu red o inténtalo de nuevo en unos momentos.
+            Parece que hubo un problema con tu conexión o con el servidor de Seguimiento UP. Revisa tu red o inténtalo de nuevo en unos momentos.
           </p>
 
           <button

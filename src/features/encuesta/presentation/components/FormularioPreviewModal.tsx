@@ -7,20 +7,8 @@ import {
     CheckCircleIcon,
     XCircleIcon
 } from '@heroicons/react/24/outline';
+import { tipoPreguntaLabel } from '../../../formulario/domain/tipoPreguntaLabels';
 
-// Mapeo para mostrar nombres amigables
-const TIPO_PREGUNTA_LABEL: Record<string, string> = {
-    'abierta': 'Respuesta abierta',
-    'opción múltiple': 'Opción múltiple',
-    'boolean': 'Sí / No',
-    'likert': 'Escala Likert',
-    'casillas': 'Casillas',
-};
-
-const getTipoLabel = (nombre: string): string => {
-    const normalizado = nombre.toLowerCase().trim();
-    return TIPO_PREGUNTA_LABEL[normalizado] || nombre;
-};
 
 interface FormularioPreviewModalProps {
     formularioId: string | null;
@@ -169,7 +157,7 @@ export function FormularioPreviewModal({ formularioId, isOpen, onClose }: Formul
                                                             )}
                                                         </p>
                                                         <span className="inline-block mt-1.5 text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded">
-                                                            {getTipoLabel(pregunta.relationships.tipo_pregunta.data.nombre)}
+                                                            {tipoPreguntaLabel(pregunta.relationships.tipo_pregunta.data.nombre)}
                                                         </span>
                                                         
                                                         {/* Preview del input */}

@@ -20,7 +20,7 @@ export function AsignarTab({ onAsignarClick }: AsignarTabProps) {
                 </p>
                 <button
                     onClick={onAsignarClick}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-950 text-white rounded-lg hover:bg-blue-800 transition-all font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5"
                 >
                     <UserGroupIcon className="w-5 h-5" />
                     Asignar Grupo

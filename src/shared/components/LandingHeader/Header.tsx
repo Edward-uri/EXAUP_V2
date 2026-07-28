@@ -28,10 +28,7 @@ const Header: React.FC = () => {
   return (
     <header className="w-full font-sans">
       {/* Top bar */}
-      <div
-        className="bg-[#1b258d] px-6 py-3 flex items-center justify-between"
-        style={{ fontFamily: "'Montserrat', sans-serif" }}
-      >
+      <div className="bg-blue-600 px-6 py-3 flex items-center justify-between font-display">
         {/* Logo */}
         <a href="#" className="flex items-center gap-3 shrink-0">
           {/* UP Logo Image */}
@@ -79,10 +76,7 @@ const Header: React.FC = () => {
       </div>
 
       {/* Bottom nav bar */}
-      <div
-        className="bg-[#020035] pl-6 pr-5 py-3 hidden md:flex items-center justify-end gap-8"
-        style={{ fontFamily: "sans-serif" }}
-      >
+      <div className="bg-blue-950 pl-6 pr-5 py-3 hidden md:flex items-center justify-end gap-8 font-display">
         {navLinks.map((link) => (
           <a
             key={link.label}
@@ -113,8 +107,8 @@ const Header: React.FC = () => {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#0a0f6e] border-t border-blue-800">
-          <div className="px-6 py-4 flex flex-col gap-3" style={{ fontFamily: "'Montserrat', sans-serif" }}>
+        <div className="md:hidden bg-blue-800 border-t border-blue-700">
+          <div className="px-6 py-4 flex flex-col gap-3 font-display">
             {topLinks.map((link) => (
               <a
                 key={link.label}

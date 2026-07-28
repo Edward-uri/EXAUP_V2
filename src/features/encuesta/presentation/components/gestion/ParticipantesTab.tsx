@@ -25,7 +25,7 @@ export function ParticipantesTab({
     onFiltersChange
 }: ParticipantesTabProps) {
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterAcceso, setFilterAcceso] = useState<'todos' | 'activos' | 'revocados'>('todos');
+    const [filterAcceso, setFilterAcceso] = useState<'todos' | 'activos' | 'revocados'>('activos');
     const [filterEstado, setFilterEstado] = useState<'all' | 'pendiente' | 'contestada'>('all');
 
     const handleFilterChange = (

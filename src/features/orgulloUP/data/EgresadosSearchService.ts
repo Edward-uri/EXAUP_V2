@@ -1,4 +1,5 @@
 import { apiClient } from "../../../core/api.config";
+import { normalizeImageUrl } from "../../../core/media";
 import type { OrgulloUPRecord, OrgulloUPMeta } from "../domain/OrgulloUP";
 
 const ENDPOINT = "/egresados";
@@ -92,7 +93,7 @@ export const EgresadosSearchService = {
           matricula: item.matricula,
           curp: item.curp,
           email: item.email,
-          imagen_egresado: item.imagen_egresado,
+          imagen_egresado: normalizeImageUrl(item.imagen_egresado),
           fecha_nacimiento: item.fecha_nacimiento,
           is_active: item.is_active,
           id_programa_educativo: item.id_programa_educativo,

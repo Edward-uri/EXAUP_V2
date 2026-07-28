@@ -92,7 +92,7 @@ export default function EditarGrupoPage() {
                             <button
                                 type="submit"
                                 disabled={updating || (!nombre.trim() || !descripcion.trim())}
-                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:bg-gray-400"
+                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-950 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-800 disabled:bg-gray-400"
                             >
                                 {updating ? 'Guardando...' : 'Guardar Cambios'}
                             </button>

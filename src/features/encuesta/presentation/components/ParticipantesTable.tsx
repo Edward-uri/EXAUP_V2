@@ -1,7 +1,6 @@
 import type { Participante, ParticipantesMeta } from '../../domain/GestionEncuesta';
 import { TrashIcon, CheckCircleIcon, ClockIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { fechaRelativa } from '../../../../core/fechas';
 
 interface ParticipantesTableProps {
     participantes: Participante[];
@@ -21,17 +20,6 @@ export function ParticipantesTable({ participantes, meta, onRevocar, onPageChang
         );
     }
 
-    const formatDate = (dateString?: string) => {
-        if (!dateString) return '-';
-        try {
-            return formatDistanceToNow(new Date(dateString), { 
-                addSuffix: true, 
-                locale: es 
-            });
-        } catch {
-            return dateString;
-        }
-    };
 
     return (
         <>
@@ -42,22 +30,22 @@ export function ParticipantesTable({ participantes, meta, onRevocar, onPageChang
                         <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
                             Egresado
                         </th>
-                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                        <th className="hidden md:table-cell px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                             Matrícula
                         </th>
-                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                        <th className="hidden 2xl:table-cell px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                             Email
                         </th>
-                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                        <th className="hidden xl:table-cell px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                             Programa Educativo
                         </th>
-                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                        <th className="hidden lg:table-cell px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                             Estado
                         </th>
                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                             Acceso
                         </th>
-                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                        <th className="hidden 2xl:table-cell px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                             Respuesta
                         </th>
                         <th className="relative py-3.5 pl-3 pr-4 sm:pr-6">
@@ -72,19 +60,19 @@ export function ParticipantesTable({ participantes, meta, onRevocar, onPageChang
                         
                         return (
                             <tr key={participante.id} className="hover:bg-gray-50 transition-colors">
-                                <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                                <td className="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                                     {nombreCompleto}
                                 </td>
-                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                <td className="hidden md:table-cell whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                     {egresado.matricula}
                                 </td>
-                                <td className="px-3 py-4 text-sm text-gray-500">
+                                <td className="hidden 2xl:table-cell px-3 py-4 text-sm text-gray-500">
                                     {egresado.email}
                                 </td>
-                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                <td className="hidden xl:table-cell whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                     {egresado.programa_educativo}
                                 </td>
-                                <td className="whitespace-nowrap px-3 py-4 text-sm">
+                                <td className="hidden lg:table-cell whitespace-nowrap px-3 py-4 text-sm">
                                     {participante.attributes.estado_respuesta === 'contestada' ? (
                                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                             <CheckCircleIcon className="w-3.5 h-3.5" />
@@ -106,8 +94,8 @@ export function ParticipantesTable({ participantes, meta, onRevocar, onPageChang
                                         {participante.attributes.is_active ? 'Activo' : 'Revocado'}
                                     </span>
                                 </td>
-                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                    {formatDate(participante.attributes.fecha_respuesta)}
+                                <td className="hidden 2xl:table-cell whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                    {fechaRelativa(participante.attributes.fecha_respuesta)}
                                 </td>
                                 <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                     {participante.attributes.is_active && (

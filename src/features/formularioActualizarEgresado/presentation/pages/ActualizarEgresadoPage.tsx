@@ -102,7 +102,7 @@ const ActualizarEgresadoPage: React.FC = () => {
                                 className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm tracking-wide text-white transition-all duration-300 shadow-md 
                             ${currentStep === 1 && !curpValidated 
                                     ? 'bg-slate-300 shadow-none cursor-not-allowed' 
-                                    : 'bg-blue-600 hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5'}`}
+                                    : 'bg-blue-950 hover:bg-blue-800 hover:shadow-lg hover:-translate-y-0.5'}`}
                             >
                             {currentStep === 1 && loadingPerfil
                               ? 'Guardando...'

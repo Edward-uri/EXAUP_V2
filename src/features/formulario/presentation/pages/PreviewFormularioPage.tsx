@@ -8,20 +8,8 @@ import {
     CheckCircleIcon,
     XCircleIcon
 } from '@heroicons/react/24/outline';
+import { tipoPreguntaLabel } from '../../domain/tipoPreguntaLabels';
 
-// Mapeo para mostrar nombres amigables
-const TIPO_PREGUNTA_LABEL: Record<string, string> = {
-    'abierta': 'Respuesta abierta',
-    'opción múltiple': 'Opción múltiple',
-    'boolean': 'Sí / No',
-    'likert': 'Escala Likert',
-    'casillas': 'Casillas',
-};
-
-const getTipoLabel = (nombre: string): string => {
-    const normalizado = nombre.toLowerCase().trim();
-    return TIPO_PREGUNTA_LABEL[normalizado] || nombre;
-};
 
 export default function PreviewFormularioPage() {
     const { id } = useParams<{ id: string }>();
@@ -103,7 +91,7 @@ export default function PreviewFormularioPage() {
                         </span>
                         <Link
                             to={`/formularios/editar/${id}`}
-                            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                            className="inline-flex items-center gap-2 bg-blue-950 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                         >
                             <PencilSquareIcon className="w-4 h-4" />
                             Editar
@@ -148,7 +136,7 @@ export default function PreviewFormularioPage() {
                                                     )}
                                                 </p>
                                                 <span className="inline-block mt-2 text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
-                                                    {getTipoLabel(pregunta.relationships.tipo_pregunta.data.nombre)}
+                                                    {tipoPreguntaLabel(pregunta.relationships.tipo_pregunta.data.nombre)}
                                                 </span>
                                             </div>
                                         </div>

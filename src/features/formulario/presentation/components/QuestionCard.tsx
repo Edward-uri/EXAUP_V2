@@ -1,45 +1,12 @@
 import { TrashIcon, DocumentDuplicateIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import type { Pregunta,OpcionPregunta } from '../../domain/Pregunta';
 import type { TipoPregunta } from '../../domain/TipoPregunta';
+import { tipoPreguntaLabel, tipoPreguntaDescripcion } from '../../domain/tipoPreguntaLabels';
 
 // Mapeo para mostrar nombres amigables y descripciones
-const TIPO_PREGUNTA_CONFIG: Record<string, { label: string; descripcion: string }> = {
-    'abierta': { 
-        label: 'Respuesta abierta', 
-        descripcion: 'Texto libre' 
-    },
-    'opción múltiple': { 
-        label: 'Opción múltiple', 
-        descripcion: 'Una sola respuesta' 
-    },
-    'boolean': { 
-        label: 'Sí / No', 
-        descripcion: 'Verdadero o falso' 
-    },
-    'likert': { 
-        label: 'Escala Likert', 
-        descripcion: 'Nivel de acuerdo' 
-    },
-    'casillas': { 
-        label: 'Casillas', 
-        descripcion: 'Varias respuestas' 
-    },
-};
 
-// Función helper para obtener el label amigable
-const getTipoLabel = (nombre: string): string => {
-    const normalizado = nombre.toLowerCase().trim();
-    return TIPO_PREGUNTA_CONFIG[normalizado]?.label || capitalizar(nombre);
-};
 
-const getTipoDescripcion = (nombre: string): string => {
-    const normalizado = nombre.toLowerCase().trim();
-    return TIPO_PREGUNTA_CONFIG[normalizado]?.descripcion || '';
-};
 
-const capitalizar = (str: string): string => {
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-};
 
 interface QuestionCardProps {
     pregunta: Pregunta;
@@ -81,7 +48,7 @@ export const QuestionCard = ({ pregunta, isActive, tiposDisponibles, onClick, on
 
     // Obtener el label del tipo para mostrar en vista previa
     const tipoLabel = tiposDisponibles.find(t => t.id === pregunta.tipoId)?.nombre 
-        ? getTipoLabel(tiposDisponibles.find(t => t.id === pregunta.tipoId)!.nombre) 
+        ? tipoPreguntaLabel(tiposDisponibles.find(t => t.id === pregunta.tipoId)!.nombre) 
         : '';
     
     // --- VISTA PREVIA (INACTIVA) ---
@@ -171,8 +138,8 @@ export const QuestionCard = ({ pregunta, isActive, tiposDisponibles, onClick, on
                     >
                         <option value="" disabled>Selecciona un tipo de pregunta</option>
                         {tiposDisponibles.map(tipo => {
-                            const label = getTipoLabel(tipo.nombre);
-                            const desc = getTipoDescripcion(tipo.nombre);
+                            const label = tipoPreguntaLabel(tipo.nombre);
+                            const desc = tipoPreguntaDescripcion(tipo.nombre);
                             return (
                                 <option key={tipo.id} value={tipo.id}>
                                     {label}{desc ? ` — ${desc}` : ''}
@@ -280,7 +247,7 @@ export const QuestionCard = ({ pregunta, isActive, tiposDisponibles, onClick, on
                     <span className="text-sm text-gray-500 font-medium">Obligatorio</span>
                     <button
                         onClick={() => onUpdate(pregunta.id, 'es_requerida', !pregunta.es_requerida)}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 shadow-inner ${pregunta.es_requerida ? 'bg-blue-600' : 'bg-gray-200'}`}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-all duration-300 shadow-inner ${pregunta.es_requerida ? 'bg-blue-950' : 'bg-gray-200'}`}
                     >
                         <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-all duration-300 ${pregunta.es_requerida ? 'translate-x-5' : 'translate-x-0.5'}`} />
                     </button>

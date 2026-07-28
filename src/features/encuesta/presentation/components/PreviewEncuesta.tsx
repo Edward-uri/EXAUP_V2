@@ -7,6 +7,7 @@ import {
     CheckCircleIcon,
     XCircleIcon
 } from '@heroicons/react/24/outline';
+import { tipoPreguntaLabel } from '../../../formulario/domain/tipoPreguntaLabels';
 
 interface PreviewEncuestaProps {
     encuesta: Encuesta;
@@ -42,7 +43,7 @@ export function PreviewEncuesta({ encuesta }: PreviewEncuestaProps) {
     };
 
     const getTipoPreguntaNombre = (pregunta: PreguntaDetalle): string => {
-        return pregunta.relationships?.tipo_pregunta?.data?.nombre || 'Texto';
+        return tipoPreguntaLabel(pregunta.relationships?.tipo_pregunta?.data?.nombre);
     };
 
     if (loading) {

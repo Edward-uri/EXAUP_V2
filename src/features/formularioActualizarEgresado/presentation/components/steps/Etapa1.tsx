@@ -49,7 +49,7 @@ const EtapaUno: React.FC<EtapaUnoProps> = ({
               <button 
                 onClick={onValidateCurp} 
                 disabled={loadingCurp || data.curp.length < 18} 
-                className="bg-blue-600 text-white px-6 rounded-xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:hover:shadow-none flex items-center gap-2 font-medium"
+                className="bg-blue-950 text-white px-6 rounded-xl hover:bg-blue-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:hover:shadow-none flex items-center gap-2 font-medium"
               >
                 {loadingCurp ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

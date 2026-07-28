@@ -46,12 +46,12 @@ export function RequireAuthPageAlert() {
             Necesitas iniciar sesión
           </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Para continuar y acceder a esta sección de EXAUP, inicia sesión con tu cuenta institucional.
+            Para continuar y acceder a esta sección de Seguimiento UP, inicia sesión con tu cuenta institucional.
           </p>
 
           <button
             onClick={() => navigate(ROUTES.LOGIN, { replace: true })}
-            className="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5"
+            className="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-blue-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-800 hover:shadow-md hover:-translate-y-0.5"
           >
             Ir a iniciar sesión
             <ArrowRightIcon className="ml-2 h-4 w-4" />

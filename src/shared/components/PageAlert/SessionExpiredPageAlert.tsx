@@ -32,12 +32,12 @@ export function SessionExpiredPageAlert() {
             Tu sesión ha expirado
           </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Por seguridad, tu sesión se cerró automáticamente. Inicia sesión de nuevo para continuar usando la plataforma EXAUP.
+            Por seguridad, tu sesión se cerró automáticamente. Inicia sesión de nuevo para continuar usando la plataforma Seguimiento UP.
           </p>
 
           <button
             onClick={handleGoToLogin}
-            className="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5"
+            className="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-blue-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-800 hover:shadow-md hover:-translate-y-0.5"
           >
             Iniciar sesión de nuevo
             <ArrowRightIcon className="ml-2 h-4 w-4" />

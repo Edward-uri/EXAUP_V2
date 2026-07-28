@@ -1,13 +1,11 @@
 import type { Encuesta } from '../../domain/Encuesta';
-import { 
-    TrashIcon, 
-    CheckCircleIcon,
-    XCircleIcon,
+import {
+    TrashIcon,
     ChartBarIcon,
     Cog6ToothIcon
 } from '@heroicons/react/24/outline';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { Switch } from '@headlessui/react';
+import { fechaRelativa } from '../../../../core/fechas';
 
 interface EncuestasTableProps {
     encuestas: Encuesta[];
@@ -15,9 +13,11 @@ interface EncuestasTableProps {
     onToggleActive: (id: string, currentStatus: boolean) => void;
     onViewMetrics?: (id: string) => void;
     onGestionar?: (id: string) => void;
+    /** Id de la encuesta cuyo cambio de estado está en vuelo. */
+    togglingId?: string | null;
 }
 
-export function EncuestasTable({ encuestas, onDelete, onToggleActive, onViewMetrics, onGestionar }: EncuestasTableProps) {
+export function EncuestasTable({ encuestas, onDelete, onToggleActive, onViewMetrics, onGestionar, togglingId }: EncuestasTableProps) {
     
     if (encuestas.length === 0) {
         return (
@@ -27,16 +27,6 @@ export function EncuestasTable({ encuestas, onDelete, onToggleActive, onViewMetr
         );
     }
 
-    const formatDate = (dateString: string) => {
-        try {
-            return formatDistanceToNow(new Date(dateString), { 
-                addSuffix: true, 
-                locale: es 
-            });
-        } catch {
-            return dateString;
-        }
-    };
 
     return (
         <div className="overflow-hidden shadow ring-1 ring-gray-300 sm:rounded-lg">
@@ -46,13 +36,13 @@ export function EncuestasTable({ encuestas, onDelete, onToggleActive, onViewMetr
                         <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
                             Nombre
                         </th>
-                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                        <th className="hidden lg:table-cell px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                             Descripción
                         </th>
                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                             Estado
                         </th>
-                        <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                        <th className="hidden md:table-cell px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                             Creada
                         </th>
                         <th className="relative py-3.5 pl-3 pr-4 sm:pr-6">
@@ -63,36 +53,47 @@ export function EncuestasTable({ encuestas, onDelete, onToggleActive, onViewMetr
                 <tbody className="divide-y divide-gray-200">
                     {encuestas.map((encuesta) => (
                         <tr key={encuesta.id} className="hover:bg-gray-50 transition-colors">
-                            <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                            <td className="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                                 {encuesta.attributes.nombre}
                             </td>
-                            <td className="px-3 py-4 text-sm text-gray-500 max-w-xs truncate">
+                            <td className="hidden lg:table-cell px-3 py-4 text-sm text-gray-500 max-w-xs truncate">
                                 {encuesta.attributes.descripcion || '-'}
                             </td>
+                            {/* Interruptor, no badge: antes el estado se veía igual que
+                                cualquier etiqueta de solo lectura y nadie sabía que
+                                era clickeable. */}
                             <td className="whitespace-nowrap px-3 py-4 text-sm">
-                                <button
-                                    onClick={() => onToggleActive(encuesta.id, encuesta.attributes.is_active)}
-                                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
-                                        encuesta.attributes.is_active
-                                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                                            : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                                    }`}
-                                >
-                                    {encuesta.attributes.is_active ? (
-                                        <>
-                                            <CheckCircleIcon className="w-3.5 h-3.5" />
-                                            Activa
-                                        </>
-                                    ) : (
-                                        <>
-                                            <XCircleIcon className="w-3.5 h-3.5" />
-                                            Inactiva
-                                        </>
-                                    )}
-                                </button>
+                                <div className="flex items-center gap-2.5">
+                                    <Switch
+                                        checked={encuesta.attributes.is_active}
+                                        onChange={() => onToggleActive(encuesta.id, encuesta.attributes.is_active)}
+                                        disabled={togglingId === encuesta.id}
+                                        title={
+                                            encuesta.attributes.is_active
+                                                ? 'Desactivar: dejará de recibir respuestas'
+                                                : 'Activar: volverá a recibir respuestas'
+                                        }
+                                        className="group relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full bg-gray-300 p-0.5 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 data-checked:bg-emerald-600 data-disabled:cursor-wait data-disabled:opacity-60"
+                                    >
+                                        <span className="sr-only">
+                                            {encuesta.attributes.is_active ? 'Desactivar encuesta' : 'Activar encuesta'}
+                                        </span>
+                                        <span
+                                            aria-hidden="true"
+                                            className="pointer-events-none size-4 rounded-full bg-white shadow ring-0 transition-transform duration-200 group-data-checked:translate-x-4"
+                                        />
+                                    </Switch>
+                                    <span
+                                        className={`text-xs font-medium ${
+                                            encuesta.attributes.is_active ? 'text-emerald-700' : 'text-gray-500'
+                                        }`}
+                                    >
+                                        {encuesta.attributes.is_active ? 'Activa' : 'Inactiva'}
+                                    </span>
+                                </div>
                             </td>
-                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                {formatDate(encuesta.attributes.created_at)}
+                            <td className="hidden md:table-cell whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                {fechaRelativa(encuesta.attributes.created_at)}
                             </td>
                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                 <div className="flex items-center justify-end gap-2">

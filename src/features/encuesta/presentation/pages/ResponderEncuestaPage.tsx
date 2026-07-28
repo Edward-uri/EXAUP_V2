@@ -373,7 +373,7 @@ export default function ResponderEncuestaPage() {
               <button
                 type="submit"
                 disabled={submitLoading}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-600 text-white font-semibold shadow-sm hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-blue-950 text-white font-semibold shadow-sm hover:bg-blue-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {submitLoading && <ArrowPathIcon className="w-4 h-4 animate-spin" />}
                 Enviar encuesta

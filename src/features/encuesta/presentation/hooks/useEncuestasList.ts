@@ -36,7 +36,24 @@ export const useEncuestasList = () => {
         // La confirmación visual ahora debe hacerse desde la UI usando el Modal/ConfirmModal compartido
         try {
             await EncuestaService.delete(id);
-            setEncuestas(prev => prev.filter(e => e.id !== id));
+
+            /* DELETE /encuestas/:id responde 200 aunque no borre nada (verificado
+               2026-07-28: el registro sigue en el listado, y un id inexistente
+               también devuelve 204). Por eso se confirma contra el servidor en vez
+               de quitar la fila a ciegas: si no, la encuesta "desaparece" y vuelve
+               al recargar. */
+            const frescas = await EncuestaService.getAll();
+            setEncuestas(frescas);
+
+            if (frescas.some(e => String(e.id) === String(id))) {
+                alert.error(
+                    'No se pudo eliminar',
+                    'El servidor aceptó la petición pero la encuesta sigue existiendo. Repórtalo al equipo de backend.'
+                );
+                return;
+            }
+
+            alert.success('Encuesta eliminada', 'La encuesta se eliminó correctamente.');
         } catch (err) {
             console.error('Error eliminando encuesta:', err);
             alert.error('Error al eliminar', 'No se pudo eliminar la encuesta.');
@@ -47,6 +64,12 @@ export const useEncuestasList = () => {
         try {
             const updated = await EncuestaService.toggleActive(id, !currentStatus);
             setEncuestas(prev => prev.map(e => e.id === id ? updated : e));
+            alert.success(
+                currentStatus ? 'Encuesta desactivada' : 'Encuesta activada',
+                currentStatus
+                    ? 'Dejó de recibir respuestas.'
+                    : 'Ya puede recibir respuestas de nuevo.'
+            );
         } catch (err) {
             console.error('Error actualizando estado:', err);
             alert.error('Error al actualizar', 'No se pudo actualizar el estado.');

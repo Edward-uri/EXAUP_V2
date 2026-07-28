@@ -42,7 +42,7 @@ export default function GestionarEncuestaPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [participantesFilters, setParticipantesFilters] = useState({
         searchTerm: '',
-        filterAcceso: 'todos' as 'todos' | 'activos' | 'revocados',
+        filterAcceso: 'activos' as 'todos' | 'activos' | 'revocados',
         filterEstado: 'all' as 'all' | 'pendiente' | 'contestada'
     });
     

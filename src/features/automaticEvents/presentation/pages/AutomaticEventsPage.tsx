@@ -39,7 +39,7 @@ export default function AutomaticEventsPage() {
                     </div>
                     <button
                         onClick={() => navigate(ROUTES.EVENTOS_AUTOMATICOS_CREAR)}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-semibold text-sm shadow-sm"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-950 text-white rounded-xl hover:bg-blue-800 transition-all font-semibold text-sm shadow-sm"
                     >
                         <PlusIcon size={18} />
                         Nuevo Evento
@@ -86,7 +86,7 @@ export default function AutomaticEventsPage() {
                                             <button
                                                 onClick={() => toggleStatus(event.id, event.is_active)}
                                                 className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none 
-                                                ${event.is_active ? 'bg-blue-600' : 'bg-gray-200'}`}
+                                                ${event.is_active ? 'bg-blue-950' : 'bg-gray-200'}`}
                                             >
                                                 <span className="sr-only">Cambiar estado</span>
                                                 <span

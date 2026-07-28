@@ -19,6 +19,26 @@ export default function EncuestasPage() {
     const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
     const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
     const [deleting, setDeleting] = useState(false);
+    const [togglingId, setTogglingId] = useState<string | null>(null);
+    const [deactivateTargetId, setDeactivateTargetId] = useState<string | null>(null);
+
+    const deactivateTarget = encuestas.find(e => e.id === deactivateTargetId);
+
+    const runToggle = async (id: string, currentStatus: boolean) => {
+        setTogglingId(id);
+        try {
+            await toggleActive(id, currentStatus);
+        } finally {
+            setTogglingId(null);
+        }
+    };
+
+    /* Desactivar corta la recepción de respuestas, así que se confirma.
+       Reactivar es inofensivo y va directo. */
+    const handleToggleActive = (id: string, currentStatus: boolean) => {
+        if (currentStatus) setDeactivateTargetId(id);
+        else void runToggle(id, currentStatus);
+    };
 
     // Filtrado
     const filteredEncuestas = encuestas.filter(encuesta => {
@@ -85,7 +105,7 @@ export default function EncuestasPage() {
                     </div>
                     <button
                         onClick={() => navigate(ROUTES.ENCUESTAS_CREAR)}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all hover:shadow-md hover:-translate-y-0.5 font-semibold text-sm"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-950 text-white rounded-lg hover:bg-blue-800 transition-all hover:shadow-md hover:-translate-y-0.5 font-semibold text-sm"
                     >
                         <PlusIcon className="w-5 h-5" />
                         Nueva Encuesta
@@ -148,9 +168,10 @@ export default function EncuestasPage() {
                 <EncuestasTable
                     encuestas={filteredEncuestas}
                     onDelete={handleRequestDelete}
-                    onToggleActive={toggleActive}
+                    onToggleActive={handleToggleActive}
                     onViewMetrics={handleViewMetrics}
                     onGestionar={handleGestionar}
+                    togglingId={togglingId}
                 />
 
                 {/* Empty State si hay filtros activos */}
@@ -191,6 +212,24 @@ export default function EncuestasPage() {
                         } finally {
                             setDeleting(false);
                         }
+                    }}
+                />
+
+                <ConfirmModal
+                    isOpen={!!deactivateTargetId}
+                    title="Desactivar encuesta"
+                    message={`"${deactivateTarget?.attributes.nombre ?? 'Esta encuesta'}" dejará de recibir respuestas y su enlace no estará disponible. Puedes reactivarla cuando quieras.`}
+                    confirmText="Sí, desactivar"
+                    variant="warning"
+                    loading={togglingId === deactivateTargetId}
+                    onCancel={() => {
+                        if (togglingId) return;
+                        setDeactivateTargetId(null);
+                    }}
+                    onConfirm={async () => {
+                        if (!deactivateTargetId) return;
+                        await runToggle(deactivateTargetId, true);
+                        setDeactivateTargetId(null);
                     }}
                 />
             </div>

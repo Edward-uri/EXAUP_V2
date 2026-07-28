@@ -221,7 +221,7 @@ export default function CrearFormularioPage() {
                 <div className="md:hidden fixed bottom-24 right-5 z-20">
                      <button 
                         onClick={addQuestion}
-                        className="bg-blue-600 p-4 rounded-2xl shadow-xl shadow-blue-600/25 text-white hover:bg-blue-700 transition-all duration-200"
+                        className="bg-blue-950 p-4 rounded-2xl shadow-xl shadow-blue-600/25 text-white hover:bg-blue-800 transition-all duration-200"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -249,7 +249,7 @@ export default function CrearFormularioPage() {
                             onClick={handleSave}
                             disabled={saving}
                             className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-white font-medium text-sm transition-all
-                                ${saving ? 'bg-blue-400 cursor-wait' : 'bg-blue-600 hover:bg-blue-700'}
+                                ${saving ? 'bg-blue-400 cursor-wait' : 'bg-blue-950 hover:bg-blue-800'}
                             `}
                         >
                             {saving ? (

@@ -12,22 +12,26 @@ import {
     DisclosurePanel 
 } from '@headlessui/react'
 import {
-    Bars3Icon,
-    DocumentIcon,
-    HomeIcon,
-    XMarkIcon,
+    AwardIcon,
     ChevronRightIcon,
-    ClipboardDocumentListIcon,
-    ArrowRightStartOnRectangleIcon,
-    StarIcon,
-} from '@heroicons/react/24/outline'
+    ClipboardListIcon,
+    FileTextIcon,
+    LayoutDashboardIcon,
+    LogOutIcon,
+    MenuIcon,
+    PanelLeftCloseIcon,
+    PanelLeftOpenIcon,
+    UsersIcon,
+    XIcon,
+    ZapIcon,
+} from 'lucide-react'
 import { ROUTES } from '../../constants/routes'
 import { STORAGE_KEYS } from '../../core/api.config'
 import { ALL_ROLES, type UserRole } from '../../features/login/domain/Roles'
 import { LoginService } from '../../features/login/data/LoginService'
 import { RequireAuthPageAlert } from '../components/PageAlert/RequireAuthPageAlert'
 import { SessionExpiredPageAlert } from '../components/PageAlert/SessionExpiredPageAlert'
-import {BoltIcon, UsersIcon } from 'lucide-react'
+import { Brand } from '../components/Brand'
 
 interface NavItem {
     name: string;
@@ -38,41 +42,48 @@ interface NavItem {
 }
 
 const navigation: NavItem[] = [
-    { name: 'Inicio', href: ROUTES.HOME, icon: HomeIcon },
-    { 
-        name: 'Encuestas', 
-        icon: DocumentIcon,
+    { name: 'Inicio', href: ROUTES.HOME, icon: LayoutDashboardIcon },
+    {
+        name: 'Encuestas',
+        icon: ClipboardListIcon,
         children: [
             { name: 'Crear nueva', href: ROUTES.ENCUESTAS_CREAR },
             { name: 'Ver todas', href: ROUTES.ENCUESTAS },
         ]
     },
-    { 
-        name: 'Formularios', 
-        icon: ClipboardDocumentListIcon,
+    {
+        name: 'Formularios',
+        icon: FileTextIcon,
         children: [
-            { name: 'Crear nuevo', href: ROUTES.FORMULARIOS_CREAR }, 
+            { name: 'Crear nuevo', href: ROUTES.FORMULARIOS_CREAR },
             { name: 'Ver todos', href: ROUTES.FORMULARIOS },
         ]
     },
-    { 
-        name: 'Grupos', 
+    {
+        name: 'Grupos',
         icon: UsersIcon,
         children: [
-            { name: 'Crear nuevo', href: ROUTES.GRUPOS_CREAR }, 
+            { name: 'Crear nuevo', href: ROUTES.GRUPOS_CREAR },
             { name: 'Ver todos', href: ROUTES.GRUPOS },
         ]
     },
-    { 
-        name: 'Eventos Automáticos', 
-        icon: BoltIcon,
+    {
+        name: 'Eventos Automáticos',
+        icon: ZapIcon,
         children: [
-            { name: 'Crear nuevo', href: ROUTES.EVENTOS_AUTOMATICOS_CREAR }, 
+            { name: 'Crear nuevo', href: ROUTES.EVENTOS_AUTOMATICOS_CREAR },
             { name: 'Ver todos', href: ROUTES.EVENTOS_AUTOMATICOS },
         ]
     },
-    { name: 'Orgullo UP', href: ROUTES.ORGULLO_UP, icon: StarIcon },
+    { name: 'Orgullo UP', href: ROUTES.ORGULLO_UP, icon: AwardIcon },
 ]
+
+/* El `before:` es la barra turquesa de item activo: va posicionada en vez de ser
+   un border para que no desplace el contenido al activarse. */
+const NAV_ITEM_BASE =
+    'group relative flex items-center gap-x-3 rounded-lg py-2 pl-3 pr-2 font-display text-sm font-medium ' +
+    'transition-colors duration-200 before:absolute before:left-0 before:top-1/2 before:h-5 before:w-0.5 ' +
+    "before:-translate-y-1/2 before:rounded-r-full before:content-['']"
 
 function classNames(...classes: (string | undefined | null | false)[]) {
     return classes.filter(Boolean).join(' ')
@@ -93,8 +104,14 @@ function getInitials(source?: string | null): string {
     return initials || 'EX'
 }
 
+const SIDEBAR_COLLAPSED_KEY = 'sidebar_collapsed'
+
 export default function DashboardLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
+    // Se lee en el inicializador para que no haya parpadeo de ancho al montar.
+    const [collapsed, setCollapsed] = useState(
+        () => localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1'
+    )
     const location = useLocation()
     const [userName, setUserName] = useState<string | null>(null)
     const [userEmail, setUserEmail] = useState<string | null>(null)
@@ -186,7 +203,17 @@ export default function DashboardLayout() {
         return item.allowedRoles.some((role) => userRoles.includes(role))
     }
 
-    const renderNavItem = (item: NavItem) => {
+    const toggleCollapsed = () => {
+        setCollapsed((prev) => {
+            const next = !prev
+            localStorage.setItem(SIDEBAR_COLLAPSED_KEY, next ? '1' : '0')
+            return next
+        })
+    }
+
+    /* `rail` = riel de solo iconos. El drawer móvil siempre se renderiza
+       expandido, así que recibe rail=false explícitamente. */
+    const renderNavItem = (rail: boolean) => (item: NavItem) => {
         if (!canAccessNavItem(item)) {
             return null
         }
@@ -197,27 +224,59 @@ export default function DashboardLayout() {
                 <li key={item.name}>
                     <Link
                         to={item.href!}
+                        aria-current={active ? 'page' : undefined}
+                        title={rail ? item.name : undefined}
                         className={classNames(
                             active
-                                ? 'bg-white text-blue-900 shadow-sm'
-                                : 'text-blue-950/70 hover:bg-white/30 hover:text-blue-900',
-                            'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold transition-all duration-200 ease-in-out'
+                                ? 'bg-white/10 text-white before:bg-turquesa'
+                                : 'text-blue-200/80 hover:bg-white/5 hover:text-white',
+                            NAV_ITEM_BASE,
+                            rail && 'justify-center pr-3'
                         )}
                     >
                         <item.icon
                             aria-hidden="true"
                             className={classNames(
-                                active ? 'text-blue-600' : 'text-blue-900/60 group-hover:text-blue-900',
-                                'size-6 shrink-0'
+                                active ? 'text-turquesa' : 'text-blue-300/70 group-hover:text-turquesa',
+                                'size-5 shrink-0 transition-colors'
                             )}
                         />
-                        {item.name}
+                        <span className={rail ? 'sr-only' : undefined}>{item.name}</span>
                     </Link>
                 </li>
             )
         }
 
         const anyChildActive = isChildActive(item.children);
+
+        /* En riel no cabe el submenú: el clic expande el sidebar y el
+           Disclosure queda abierto por defecto si algún hijo está activo. */
+        if (rail) {
+            return (
+                <li key={item.name}>
+                    <button
+                        type="button"
+                        onClick={toggleCollapsed}
+                        title={item.name}
+                        className={classNames(
+                            anyChildActive
+                                ? 'bg-white/10 text-white before:bg-turquesa'
+                                : 'text-blue-200/80 hover:bg-white/5 hover:text-white',
+                            NAV_ITEM_BASE, 'w-full justify-center pr-3'
+                        )}
+                    >
+                        <item.icon
+                            aria-hidden="true"
+                            className={classNames(
+                                anyChildActive ? 'text-turquesa' : 'text-blue-300/70 group-hover:text-turquesa',
+                                'size-5 shrink-0 transition-colors'
+                            )}
+                        />
+                        <span className="sr-only">{item.name}</span>
+                    </button>
+                </li>
+            )
+        }
 
         return (
             <li key={item.name}>
@@ -226,38 +285,43 @@ export default function DashboardLayout() {
                         <>
                             <DisclosureButton
                                 className={classNames(
-                                    anyChildActive ? 'text-blue-900' : 'text-blue-950/70 hover:bg-white/30 hover:text-blue-900',
-                                    'group flex w-full items-center gap-x-3 rounded-md p-2 text-left text-sm/6 font-semibold transition-all duration-200'
+                                    anyChildActive
+                                        ? 'text-white before:bg-turquesa'
+                                        : 'text-blue-200/80 hover:bg-white/5 hover:text-white',
+                                    NAV_ITEM_BASE, 'w-full text-left'
                                 )}
                             >
                                 <item.icon
                                     aria-hidden="true"
                                     className={classNames(
-                                        anyChildActive ? 'text-blue-600' : 'text-blue-900/60 group-hover:text-blue-900',
-                                        'size-6 shrink-0'
+                                        anyChildActive ? 'text-turquesa' : 'text-blue-300/70 group-hover:text-turquesa',
+                                        'size-5 shrink-0 transition-colors'
                                     )}
                                 />
                                 {item.name}
                                 <ChevronRightIcon
                                     aria-hidden="true"
                                     className={classNames(
-                                        open ? 'rotate-90 text-blue-900' : 'text-blue-900/50',
-                                        'ml-auto size-5 shrink-0 transition-transform duration-200'
+                                        open ? 'rotate-90 text-turquesa' : 'text-blue-300/50',
+                                        'ml-auto size-4 shrink-0 transition-transform duration-200'
                                     )}
                                 />
                             </DisclosureButton>
-                            <DisclosurePanel as="ul" className="mt-1 px-2 space-y-1">
+                            {/* La guía vertical cuelga de la columna del icono para que
+                                los subitems no floten sueltos al expandirse. */}
+                            <DisclosurePanel as="ul" className="my-1 ml-[1.4rem] space-y-0.5 border-l border-white/10 pl-3">
                                 {item.children?.map((subItem) => {
                                     const subActive = isCurrent(subItem.href)
                                     return (
                                         <li key={subItem.name}>
                                             <Link
                                                 to={subItem.href}
+                                                aria-current={subActive ? 'page' : undefined}
                                                 className={classNames(
                                                     subActive
-                                                        ? 'bg-white/50 text-blue-900 font-bold shadow-sm'
-                                                        : 'text-blue-900/70 hover:bg-white/30 hover:text-blue-900',
-                                                    'block rounded-md py-2 pr-2 pl-9 text-sm/6 transition-all duration-200'
+                                                        ? 'bg-white/10 font-semibold text-white'
+                                                        : 'text-blue-200/60 hover:bg-white/5 hover:text-white',
+                                                    'block rounded-lg px-3 py-1.5 text-sm transition-colors duration-200'
                                                 )}
                                             >
                                                 {subItem.name}
@@ -303,26 +367,18 @@ export default function DashboardLayout() {
                                 <div className="absolute top-0 left-full flex w-16 justify-center pt-5 duration-300 ease-in-out data-closed:opacity-0">
                                     <button type="button" onClick={() => setSidebarOpen(false)} className="-m-2.5 p-2.5">
                                         <span className="sr-only">Cerrar sidebar</span>
-                                        <XMarkIcon aria-hidden="true" className="size-6 text-white" />
+                                        <XIcon aria-hidden="true" className="size-6 text-white" />
                                     </button>
                                 </div>
                             </TransitionChild>
 
-                            <div className="relative flex grow flex-col gap-y-5 overflow-y-auto bg-[#8DD2FF] px-6 pb-4">
-                                <div className="flex h-16 shrink-0 items-center">
-                                    <img
-                                        alt="Logo"
-                                        src="/EXAUP.svg"
-                                        className="h-10 w-auto"
-                                    />
+                            <div className="relative flex grow flex-col bg-blue-950">
+                                <div className="shrink-0 border-b border-white/10 px-6 py-5">
+                                    <Brand />
                                 </div>
-                                <nav className="flex flex-1 flex-col">
-                                    <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                                        <li>
-                                            <ul role="list" className="-mx-2 space-y-1">
-                                                {navigation.map(renderNavItem)}
-                                            </ul>
-                                        </li>
+                                <nav className="flex-1 overflow-y-auto px-3 py-4">
+                                    <ul role="list" className="space-y-0.5">
+                                        {navigation.map(renderNavItem(false))}
                                     </ul>
                                 </nav>
                             </div>
@@ -330,67 +386,106 @@ export default function DashboardLayout() {
                     </div>
                 </Dialog>
 
-                <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-                    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-[#8DD2FF] border-r border-blue-300/30 px-6 pb-4">
-                        <div className="flex h-16 shrink-0 items-center mt-2">
-                            <img
-                                alt="Logo"
-                                src="/EXAUP.svg"
-                                className="h-10 w-auto"
-                            />
+                {/* Tres bloques fijos: marca arriba, navegación con su propio scroll,
+                    sesión abajo. Así la marca y el logout nunca se van con el scroll. */}
+                <div
+                    className={classNames(
+                        'hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col',
+                        'transition-[width] duration-300 ease-in-out motion-reduce:transition-none',
+                        collapsed ? 'lg:w-20' : 'lg:w-64'
+                    )}
+                >
+                    {/* Fuera del contenedor con overflow-hidden: si no, la mitad del
+                        botón que sobresale del borde queda recortada. */}
+                    <button
+                        type="button"
+                        onClick={toggleCollapsed}
+                        title={collapsed ? 'Expandir menú' : 'Contraer menú'}
+                        className="absolute right-0 top-24 z-10 -translate-y-1/2 translate-x-1/2 rounded-full border border-white/15 bg-blue-900 p-1.5 text-blue-200 shadow-lg transition-colors hover:bg-blue-800 hover:text-white"
+                    >
+                        {collapsed ? (
+                            <PanelLeftOpenIcon className="size-4" />
+                        ) : (
+                            <PanelLeftCloseIcon className="size-4" />
+                        )}
+                        <span className="sr-only">{collapsed ? 'Expandir menú' : 'Contraer menú'}</span>
+                    </button>
+
+                    <div className="flex grow flex-col overflow-hidden border-r border-white/10 bg-blue-950">
+                        {/* Altura fija: el bloque de marca no debe reflowear mientras el
+                            ancho anima, si no el logo "salta" al expandir. */}
+                        <div
+                            className={classNames(
+                                'flex h-24 shrink-0 items-center border-b border-white/10',
+                                collapsed ? 'justify-center px-2' : 'px-6'
+                            )}
+                        >
+                            <Brand compact={collapsed} />
                         </div>
-                        <nav className="flex flex-1 flex-col">
-                            <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                                <li>
-                                    <ul role="list" className="-mx-2 space-y-1">
-                                        {navigation.map(renderNavItem)}
-                                    </ul>
-                                </li>
 
-                                <li className="mt-auto">
-                                    <div className="border-t border-blue-900/10 -mx-2 mb-4"></div>
-                                    <div className="flex items-center gap-x-3 px-2 py-2 mb-2 rounded-xl bg-white/10 border border-white/10">
-                                        <div className="h-9 w-9 rounded-full bg-white flex items-center justify-center text-blue-600 font-bold text-sm shadow-sm">
-                                            {getInitials(userName || userEmail)}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-bold text-blue-950 truncate">{userName || 'Usuario'}</p>
-                                            <p className="text-xs text-blue-900/70 truncate">{userEmail || 'usuario@exaup.edu.mx'}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-1">
-                                        <button
-                                            type="button"
-                                            onClick={handleLogout}
-                                            className="w-full flex items-center gap-x-3 px-2 py-2 text-sm font-medium text-blue-900/80 hover:bg-red-500/10 hover:text-red-700 rounded-lg transition-colors"
-                                        >
-                                            <ArrowRightStartOnRectangleIcon className="size-5" />
-                                            Cerrar sesión
-                                        </button>
-                                    </div>
-                                </li>
+                        <nav className={classNames('flex-1 overflow-y-auto py-4', collapsed ? 'px-2' : 'px-3')}>
+                            <ul role="list" className="space-y-0.5">
+                                {navigation.map(renderNavItem(collapsed))}
                             </ul>
                         </nav>
+
+                        <div className={classNames('shrink-0 border-t border-white/10', collapsed ? 'p-2' : 'p-3')}>
+                            {collapsed ? (
+                                <div
+                                    title={userName || 'Usuario'}
+                                    className="mx-auto mb-1 flex size-9 items-center justify-center rounded-full bg-turquesa font-display text-sm font-semibold text-blue-950"
+                                >
+                                    {getInitials(userName || userEmail)}
+                                </div>
+                            ) : (
+                                <div className="mb-1 flex items-center gap-x-3 rounded-xl border border-white/10 bg-white/5 p-2">
+                                    <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-turquesa font-display text-sm font-semibold text-blue-950">
+                                        {getInitials(userName || userEmail)}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate text-sm font-semibold text-white">{userName || 'Usuario'}</p>
+                                        <p className="truncate text-xs text-blue-200/60">{userEmail || 'usuario@upchiapas.edu.mx'}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            <button
+                                type="button"
+                                onClick={handleLogout}
+                                title={collapsed ? 'Cerrar sesión' : undefined}
+                                className={classNames(
+                                    'flex w-full items-center gap-x-3 rounded-lg py-2 text-sm font-medium text-blue-200/70 transition-colors hover:bg-red-500/15 hover:text-red-300',
+                                    collapsed ? 'justify-center px-2' : 'px-3'
+                                )}
+                            >
+                                <LogOutIcon className="size-5 shrink-0" />
+                                <span className={collapsed ? 'sr-only' : undefined}>Cerrar sesión</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div className="sticky top-0 z-40 flex items-center gap-x-4 bg-white px-4 py-3 shadow-sm border-b border-gray-200 sm:px-6 lg:hidden">
+                <div className="sticky top-0 z-40 flex items-center gap-x-4 bg-blue-950 px-4 py-3 shadow-sm border-b border-white/10 sm:px-6 lg:hidden">
                     <button
                         type="button"
                         onClick={() => setSidebarOpen(true)}
-                        className="-m-2 p-2 text-gray-500 hover:text-gray-700 lg:hidden rounded-lg hover:bg-gray-100 transition-colors"
+                        className="-m-2 p-2 text-blue-200 hover:text-white lg:hidden rounded-lg hover:bg-white/10 transition-colors"
                     >
                         <span className="sr-only">Abrir sidebar</span>
-                        <Bars3Icon aria-hidden="true" className="size-6" />
+                        <MenuIcon aria-hidden="true" className="size-6" />
                     </button>
-                    <div className="h-6 w-px bg-gray-200"></div>
+                    <div className="h-6 w-px bg-white/20"></div>
                     <div className="flex-1">
-                        <img src="/EXAUP.svg" alt="Logo" className="h-7 w-auto" />
+                        <Brand showName={false} />
                     </div>
                 </div>
 
-                <main className="lg:pl-72 bg-slate-50 min-h-screen">
+                <main
+                    className={classNames(
+                        'min-h-screen bg-slate-50 transition-[padding] duration-300 ease-in-out motion-reduce:transition-none',
+                        collapsed ? 'lg:pl-20' : 'lg:pl-64'
+                    )}
+                >
                     <div className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
                         <Outlet />
                     </div>

@@ -1,11 +1,6 @@
 import { apiClient } from "../../../../core/api.config";
 import { hasInternalRole, resolveEgresadoPerfilUpdateId } from "../../../../core/auth-context";
-
-const normalizeImageUrl = (url?: string | null): string | null | undefined => {
-  if (!url) return url ?? null;
-  // Corrige rutas con /uploads/uploads/ a /uploads/
-  return url.replace("/uploads/uploads/", "/uploads/");
-};
+import { normalizeImageUrl } from "../../../../core/media";
 
 export const EgresadoPerfilService = {
   updatePerfil: async (id: string, data: {

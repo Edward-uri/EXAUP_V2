@@ -380,7 +380,7 @@ const EtapaCuatro: React.FC<EtapaCuatroProps> = ({ data }) => {
               type="button"
               onClick={handleGuardarSinopsis}
               disabled={savingSinopsis || countWords(sinopsis) === 0}
-              className="flex items-center justify-center px-8 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all disabled:opacity-50 shadow-md hover:shadow-lg disabled:hover:shadow-md"
+              className="flex items-center justify-center px-8 py-3 bg-blue-950 text-white rounded-xl font-semibold hover:bg-blue-800 transition-all disabled:opacity-50 shadow-md hover:shadow-lg disabled:hover:shadow-md"
             >
               {savingSinopsis ? 'Guardando...' : 'Actualizar Biografía'}
             </button>

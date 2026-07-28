@@ -51,7 +51,7 @@ export default function GruposPage() {
                     </div>
                     <button
                         onClick={() => navigate(ROUTES.GRUPOS_CREAR)}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-semibold text-sm"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-950 text-white rounded-lg hover:bg-blue-800 transition-all font-semibold text-sm"
                     >
                         <PlusIcon className="w-5 h-5" />
                         Crear Grupo

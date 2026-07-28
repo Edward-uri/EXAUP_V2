@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { XMarkIcon, UserGroupIcon } from '@heroicons/react/24/outline';
-import { GrupoService, AsignacionService } from '../../data/GestionEncuestaService';
+import { GrupoService, AsignacionService, ParticipanteService } from '../../data/GestionEncuestaService';
 import type { Grupo } from '../../domain/GestionEncuesta';
 import { useAlert } from '../../../../shared/components/Alert';
 
@@ -17,13 +17,20 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess, onGr
     const [selectedGrupoId, setSelectedGrupoId] = useState('');
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    // true = dejar sólo al grupo nuevo. false = sumarlo a los que ya están.
+    const [reemplazar, setReemplazar] = useState(true);
+    const [yaAsignados, setYaAsignados] = useState<number | null>(null);
     const alert = useAlert();
 
     useEffect(() => {
         if (isOpen) {
             loadGrupos();
+            // Saber a cuántos afecta la operación antes de ejecutarla.
+            ParticipanteService.getParticipantes(encuestaId, { filtro_acceso: 'activos', limit: 1 })
+                .then(r => setYaAsignados(r.meta.total_records))
+                .catch(() => setYaAsignados(null));
         }
-    }, [isOpen]);
+    }, [isOpen, encuestaId]);
 
     const loadGrupos = async () => {
         setLoading(true);
@@ -44,19 +51,30 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess, onGr
 
         setSubmitting(true);
         try {
-            const response = await AsignacionService.asignarPorGrupo(encuestaId, selectedGrupoId);
-            
-            const totalAsignados = response.meta.created + response.meta.reactivated;
-            alert.success(
-                'Asignacion exitosa',
-                `Nuevos: ${response.meta.created} · Reactivados: ${response.meta.reactivated} · Omitidos: ${response.meta.skipped} · Total: ${totalAsignados}`
-            );
-            
+            if (reemplazar) {
+                const r = await AsignacionService.reemplazarPorGrupo(encuestaId, selectedGrupoId);
+                alert.success(
+                    'Grupo reemplazado',
+                    `Se quitaron ${r.revocados} participantes anteriores y se asignaron ${r.meta.created + r.meta.reactivated} del grupo nuevo.`
+                );
+            } else {
+                const r = await AsignacionService.asignarPorGrupo(encuestaId, selectedGrupoId);
+                alert.success(
+                    'Grupo agregado',
+                    `Nuevos: ${r.meta.created} · Reactivados: ${r.meta.reactivated} · Ya estaban: ${r.meta.skipped}`
+                );
+            }
+
             onSuccess();
             onClose();
         } catch (error) {
             console.error('Error asignando grupo:', error);
-            alert.error('Error al asignar', 'Error al asignar el grupo.');
+            alert.error(
+                'Error al asignar',
+                reemplazar
+                    ? 'La operación falló a media ejecución. Revisa la lista de participantes antes de reintentar.'
+                    : 'Error al asignar el grupo.'
+            );
         } finally {
             setSubmitting(false);
         }
@@ -126,6 +144,41 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess, onGr
                                                         {grupos.find(g => g.id === selectedGrupoId)?.attributes.descripcion}
                                                     </p>
                                                 )}
+
+                                                {/* Sin esto la asignación era siempre aditiva y en silencio:
+                                                    el segundo grupo se sumaba al primero. */}
+                                                {!!yaAsignados && (
+                                                    <fieldset className="mt-5 space-y-2">
+                                                        <legend className="mb-2 text-sm font-medium text-gray-700">
+                                                            Esta encuesta ya tiene {yaAsignados} participante{yaAsignados === 1 ? '' : 's'}. ¿Qué hago con ellos?
+                                                        </legend>
+                                                        {[
+                                                            { v: true, t: 'Dejar sólo el grupo nuevo', d: 'Quita a los participantes actuales y asigna los del grupo seleccionado.' },
+                                                            { v: false, t: 'Sumar al grupo nuevo', d: 'Conserva a los actuales y agrega los del grupo seleccionado.' },
+                                                        ].map(op => (
+                                                            <label
+                                                                key={String(op.v)}
+                                                                className={`flex cursor-pointer gap-3 rounded-lg border p-3 transition-colors ${
+                                                                    reemplazar === op.v
+                                                                        ? 'border-blue-600 bg-blue-50'
+                                                                        : 'border-gray-200 hover:border-gray-300'
+                                                                }`}
+                                                            >
+                                                                <input
+                                                                    type="radio"
+                                                                    name="modo-asignacion"
+                                                                    checked={reemplazar === op.v}
+                                                                    onChange={() => setReemplazar(op.v)}
+                                                                    className="mt-0.5 size-4 shrink-0 text-blue-600 focus:ring-blue-600"
+                                                                />
+                                                                <span>
+                                                                    <span className="block text-sm font-medium text-gray-900">{op.t}</span>
+                                                                    <span className="block text-xs text-gray-500">{op.d}</span>
+                                                                </span>
+                                                            </label>
+                                                        ))}
+                                                    </fieldset>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -137,9 +190,11 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess, onGr
                             <button
                                 type="submit"
                                 disabled={submitting || !selectedGrupoId}
-                                className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed sm:w-auto"
+                                className="inline-flex w-full justify-center rounded-md bg-blue-950 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed sm:w-auto"
                             >
-                                {submitting ? 'Asignando...' : 'Asignar Grupo'}
+                                {submitting
+                                    ? (reemplazar && yaAsignados ? 'Reemplazando…' : 'Asignando…')
+                                    : (reemplazar && yaAsignados ? 'Reemplazar grupo' : 'Asignar grupo')}
                             </button>
                             <button
                                 type="button"

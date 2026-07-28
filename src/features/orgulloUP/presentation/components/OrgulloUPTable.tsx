@@ -40,16 +40,16 @@ export function OrgulloUPTable({ records, onView }: OrgulloUPTableProps) {
                             <th className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
                                 Nombre
                             </th>
-                            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                            <th className="hidden sm:table-cell px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                 Matrícula
                             </th>
-                            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                            <th className="hidden xl:table-cell px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                 Período
                             </th>
-                            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                            <th className="hidden lg:table-cell px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                 Email
                             </th>
-                            <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                            <th className="hidden md:table-cell px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                 Programa Educativo
                             </th>
                             <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
@@ -67,19 +67,19 @@ export function OrgulloUPTable({ records, onView }: OrgulloUPTableProps) {
                             
                             return (
                                 <tr key={record.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                                    <td className="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
                                         {nombreCompleto}
                                     </td>
-                                    <td className="whitespace-nowrap px-2 py-4 text-sm text-gray-500">
+                                    <td className="hidden sm:table-cell whitespace-nowrap px-2 py-4 text-sm text-gray-500">
                                         {egresado.matricula || '-'}
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                    <td className="hidden xl:table-cell whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                                         {egresado.id_periodo || '-'}
                                     </td>
-                                    <td className="px-5 py-4 text-sm text-gray-500">
+                                    <td className="hidden lg:table-cell px-5 py-4 text-sm text-gray-500">
                                         {egresado.email || '-'}
                                     </td>
-                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                    <td className="hidden md:table-cell whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                         {egresado.programa_educativo || '-'}
                                     </td>
                                     <td className="whitespace-nowrap px-3 py-4 text-sm">

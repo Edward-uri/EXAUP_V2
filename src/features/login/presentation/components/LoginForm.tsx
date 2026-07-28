@@ -21,13 +21,13 @@ export function LoginForm({ loading, onSubmit, error }: LoginFormProps) {
   };
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm shadow-xl rounded-2xl border border-blue-100 p-8 w-full max-w-md">
+    <div className="bg-white shadow-xl rounded-2xl border border-white/10 p-8 w-full max-w-md">
       <div className="mb-6 text-center">
         <p className="text-xs font-semibold tracking-wide text-blue-600 uppercase">
           Acceso administrativo
         </p>
         <h1 className="mt-2 text-2xl font-bold text-gray-900 font-display">
-          Inicia sesión en EXAUP
+          Inicia sesión en Seguimiento UP
         </h1>
         <p className="mt-1 text-sm text-gray-500">
           Gestiona encuestas, formularios y analítica desde un solo lugar.
@@ -80,14 +80,14 @@ export function LoginForm({ loading, onSubmit, error }: LoginFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:bg-blue-400"
+          className="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-blue-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-800 hover:shadow-md hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:bg-blue-400"
         >
           {loading ? "Iniciando sesión..." : "Entrar"}
         </button>
       </form>
 
       <p className="mt-4 text-center text-xs text-gray-400">
-        Uso exclusivo para personal autorizado de EXAUP.
+        Uso exclusivo para personal autorizado de Seguimiento UP.
       </p>
     </div>
   );

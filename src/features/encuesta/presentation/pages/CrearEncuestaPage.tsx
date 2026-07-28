@@ -64,7 +64,7 @@ const StepIndicator = ({
                 isComplete 
                     ? 'bg-green-100 text-green-600 ring-2 ring-green-600 ring-offset-2' 
                     : isActive 
-                        ? 'bg-blue-600 text-white shadow-md'
+                        ? 'bg-blue-950 text-white shadow-md'
                         : 'bg-gray-100 text-gray-400'
             }`}
             aria-label={`Paso ${stepNumber}: ${isComplete ? 'Completado' : isActive ? 'Activo' : 'Pendiente'}`}
@@ -291,7 +291,7 @@ export default function CrearEncuestaPage() {
                                                 onChange={(e) => setSelectedFormId(e.target.value)}
                                                 onBlur={() => setTouched(prev => ({ ...prev, form: true }))}
                                                 disabled={!step1Complete}
-                                                className={`flex-1 rounded-lg border-0 py-2.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ${
+                                                className={`min-w-0 flex-1 truncate rounded-lg border-0 py-2.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ${
                                                     errors.form ? 'ring-red-300' : 'ring-gray-300'
                                                 } focus:ring-2 focus:ring-blue-600 sm:text-sm disabled:bg-gray-50 disabled:cursor-not-allowed transition-all`}
                                                 aria-describedby={errors.form ? 'form-error' : undefined}
@@ -307,9 +307,9 @@ export default function CrearEncuestaPage() {
                                                 type="button"
                                                 onClick={() => setShowFormPreview(true)}
                                                 disabled={!selectedFormId}
-                                                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                                                    selectedFormId 
-                                                        ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 hover:shadow-sm' 
+                                                className={`flex shrink-0 items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                                                    selectedFormId
+                                                        ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 hover:shadow-sm'
                                                         : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                                                 }`}
                                                 title={selectedFormId ? 'Ver vista previa' : 'Selecciona un formulario'}
@@ -412,7 +412,7 @@ export default function CrearEncuestaPage() {
                                 className={`rounded-lg px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all flex items-center gap-2 ${
                                     saving || !allStepsComplete 
                                         ? 'bg-gray-400 cursor-not-allowed' 
-                                        : 'bg-blue-600 hover:bg-blue-500 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
+                                        : 'bg-blue-950 hover:bg-blue-500 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0'
                                 }`}
                             >
                                 {saving ? (

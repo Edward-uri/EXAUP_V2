@@ -57,7 +57,7 @@ export default function AnalyticsPage() {
             </button>
             <button 
               onClick={() => refetch()} 
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-blue-950 text-white rounded-lg hover:bg-blue-800 transition-colors"
             >
               Reintentar
             </button>
@@ -100,7 +100,7 @@ export default function AnalyticsPage() {
             {/* Botón Imprimir - Oculto en impresión */}
             <button
               onClick={handlePrint}
-              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-sm hover:shadow-md print:hidden"
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-950 text-white rounded-lg hover:bg-blue-800 transition-all shadow-sm hover:shadow-md print:hidden"
             >
               <PrinterIcon className="w-5 h-5" />
               <span className="hidden sm:inline">Imprimir</span>

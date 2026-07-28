@@ -1,10 +1,6 @@
 import { apiClient } from "../../../../core/api.config";
+import { normalizeImageUrl } from "../../../../core/media";
 import type { EgresadoPerfilAttributes, EgresadoPerfilResource } from "../../domain/ActualizarEgresado";
-
-const normalizeImageUrl = (url?: string | null): string | null | undefined => {
-  if (!url) return url ?? null;
-  return url.replace("/uploads/uploads/", "/uploads/");
-};
 
 interface PerfilCompletoResponse {
   success: boolean;

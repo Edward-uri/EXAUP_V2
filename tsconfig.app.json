@@ -24,5 +24,7 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Los self-checks corren con `npx tsx` y usan APIs de Node; no forman parte del bundle.
+  "exclude": ["src/**/*.test.ts"]
 }

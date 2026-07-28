@@ -34,7 +34,7 @@ interface ImgProps {
 const sidebarLinks: SidebarLink[] = [
   { label: "Titulo Posgrado",          href: "#titulo-posgrado" },
   { label: "Titulación Licenciatura",  href: "#titulacion-licenciatura" },
-  { label: "EXAUP",                    href: "#exaup" },
+  { label: "Seguimiento UP",                    href: "#exaup" },
 ]
 
 const stats: Stat[] = [
@@ -45,7 +45,7 @@ const stats: Stat[] = [
 
 const StatCard: React.FC<StatCardProps> = ({ prefix, value, desc, size }) => (
   <div className="flex-1 rounded-2xl flex flex-col items-center justify-center text-center text-white px-4 py-5 shadow-md"
-    style={{ background: "#1b258d" }}>
+    style={{ background: "var(--color-blue-600)" }}>
     <span className="text-[9px] font-normal tracking-wide opacity-80 mb-0.5">
       {prefix}
     </span>
@@ -141,7 +141,7 @@ const EgresadosPage: React.FC = () => (
 
         {/* Título de sección */}
         <h1 className="self-start ml-[10px] text-[40px] font-semibold text-gray-800 mb-5 tracking-tight">
-          EXAUP
+          Seguimiento UP
         </h1>
 
         <div className="w-full flex flex-col items-center -translate-x-20">
@@ -150,7 +150,7 @@ const EgresadosPage: React.FC = () => (
         <div className="bg-white rounded-2xl shadow-sm p-3 mb-5 w-fit self-center -translate-x-6">
           <Img
             src={heroImg}
-            alt="Ceremonia de graduación EXAUP"
+            alt="Ceremonia de graduación Seguimiento UP"
             className="w-[430px] h-[242px] object-cover rounded-xl"
             placeholder="egresados-hero.jpg"
           />
@@ -159,7 +159,7 @@ const EgresadosPage: React.FC = () => (
         {/* Texto CTA + botón */}
         <div className="text-center w-[370px] mb-7">
           <p className="text-[13px] font-semibold text-gray-700 leading-snug mb-2">
-            Actualiza tus datos y se<br />parte de EXAUP
+            Actualiza tus datos y se<br />parte de Seguimiento UP
           </p>
           <a
             href={ROUTES.ACTUALIZAR_EGRESADO}
