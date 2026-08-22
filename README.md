@@ -1,73 +1,67 @@
-# React + TypeScript + Vite
+# EXAUP V2
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación web desarrollada con React y TypeScript para gestionar y presentar la experiencia principal de EXAUP.
 
-Currently, two official plugins are available:
+## Tecnologías
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React
+- TypeScript
+- Vite
+- ESLint
+- Docker
+- Nginx
+- Vercel
 
-## React Compiler
+## Características técnicas
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+- frontend modular organizado en `src/`;
+- configuración de compilación con Vite;
+- despliegue preparado con Docker y Nginx;
+- configuración compatible con Vercel;
+- tipado estático con TypeScript;
+- reglas de calidad y linting.
 
-## Expanding the ESLint configuration
+## Ejecución local
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Requisitos
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js 18+
+- npm
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Instalación
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/Edward-uri/EXAUP_V2.git
+cd EXAUP_V2
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Para generar una versión de producción:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
 ```
+
+## Docker
+
+El repositorio incluye archivos para construir y ejecutar la aplicación con Docker y Nginx. Consulta `DOCKER.md` para el flujo específico del proyecto.
+
+## Estructura
+
+```
+src/                # Componentes y lógica de la aplicación
+public/             # Recursos públicos
+Dockerfile          # Imagen de producción
+Dockerfile.nginx    # Servidor Nginx
+docker-compose.yml  # Orquestación local
+vercel.json         # Configuración de Vercel
+```
+
+## Estado
+
+Proyecto en evolución. Las funcionalidades específicas y decisiones de producto se documentarán conforme avance el desarrollo.
+
+## Autor
+
+Eduardo Uriel Chavez Diaz — [@Edward-uri](https://github.com/Edward-uri)
