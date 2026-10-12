@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAlert } from '../../../../shared/components/Alert';
+import { ROUTES } from '../../../../constants/routes';
+import { getAuthScope, getSessionEgresadoId } from '../../../../core/auth-context';
 import { ActualizarEgresadoService } from '../../data/ActualizarEgresadoService';
 import type { FormData } from '../types';
 import { BLOB_PREFIX, MAX_IMAGE_SIZE_MB, firstNonEmpty, normalizeDateToYMD, sanitizeImageValue } from './formUtils';
@@ -22,6 +25,10 @@ export const useActualizarEgresadoStep1 = ({
 }: UseActualizarEgresadoStep1Params) => {
   const alert = useAlert();
   const getApiErrorMessage = useApiErrorMessage();
+  const navigate = useNavigate();
+
+  const mountedWithSessionRef = useRef(getAuthScope() === 'egresado' && !!getSessionEgresadoId());
+  const resumeLoadedRef = useRef(false);
 
   const [loadingCurp, setLoadingCurp] = useState<boolean>(false);
   const [loadingPerfil, setLoadingPerfil] = useState<boolean>(false);
@@ -198,6 +205,15 @@ export const useActualizarEgresadoStep1 = ({
     [alert, assignLocalPreview, formData.orgulloImagen, uploadOrgulloImage, uploadingImagen, setFormData],
   );
 
+  useEffect(() => {
+    if (!mountedWithSessionRef.current || resumeLoadedRef.current) return;
+    if (!curpValidated) return;
+    const sid = getSessionEgresadoId();
+    if (!sid) return;
+    resumeLoadedRef.current = true;
+    void loadPerfilFromApi(sid);
+  }, [curpValidated, loadPerfilFromApi]);
+
   const handleValidateCurp = useCallback(async () => {
     if (formData.curp.trim().length < 10) {
       alert.warning(
@@ -232,6 +248,8 @@ export const useActualizarEgresadoStep1 = ({
       setCurpValidated(true);
 
       await loadPerfilFromApi(auth.id);
+
+      navigate(ROUTES.EGRESADO_HOME);
     } catch (err) {
       setCurpValidated(false);
       const message = getApiErrorMessage(err, 'No se pudo validar la CURP');
@@ -239,7 +257,7 @@ export const useActualizarEgresadoStep1 = ({
     } finally {
       setLoadingCurp(false);
     }
-  }, [alert, formData.curp, getApiErrorMessage, loadPerfilFromApi, setCurpValidated, setFormData]);
+  }, [alert, formData.curp, getApiErrorMessage, loadPerfilFromApi, navigate, setCurpValidated, setFormData]);
 
   const handleActualizarPerfilYContinuar = useCallback(async () => {
     if (uploadingImagen) {

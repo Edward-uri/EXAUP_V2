@@ -13,6 +13,8 @@ export const ROUTES = {
     ACERCA_DE: '/acerca-de',
     CURSOS: '/cursos',
     ACTUALIZAR_EGRESADO: '/actualizar-egresado',
+    EGRESADO_HOME: '/egresado/home',
+    EGRESADO_ENCUESTAS: '/egresado/encuestas',
     GRUPOS: '/grupos',
     GRUPOS_CREAR: '/grupos/crear',
     GRUPOS_EDITAR: (id: string) => `/grupos/editar/${id}`,
