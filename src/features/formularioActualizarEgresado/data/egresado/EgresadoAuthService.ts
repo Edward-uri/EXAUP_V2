@@ -92,6 +92,21 @@ export const EgresadoAuthService = {
     localStorage.setItem(STORAGE_KEYS.AUTH_SCOPE, "egresado");
     localStorage.setItem(STORAGE_KEYS.EGRESADO_ID, data.data.id);
 
+    const nombreCompleto = [
+      attrs.nombre,
+      attrs.primer_apellido ?? attrs.apellido_paterno,
+      attrs.segundo_apellido ?? attrs.apellido_materno,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+    if (nombreCompleto) {
+      localStorage.setItem("egresado_nombre", nombreCompleto);
+    }
+    if (attrs.email) {
+      localStorage.setItem("egresado_email", attrs.email);
+    }
+
     // Si no hay token JWT, marcar que se autenticó por cookies
     if (!accessToken) {
       console.log("[EgresadoAuthService.login] Usando autenticación basada en cookies");

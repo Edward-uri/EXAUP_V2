@@ -1,6 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import DashboardLayout from "../shared/layout/Layout";
+import EgresadoLayout from "../shared/layout/EgresadoLayout";
+import EgresadoHomePage from "../features/egresado/presentation/pages/EgresadoHomePage";
+import MisEncuestasPage from "../features/egresado/presentation/pages/MisEncuestasPage";
 import CrearFormularioPage from "../features/formulario/presentation/pages/CrearFomularioPage";
 import FormulariosPage from "../features/formulario/presentation/pages/FormulariosPage";
 import PreviewFormularioPage from "../features/formulario/presentation/pages/PreviewFormularioPage";
@@ -53,8 +56,22 @@ export const router = createBrowserRouter([
     element: <CursosTalleresPage />
   },
   {
+    path: "/egresado",
+    element: <EgresadoLayout />,
+    children: [
+      {
+        path: "home",
+        element: <EgresadoHomePage />
+      },
+      {
+        path: "encuestas",
+        element: <MisEncuestasPage />
+      }
+    ]
+  },
+  {
     path: "/",
-    element: <DashboardLayout />, 
+    element: <DashboardLayout />,
     children: [
       {
         path: "home",

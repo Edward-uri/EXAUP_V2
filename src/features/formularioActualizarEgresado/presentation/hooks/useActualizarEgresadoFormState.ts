@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type ChangeEvent } from 'react';
 import type { FormData } from '../types';
 import { EgresadoFormStorageService } from '../../../../storage/service/EgresadoFormStorageService';
-import { clearEgresadoSession } from '../../../../core/auth-context';
+import { clearEgresadoSession, getAuthScope, getSessionEgresadoId } from '../../../../core/auth-context';
 import { INITIAL_FORM_STATE, TOTAL_STEPS } from './formUtils';
 
 export const useActualizarEgresadoFormState = () => {
@@ -10,26 +10,28 @@ export const useActualizarEgresadoFormState = () => {
   const [curpValidated, setCurpValidated] = useState<boolean>(false);
 
   useEffect(() => {
-    // Este flujo debe iniciar siempre limpio al entrar a la vista.
     EgresadoFormStorageService.clearState();
     setFormData(INITIAL_FORM_STATE);
-    setCurrentStep(1);
-    setCurpValidated(false);
 
-    const clearFlowSession = () => {
-      EgresadoFormStorageService.clearState();
-      clearEgresadoSession();
-    };
+    const resuming = getAuthScope() === 'egresado' && !!getSessionEgresadoId();
+    if (resuming) {
+      setCurrentStep(2);
+      setCurpValidated(true);
+    } else {
+      setCurrentStep(1);
+      setCurpValidated(false);
+    }
 
     const handleBeforeUnload = () => {
-      clearFlowSession();
+      EgresadoFormStorageService.clearState();
+      clearEgresadoSession();
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      clearFlowSession();
+      EgresadoFormStorageService.clearState();
     };
   }, []);
 

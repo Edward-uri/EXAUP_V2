@@ -86,4 +86,6 @@ export function clearEgresadoSession(): void {
   localStorage.removeItem(STORAGE_KEYS.AUTH_SCOPE);
   localStorage.removeItem(STORAGE_KEYS.EGRESADO_ID);
   localStorage.removeItem("auth_method");
+  localStorage.removeItem("egresado_nombre");
+  localStorage.removeItem("egresado_email");
 }
