@@ -63,7 +63,7 @@ apiClient.interceptors.response.use(
     const isAuthEndpoint =
       requestUrl.includes('/auth/staff/login') ||
       requestUrl.includes('/auth/login') ||
-      requestUrl.includes('/auth/refresh');
+      requestUrl.includes('/auth/refresh') || requestUrl.includes('/auth/logout');
 
     // En endpoints de autenticación no intentamos refresh para no ocultar 401 reales.
     if (error.response?.status === 401 && isAuthEndpoint) {

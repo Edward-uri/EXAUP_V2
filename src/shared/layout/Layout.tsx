@@ -21,13 +21,15 @@ import {
     MenuIcon,
     PanelLeftCloseIcon,
     PanelLeftOpenIcon,
+    ShieldCheckIcon,
     UsersIcon,
     XIcon,
     ZapIcon,
 } from 'lucide-react'
 import { ROUTES } from '../../constants/routes'
-import { STORAGE_KEYS } from '../../core/api.config'
+import { STORAGE_KEYS, apiClient } from '../../core/api.config'
 import { ALL_ROLES, type UserRole } from '../../features/login/domain/Roles'
+import { PERMISOS } from '../../features/login/domain/Permisos'
 import { LoginService } from '../../features/login/data/LoginService'
 import { RequireAuthPageAlert } from '../components/PageAlert/RequireAuthPageAlert'
 import { SessionExpiredPageAlert } from '../components/PageAlert/SessionExpiredPageAlert'
@@ -42,10 +44,11 @@ interface NavItem {
 }
 
 const navigation: NavItem[] = [
-    { name: 'Inicio', href: ROUTES.HOME, icon: LayoutDashboardIcon },
+    { name: 'Inicio', href: ROUTES.HOME, icon: LayoutDashboardIcon, allowedRoles: PERMISOS.inicio },
     {
         name: 'Encuestas',
         icon: ClipboardListIcon,
+        allowedRoles: PERMISOS.encuestas,
         children: [
             { name: 'Crear nueva', href: ROUTES.ENCUESTAS_CREAR },
             { name: 'Ver todas', href: ROUTES.ENCUESTAS },
@@ -54,6 +57,7 @@ const navigation: NavItem[] = [
     {
         name: 'Formularios',
         icon: FileTextIcon,
+        allowedRoles: PERMISOS.formularios,
         children: [
             { name: 'Crear nuevo', href: ROUTES.FORMULARIOS_CREAR },
             { name: 'Ver todos', href: ROUTES.FORMULARIOS },
@@ -62,6 +66,7 @@ const navigation: NavItem[] = [
     {
         name: 'Grupos',
         icon: UsersIcon,
+        allowedRoles: PERMISOS.grupos,
         children: [
             { name: 'Crear nuevo', href: ROUTES.GRUPOS_CREAR },
             { name: 'Ver todos', href: ROUTES.GRUPOS },
@@ -70,12 +75,14 @@ const navigation: NavItem[] = [
     {
         name: 'Eventos Automáticos',
         icon: ZapIcon,
+        allowedRoles: PERMISOS.eventosAutomaticos,
         children: [
             { name: 'Crear nuevo', href: ROUTES.EVENTOS_AUTOMATICOS_CREAR },
             { name: 'Ver todos', href: ROUTES.EVENTOS_AUTOMATICOS },
         ]
     },
-    { name: 'Orgullo UP', href: ROUTES.ORGULLO_UP, icon: AwardIcon },
+    { name: 'Orgullo UP', href: ROUTES.ORGULLO_UP, icon: AwardIcon, allowedRoles: PERMISOS.orgulloUp },
+    { name: 'Usuarios', href: ROUTES.USUARIOS, icon: ShieldCheckIcon, allowedRoles: PERMISOS.usuarios },
 ]
 
 /* El `before:` es la barra turquesa de item activo: va posicionada en vez de ser
@@ -171,8 +178,15 @@ export default function DashboardLayout() {
         }
     }, [])
 
-    const handleLogout = () => {
-        LoginService.logout()
+    // Confirmamos con el servidor que la sesión sigue activa. Si no, el
+    // interceptor limpia lo guardado y muestra el aviso de sesión expirada.
+    useEffect(() => {
+        if (isAuthenticated !== true) return
+        apiClient.get('/auth/me').catch(() => { })
+    }, [isAuthenticated])
+
+    const handleLogout = async () => {
+        await LoginService.logout()
         setHasSessionExpired(false)
         setIsAuthenticated(false)
         setUserName(null)

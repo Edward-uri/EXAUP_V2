@@ -123,7 +123,8 @@ export const DistributionService = {
                 'Content-Type': 'application/json',
                 ...(token && { Authorization: `Bearer ${token}` })
             },
-            timeout: 10000
+            timeout: 10000,
+            withCredentials: true
         });
         return data;
     }
