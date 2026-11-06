@@ -35,11 +35,38 @@ export const FormularioService = {
         attributes: {
           titulo,
           descripcion,
-          is_active: true 
+          is_active: true
         }
       }
     };
     const { data } = await apiClient.post<{ data: Formulario }>(ENDPOINT, payload);
+    return data.data;
+  },
+
+  // Fix B1: crea el formulario completo (título + preguntas + opciones) en una
+  // sola petición transaccional. El backend guarda todo junto y asigna el orden.
+  createCompleto: async (
+    titulo: string,
+    descripcion: string,
+    preguntas: Array<{
+      texto_pregunta: string;
+      id_tipo_pregunta: number;
+      es_obligatoria: boolean;
+      opciones: Array<{ texto_opcion: string; etiqueta: string }>;
+    }>
+  ): Promise<Formulario> => {
+    const payload = {
+      data: {
+        type: 'formularios',
+        attributes: {
+          titulo,
+          descripcion,
+          is_active: true,
+          preguntas,
+        },
+      },
+    };
+    const { data } = await apiClient.post<{ data: Formulario }>(`${ENDPOINT}/completo`, payload);
     return data.data;
   },
 

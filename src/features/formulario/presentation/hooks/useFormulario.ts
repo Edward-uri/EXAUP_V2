@@ -80,43 +80,21 @@ export const useFormularioBuilder = (formularioId?: string) => {
     const saveFormularioCompleto = async (titulo: string, descripcion: string, preguntasUI: Pregunta[]) => {
         setSaving(true);
         try {
-            // 1. Crear Formulario
-            const formulario = await FormularioService.create(titulo, descripcion);
-            const formId = formulario.id;
+            // Fix B1: se envía el formulario completo a un único endpoint
+            // transaccional. El backend guarda título, preguntas y opciones
+            // juntos y asigna el orden; si algo falla no queda nada a medias y
+            // el usuario puede reintentar sin chocar con el título duplicado.
+            const preguntas = preguntasUI.map((pUI) => ({
+                texto_pregunta: pUI.texto || "Pregunta sin título",
+                id_tipo_pregunta: Number(pUI.tipoId),
+                es_obligatoria: pUI.es_requerida,
+                opciones: (pUI.opciones || []).map((opcion, j) => ({
+                    texto_opcion: opcion.texto,
+                    etiqueta: String.fromCharCode(65 + j),
+                })),
+            }));
 
-            // 2. Recorrer preguntas y guardarlas una por una
-            for (let i = 0; i < preguntasUI.length; i++) {
-                const pUI = preguntasUI[i];
-
-                if (!pUI.tipoId) {
-                    console.warn(`La pregunta "${pUI.texto}" no tiene tipo, se omitirá.`);
-                    continue;
-                }
-
-                // A. Crear Pregunta en API
-                const preguntaIdReal = await PreguntaService.create(
-                    pUI.texto || "Pregunta sin título", 
-                    pUI.tipoId,
-                    pUI.es_requerida
-                );
-
-                // B. Asociar al Formulario
-                await PreguntaService.asociarAFormulario(formId, preguntaIdReal, i + 1);
-
-                // C. Si tiene opciones
-                if (pUI.opciones && pUI.opciones.length > 0) {
-                    for (let j = 0; j < pUI.opciones.length; j++) {
-                        const opcion = pUI.opciones[j];
-                        const etiqueta = String.fromCharCode(65 + j);
-                        
-                        await PreguntaService.createOpcion(
-                            preguntaIdReal,
-                            opcion.texto,
-                            etiqueta
-                        );
-                    }
-                }
-            }
+            await FormularioService.createCompleto(titulo, descripcion, preguntas);
 
             navigate('/formularios');
 
@@ -148,21 +126,29 @@ export const useFormularioBuilder = (formularioId?: string) => {
             }
 
             // 4. Procesar cada pregunta de la UI
+            // Fix B1: las preguntas nuevas se asocian con un orden posterior al
+            // máximo existente (contador real), no con el índice del arreglo,
+            // para evitar colisiones/huecos de orden que truenan el guardado.
+            let nextOrden = preguntasActuales.reduce(
+                (max, p) => Math.max(max, p.attributes.orden_en_formulario || 0),
+                0
+            );
             for (let i = 0; i < preguntasUI.length; i++) {
                 const pUI = preguntasUI[i];
-                
+
                 if (!pUI.tipoId) continue;
 
                 // Si es una pregunta nueva (id temporal)
                 if (pUI.id.startsWith('new-') || !preguntasActualesMap.has(pUI.id)) {
                     // Crear nueva pregunta
                     const preguntaIdReal = await PreguntaService.create(
-                        pUI.texto || "Pregunta sin título", 
+                        pUI.texto || "Pregunta sin título",
                         pUI.tipoId,
                         pUI.es_requerida
                     );
 
-                    await PreguntaService.asociarAFormulario(id, preguntaIdReal, i + 1);
+                    nextOrden += 1;
+                    await PreguntaService.asociarAFormulario(id, preguntaIdReal, nextOrden);
 
                     // Crear opciones para la nueva pregunta
                     if (pUI.opciones && pUI.opciones.length > 0) {
