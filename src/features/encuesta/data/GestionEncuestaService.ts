@@ -25,12 +25,13 @@ export const GrupoService = {
 // ===== ASIGNACIONES =====
 export const AsignacionService = {
     // Asignar por grupo
-    asignarPorGrupo: async (encuestaId: string, grupoId: string): Promise<AsignacionResponse> => {
+    asignarPorGrupo: async (encuestaId: string, grupoId: string, modo: 'sumar' | 'reemplazar' = 'sumar'): Promise<AsignacionResponse & { meta: { removed?: number } }> => {
         const payload = {
             data: {
                 type: "asignacion",
                 attributes: {
-                    id_group: parseInt(grupoId)
+                    id_group: parseInt(grupoId),
+                    modo
                 }
             }
         };
@@ -67,17 +68,8 @@ export const AsignacionService = {
         encuestaId: string,
         grupoId: string
     ): Promise<AsignacionResponse & { revocados: number }> => {
-        const { data: actuales } = await ParticipanteService.getParticipantes(encuestaId, {
-            filtro_acceso: 'activos',
-            limit: 1000,
-        });
-
-        for (const p of actuales) {
-            await ParticipanteService.revocarParticipante(encuestaId, p.id);
-        }
-
-        const res = await AsignacionService.asignarPorGrupo(encuestaId, grupoId);
-        return { ...res, revocados: actuales.length };
+        const res = await AsignacionService.asignarPorGrupo(encuestaId, grupoId, 'reemplazar');
+        return { ...res, revocados: res.meta.removed ?? 0 };
     }
 };
 
