@@ -93,6 +93,11 @@ export const ParticipanteService = {
 
     revocarParticipante: async (encuestaId: string, participanteUuid: string): Promise<void> => {
         await apiClient.delete(`/encuestas/${encuestaId}/participantes/${participanteUuid}`);
+    },
+
+    revocarTodos: async (encuestaId: string): Promise<number> => {
+        const { data } = await apiClient.delete(`/encuestas/${encuestaId}/participantes`);
+        return data?.data?.attributes?.revocados ?? 0;
     }
 };
 

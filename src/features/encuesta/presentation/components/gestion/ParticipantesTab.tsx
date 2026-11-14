@@ -8,6 +8,7 @@ interface ParticipantesTabProps {
     participantesMeta: ParticipantesMeta | null;
     loading: boolean;
     onRevocar: (uuid: string) => void;
+    onRevocarTodos: () => void;
     onPageChange: (page: number) => void;
     onFiltersChange: (filters: {
         searchTerm: string;
@@ -21,6 +22,7 @@ export function ParticipantesTab({
     participantesMeta,
     loading,
     onRevocar,
+    onRevocarTodos,
     onPageChange,
     onFiltersChange
 }: ParticipantesTabProps) {
@@ -95,6 +97,9 @@ export function ParticipantesTab({
                             <option value="pendiente">Pendientes</option>
                             <option value="contestada">Contestadas</option>
                         </select>
+                        <button type="button" onClick={onRevocarTodos} className="whitespace-nowrap px-3 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors">
+                            Quitar a todos
+                        </button>
                     </div>
                 </div>
 

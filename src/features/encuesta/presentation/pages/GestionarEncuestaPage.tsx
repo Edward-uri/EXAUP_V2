@@ -55,6 +55,7 @@ export default function GestionarEncuestaPage() {
     // Confirmaciones
     const [confirmState, setConfirmState] = useState<
         | { type: 'revocar'; uuid: string }
+        | { type: 'revocarTodos'; total: number }
         | { type: 'enviar'; filtro: 'pendientes' | 'todos' }
         | null
     >(null);
@@ -151,6 +152,21 @@ export default function GestionarEncuestaPage() {
         if (!id) return;
         setConfirmState({ type: 'revocar', uuid });
     };
+    const handleRevocarTodos = async () => {
+        if (!id) return;
+        try {
+            const { meta } = await ParticipanteService.getParticipantes(id, { filtro_acceso: 'activos', page: 1, limit: 1 });
+            if (!meta.total_records) {
+                alert.error('Sin participantes', 'No hay participantes activos para quitar');
+                return;
+            }
+            setConfirmState({ type: 'revocarTodos', total: meta.total_records });
+        } catch (error) {
+            console.error('Error contando participantes:', error);
+            alert.error('Error', 'No se pudo consultar a los participantes');
+        }
+    };
+
 
     /**
      * Enviar correos electrónicos a los participantes de la encuesta
@@ -236,6 +252,7 @@ export default function GestionarEncuestaPage() {
                             participantesMeta={participantesMeta}
                             loading={loadingParticipantes}
                             onRevocar={handleRevocarParticipante}
+                            onRevocarTodos={handleRevocarTodos}
                             onPageChange={handlePageChange}
                             onFiltersChange={setParticipantesFilters}
                         />
@@ -274,16 +291,20 @@ export default function GestionarEncuestaPage() {
                 title={
                     confirmState?.type === 'revocar'
                         ? 'Revocar acceso'
+                        : confirmState?.type === 'revocarTodos'
+                        ? 'Quitar a todos los participantes'
                         : 'Confirmar envío de correos'
                 }
                 message={
                     confirmState?.type === 'revocar'
                         ? '¿Estás seguro de revocar el acceso a este participante?'
+                        : confirmState?.type === 'revocarTodos'
+                        ? `Se quitará el acceso a ${confirmState.total} participantes activos. Sus respuestas no se borran. ¿Continuar?`
                         : confirmState?.type === 'enviar' && confirmState.filtro === 'pendientes'
                         ? '¿Enviar correos solo a participantes pendientes?'
                         : '¿Enviar correos a TODOS los participantes?'
                 }
-                variant={confirmState?.type === 'revocar' ? 'warning' : 'info'}
+                variant={confirmState?.type === 'revocar' || confirmState?.type === 'revocarTodos' ? 'warning' : 'info'}
                 onCancel={() => setConfirmState(null)}
                 onConfirm={async () => {
                     if (!confirmState) return;
@@ -297,6 +318,17 @@ export default function GestionarEncuestaPage() {
                         } catch (error) {
                             console.error('Error revocando participante:', error);
                             alert.error('Error', 'No se pudo revocar el acceso');
+                        } finally {
+                            setConfirmState(null);
+                        }
+                    } else if (confirmState.type === 'revocarTodos') {
+                        try {
+                            const revocados = await ParticipanteService.revocarTodos(id);
+                            alert.success('Participantes quitados', `Se quitó el acceso a ${revocados} participantes`);
+                            loadParticipantes();
+                        } catch (error) {
+                            console.error('Error quitando participantes:', error);
+                            alert.error('Error', 'No se pudo quitar a los participantes');
                         } finally {
                             setConfirmState(null);
                         }
