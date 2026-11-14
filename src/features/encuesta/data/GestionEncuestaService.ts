@@ -6,7 +6,8 @@ import type {
     Participante, 
     AsignacionResponse, 
     DispatchResponse,
-    ParticipantesMeta 
+    ParticipantesMeta,
+    GrupoAsignado
 } from "../domain/GestionEncuesta";
 
 // ===== GRUPOS =====
@@ -55,14 +56,7 @@ export const AsignacionService = {
 
     /**
      * Deja la encuesta únicamente con los miembros del grupo indicado.
-     *
-     * El API no tiene semántica de reemplazo: `/asignar` sólo agrega
-     * (`created/reactivated/skipped`) y la única baja es revocar participante por
-     * participante. Así que esto revoca a los actuales y luego asigna.
-     *
-     * ponytail: N+1 peticiones y sin transacción — si falla a medias la encuesta
-     * queda con una lista parcial, por eso devuelve cuántos se revocaron. La
-     * solución real es un flag `reemplazar` en /asignar del lado del backend.
+     * Usa el modo reemplazar del back (B5), en una sola petición.
      */
     reemplazarPorGrupo: async (
         encuestaId: string,
@@ -70,6 +64,11 @@ export const AsignacionService = {
     ): Promise<AsignacionResponse & { revocados: number }> => {
         const res = await AsignacionService.asignarPorGrupo(encuestaId, grupoId, 'reemplazar');
         return { ...res, revocados: res.meta.removed ?? 0 };
+    },
+
+    gruposAsignados: async (encuestaId: string): Promise<GrupoAsignado[]> => {
+        const { data } = await apiClient.get(`/encuestas/${encuestaId}/grupos`);
+        return data?.data ?? [];
     }
 };
 

@@ -50,3 +50,17 @@ export interface ParticipantesMeta {
     page: number;
     limit: number;
 }
+
+export interface GrupoAsignado {
+    type: 'grupo-encuesta';
+    id: number;
+    attributes: {
+        id_grupo: number;
+        nombre: string;
+        cantidad_participantes: number;
+        estado_respuesta: {
+            contestadas: number | string;
+            pendientes: number | string;
+        };
+    };
+}

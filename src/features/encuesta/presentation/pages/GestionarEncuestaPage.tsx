@@ -34,6 +34,7 @@ export default function GestionarEncuestaPage() {
     
     // Modal de asignación de grupos
     const [showAsignarModal, setShowAsignarModal] = useState(false);
+    const [gruposKey, setGruposKey] = useState(0);
     
     // Estados para la lista de participantes
     const [participantes, setParticipantes] = useState<Participante[]>([]);
@@ -243,7 +244,7 @@ export default function GestionarEncuestaPage() {
                     )}
 
                     {activeTab === 'asignar' && (
-                        <AsignarTab onAsignarClick={() => setShowAsignarModal(true)} />
+                        <AsignarTab encuestaId={id!} refreshKey={gruposKey} onAsignarClick={() => setShowAsignarModal(true)} />
                     )}
 
                     {activeTab === 'participantes' && (
@@ -279,6 +280,7 @@ export default function GestionarEncuestaPage() {
                 onGrupoChange={setSelectedGrupoId}
                 onSuccess={() => {
                     setShowAsignarModal(false);
+                    setGruposKey(k => k + 1);
                     if (activeTab === 'participantes') {
                         loadParticipantes();
                     }
