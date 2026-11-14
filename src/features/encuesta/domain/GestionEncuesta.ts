@@ -14,6 +14,8 @@ export interface Participante {
         is_active: boolean;
         estado_respuesta: 'pendiente' | 'contestada';
         fecha_respuesta?: string;
+        grupo?: { id_grupo: number; nombre: string } | null;
+        grupos?: { id_grupo: number; nombre: string }[];
         egresado: {
             nombre: string;
             primer_apellido: string;
