@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../../../constants/routes';
 import { EncuestaService } from '../../data/EncuestaService';
 import { ParticipanteService, DistributionService } from '../../data/GestionEncuestaService';
 import { TemplateService } from '../../../template/data/TemplateService';
@@ -26,6 +27,7 @@ import {
 export default function GestionarEncuestaPage() {
     const { id } = useParams<{ id: string }>();
     const alert = useAlert();
+    const navigate = useNavigate();
     
     // Estado de la encuesta actual
     const [encuesta, setEncuesta] = useState<Encuesta | null>(null);
@@ -199,8 +201,8 @@ export default function GestionarEncuestaPage() {
                 `${response.data.message}. Participantes: ${response.data.total_participants}, Lotes: ${response.data.batches_processed}`
             );
 
-            // Recargar la lista de participantes para ver el estado actualizado
-            loadParticipantes();
+            // F10: al confirmar el envío, ir al panel de la encuesta
+            navigate(ROUTES.ENCUESTAS_ANALYTICS(id));
         } catch (error) {
             console.error('Error enviando correos:', error);
             alert.error('Error en el envio', 'No se pudieron enviar los correos');
