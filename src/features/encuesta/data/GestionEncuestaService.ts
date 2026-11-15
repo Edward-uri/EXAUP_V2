@@ -1,4 +1,5 @@
 import { apiClient } from "../../../core/api.config";
+import type { Formulario } from "../../formulario/domain/Formulario";
 import axios from "axios";
 import { ENV } from "../../../core/env.config";
 import type { 
@@ -20,6 +21,14 @@ export const GrupoService = {
     getById: async (id: string): Promise<Grupo> => {
         const { data } = await apiClient.get(`/grupo/${id}`);
         return data.data;
+    }
+};
+
+// ===== FORMULARIOS ACTIVOS (F7, usa el filtro de B11) =====
+export const FormularioActivoService = {
+    getActivos: async (): Promise<Formulario[]> => {
+        const { data } = await apiClient.get('/formulario', { params: { activo: 'true', limit: 100 } });
+        return Array.isArray(data?.data) ? data.data : [];
     }
 };
 
