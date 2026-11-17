@@ -140,10 +140,15 @@ export default function CrearFormularioPage() {
                     `"${titulo}" se ha guardado correctamente con ${preguntas.length} pregunta${preguntas.length > 1 ? 's' : ''}.`
                 );
             }
-        } catch (error) {
+        } catch (error: unknown) {
+            // Fix F1: mostrar el mensaje real del servidor (p. ej. título
+            // duplicado u opción múltiple sin opciones) para que el usuario
+            // entienda la causa y pueda corregir y volver a guardar.
+            const err = error as { response?: { data?: { error?: { detail?: string } } } };
+            const detalle = err?.response?.data?.error?.detail;
             alert.error(
                 'Error al guardar',
-                'No se pudo guardar el formulario. Por favor, intenta nuevamente.'
+                detalle || 'No se pudo guardar el formulario. Por favor, intenta nuevamente.'
             );
         }
     };
