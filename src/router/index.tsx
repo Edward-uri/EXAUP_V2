@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 import DashboardLayout from "../shared/layout/Layout";
 import EgresadoLayout from "../shared/layout/EgresadoLayout";
+import RequireFuncionalidad from "../shared/layout/RequireFuncionalidad";
 import EgresadoHomePage from "../features/egresado/presentation/pages/EgresadoHomePage";
 import MisEncuestasPage from "../features/egresado/presentation/pages/MisEncuestasPage";
 import CrearFormularioPage from "../features/formulario/presentation/pages/CrearFomularioPage";
@@ -12,6 +13,7 @@ import EncuestasPage from "../features/encuesta/presentation/pages/EncuestasPage
 import GestionarEncuestaPage from "../features/encuesta/presentation/pages/GestionarEncuestaPage";
 import AnalyticsPage from "../features/metricas/presentation/pages/AnalyticsPage";
 import OrgulloUpPage from "../features/orgulloUP/presentation/pages/OrgulloUpPage";
+import { UsuariosPage } from "../features/usuarios/presentation/pages/UsuariosPage";
 import ActualizarEgresadoPage from "../features/formularioActualizarEgresado/presentation/pages/ActualizarEgresadoPage";
 import ResponderEncuestaPage from "../features/encuesta/presentation/pages/ResponderEncuestaPage";
 import { ROUTES } from "../constants/routes";
@@ -78,69 +80,52 @@ export const router = createBrowserRouter([
         element: <HomePage />
       },
       {
-        path: ROUTES.ENCUESTAS,
-        element: <EncuestasPage/>
+        element: <RequireFuncionalidad funcionalidad="encuestas" />,
+        children: [
+          { path: ROUTES.ENCUESTAS, element: <EncuestasPage /> },
+          { path: ROUTES.ENCUESTAS_CREAR, element: <CrearEncuestaPage /> },
+          { path: "encuestas/:id/gestionar", element: <GestionarEncuestaPage /> },
+          { path: "encuestas/:id/analytics", element: <AnalyticsPage /> },
+        ]
       },
       {
-        path: ROUTES.ENCUESTAS_CREAR,
-        element: <CrearEncuestaPage/>
+        element: <RequireFuncionalidad funcionalidad="formularios" />,
+        children: [
+          { path: ROUTES.FORMULARIOS, element: <FormulariosPage /> },
+          { path: ROUTES.FORMULARIOS_CREAR, element: <CrearFormularioPage /> },
+          { path: "formularios/editar/:id", element: <CrearFormularioPage /> },
+          { path: "formularios/preview/:id", element: <PreviewFormularioPage /> },
+        ]
       },
       {
-        path: "encuestas/:id/gestionar",
-        element: <GestionarEncuestaPage/>
+        element: <RequireFuncionalidad funcionalidad="orgulloUp" />,
+        children: [
+          { path: ROUTES.ORGULLO_UP, element: <OrgulloUpPage /> },
+        ]
       },
       {
-        path: "encuestas/:id/analytics",
-        element: <AnalyticsPage/>
+        element: <RequireFuncionalidad funcionalidad="usuarios" />,
+        children: [
+          { path: ROUTES.USUARIOS, element: <UsuariosPage /> },
+        ]
       },
       {
-        path: ROUTES.FORMULARIOS,
-        element: <FormulariosPage/>
+        element: <RequireFuncionalidad funcionalidad="grupos" />,
+        children: [
+          { path: ROUTES.GRUPOS, element: <GruposPage /> },
+          { path: ROUTES.GRUPOS_CREAR, element: <CrearGrupoWizard /> },
+          { path: "grupos/editar/:id", element: <EditarGrupoPage /> },
+        ]
       },
       {
-        path: ROUTES.FORMULARIOS_CREAR,
-        element: <CrearFormularioPage/>
+        element: <RequireFuncionalidad funcionalidad="eventosAutomaticos" />,
+        children: [
+          { path: ROUTES.EVENTOS_AUTOMATICOS, element: <AutomaticEventsPage /> },
+          { path: ROUTES.EVENTOS_AUTOMATICOS_CREAR, element: <EventFormPage /> },
+          { path: "eventos-automaticos/editar/:id", element: <EventFormPage /> },
+          { path: "eventos-automaticos/historial/:id", element: <EventHistoryPage /> },
+        ]
       },
-      {
-        path: "formularios/editar/:id",
-        element: <CrearFormularioPage/>
-      },
-      {
-        path: "formularios/preview/:id",
-        element: <PreviewFormularioPage/>
-      },
-      {
-        path: ROUTES.ORGULLO_UP,
-        element: <OrgulloUpPage/>
-      },
-      {
-        path: ROUTES.GRUPOS,
-        element: <GruposPage/>
-      },
-      {
-        path: ROUTES.GRUPOS_CREAR,
-        element: <CrearGrupoWizard/>
-      },
-      {
-        path: "grupos/editar/:id",
-        element: <EditarGrupoPage/>
-      },
-      {
-        path: ROUTES.EVENTOS_AUTOMATICOS,
-        element: <AutomaticEventsPage/>
-      },
-      {
-        path: ROUTES.EVENTOS_AUTOMATICOS_CREAR,
-        element: <EventFormPage/>
-      },
-      {
-        path: "eventos-automaticos/editar/:id",
-        element: <EventFormPage/>
-      },
-      {
-        path: "eventos-automaticos/historial/:id",
-        element: <EventHistoryPage/>
-      }
     ]
   }
 ]);

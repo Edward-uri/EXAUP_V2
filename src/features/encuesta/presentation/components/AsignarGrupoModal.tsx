@@ -20,6 +20,7 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess, onGr
     // true = dejar sólo al grupo nuevo. false = sumarlo a los que ya están.
     const [reemplazar, setReemplazar] = useState(true);
     const [yaAsignados, setYaAsignados] = useState<number | null>(null);
+    const [asignadosIds, setAsignadosIds] = useState<string[]>([]);
     const alert = useAlert();
 
     useEffect(() => {
@@ -29,6 +30,9 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess, onGr
             ParticipanteService.getParticipantes(encuestaId, { filtro_acceso: 'activos', limit: 1 })
                 .then(r => setYaAsignados(r.meta.total_records))
                 .catch(() => setYaAsignados(null));
+            AsignacionService.gruposAsignados(encuestaId)
+                .then(gs => setAsignadosIds(gs.map(g => String(g.attributes.id_grupo))))
+                .catch(() => setAsignadosIds([]));
         }
     }, [isOpen, encuestaId]);
 
@@ -48,6 +52,12 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess, onGr
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedGrupoId) return;
+
+        // F8: si solo se va a sumar, no se vuelve a mandar un grupo que ya está asignado
+        if (!reemplazar && asignadosIds.includes(selectedGrupoId)) {
+            alert.info('Grupo ya asignado', 'Ese grupo ya está asignado a la encuesta. No se volvió a enviar.');
+            return;
+        }
 
         setSubmitting(true);
         try {
@@ -86,7 +96,7 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess, onGr
         <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex min-h-screen items-center justify-center p-4">
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose}></div>
-                
+
                 <div className="relative transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:w-full sm:max-w-lg">
                     <div className="absolute right-0 top-0 pr-4 pt-4">
                         <button
@@ -111,7 +121,7 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess, onGr
                                     <p className="text-sm text-gray-500 mt-1">
                                         Selecciona un grupo para asignar todos sus miembros a esta encuesta
                                     </p>
-                                    
+
                                     <div className="mt-4">
                                         {loading ? (
                                             <div className="flex justify-center py-4">
@@ -135,7 +145,7 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess, onGr
                                                     <option value="">Selecciona un grupo...</option>
                                                     {grupos.map((grupo) => (
                                                         <option key={grupo.id} value={grupo.id}>
-                                                            {grupo.attributes.name}
+                                                            {grupo.attributes.name}{asignadosIds.includes(String(grupo.id)) ? ' (ya asignado)' : ''}
                                                         </option>
                                                     ))}
                                                 </select>
@@ -158,11 +168,10 @@ export function AsignarGrupoModal({ isOpen, onClose, encuestaId, onSuccess, onGr
                                                         ].map(op => (
                                                             <label
                                                                 key={String(op.v)}
-                                                                className={`flex cursor-pointer gap-3 rounded-lg border p-3 transition-colors ${
-                                                                    reemplazar === op.v
+                                                                className={`flex cursor-pointer gap-3 rounded-lg border p-3 transition-colors ${reemplazar === op.v
                                                                         ? 'border-blue-600 bg-blue-50'
                                                                         : 'border-gray-200 hover:border-gray-300'
-                                                                }`}
+                                                                    }`}
                                                             >
                                                                 <input
                                                                     type="radio"

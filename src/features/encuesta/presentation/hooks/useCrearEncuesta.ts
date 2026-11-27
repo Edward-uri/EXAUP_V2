@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAlert } from '../../../../shared/components/Alert';
-import { FormularioService } from '../../../formulario/data/FormularioService';
+import { FormularioActivoService } from '../../data/GestionEncuestaService';
 import { TemplateService } from '../../../template/data/TemplateService';
 import { EncuestaService } from '../../data/EncuestaService';
 import type { Formulario } from '../../../formulario/domain/Formulario';
@@ -23,7 +23,7 @@ export const useCrearEncuesta = () => {
             try {
                 // Ejecutamos ambas peticiones en paralelo para ser más rápidos
                 const [formsData, templatesData] = await Promise.all([
-                    FormularioService.getAll(),
+                    FormularioActivoService.getActivos(),
                     TemplateService.getAll()
                 ]);
                 

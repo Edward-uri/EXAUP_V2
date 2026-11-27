@@ -14,6 +14,8 @@ export interface Participante {
         is_active: boolean;
         estado_respuesta: 'pendiente' | 'contestada';
         fecha_respuesta?: string;
+        grupo?: { id_grupo: number; nombre: string } | null;
+        grupos?: { id_grupo: number; nombre: string }[];
         egresado: {
             nombre: string;
             primer_apellido: string;
@@ -47,4 +49,18 @@ export interface ParticipantesMeta {
     total_records: number;
     page: number;
     limit: number;
+}
+
+export interface GrupoAsignado {
+    type: 'grupo-encuesta';
+    id: number;
+    attributes: {
+        id_grupo: number;
+        nombre: string;
+        cantidad_participantes: number;
+        estado_respuesta: {
+            contestadas: number | string;
+            pendientes: number | string;
+        };
+    };
 }

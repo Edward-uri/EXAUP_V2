@@ -1,12 +1,12 @@
 import { STORAGE_KEYS } from "./api.config";
 
 export type KnownInternalRole =
-  | "super_admin"
+  | "admin"
   | "director_vinculacion"
   | "director_programa_educativo";
 
 const INTERNAL_ROLES: KnownInternalRole[] = [
-  "super_admin",
+  "admin",
   "director_vinculacion",
   "director_programa_educativo",
 ];

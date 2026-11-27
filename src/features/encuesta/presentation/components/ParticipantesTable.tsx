@@ -40,6 +40,9 @@ export function ParticipantesTable({ participantes, meta, onRevocar, onPageChang
                             Programa Educativo
                         </th>
                         <th className="hidden lg:table-cell px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                            Grupos
+                        </th>
+                        <th className="hidden lg:table-cell px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                             Estado
                         </th>
                         <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
@@ -56,7 +59,8 @@ export function ParticipantesTable({ participantes, meta, onRevocar, onPageChang
                 <tbody className="divide-y divide-gray-200">
                     {participantes.map((participante) => {
                         const { egresado } = participante.attributes;
-                        const nombreCompleto = `${egresado.nombre} ${egresado.primer_apellido} ${egresado.segundo_apellido}`;
+                        const nombreCompleto = [egresado.nombre, egresado.primer_apellido, egresado.segundo_apellido].filter(Boolean).join(' ');
+                        const grupos = participante.attributes.grupos ?? [];
                         
                         return (
                             <tr key={participante.id} className="hover:bg-gray-50 transition-colors">
@@ -71,6 +75,9 @@ export function ParticipantesTable({ participantes, meta, onRevocar, onPageChang
                                 </td>
                                 <td className="hidden xl:table-cell whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                                     {egresado.programa_educativo}
+                                </td>
+                                <td className="hidden lg:table-cell px-3 py-4 text-sm">
+                                    {grupos.length > 0 ? (<div className="flex flex-wrap gap-1">{grupos.map((g) => (<span key={g.id_grupo} className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700">{g.nombre}</span>))}</div>) : (<span className="text-gray-400">Sin grupo</span>)}
                                 </td>
                                 <td className="hidden lg:table-cell whitespace-nowrap px-3 py-4 text-sm">
                                     {participante.attributes.estado_respuesta === 'contestada' ? (

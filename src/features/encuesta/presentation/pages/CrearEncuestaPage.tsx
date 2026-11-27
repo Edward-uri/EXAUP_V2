@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCrearEncuesta } from '../hooks/useCrearEncuesta';
 import { TemplatePreview } from '../components/TemplatePreview';
 import { FormularioPreviewModal } from '../components/FormularioPreviewModal';
+import { FormularioCombobox } from '../components/FormularioCombobox';
 import { useAlert } from '../../../../shared/components/Alert';
 import { 
     DocumentTextIcon, 
@@ -286,23 +287,14 @@ export default function CrearEncuestaPage() {
                                         error={errors.form}
                                     >
                                         <div className="flex gap-2">
-                                            <select
+                                            <FormularioCombobox
+                                                formularios={formularios}
                                                 value={selectedFormId}
-                                                onChange={(e) => setSelectedFormId(e.target.value)}
+                                                onChange={setSelectedFormId}
                                                 onBlur={() => setTouched(prev => ({ ...prev, form: true }))}
                                                 disabled={!step1Complete}
-                                                className={`min-w-0 flex-1 truncate rounded-lg border-0 py-2.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ${
-                                                    errors.form ? 'ring-red-300' : 'ring-gray-300'
-                                                } focus:ring-2 focus:ring-blue-600 sm:text-sm disabled:bg-gray-50 disabled:cursor-not-allowed transition-all`}
-                                                aria-describedby={errors.form ? 'form-error' : undefined}
-                                            >
-                                                <option value="">Selecciona un formulario...</option>
-                                                {formularios.map((f) => (
-                                                    <option key={f.id} value={f.id}>
-                                                        {f.attributes.titulo}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                                hasError={!!errors.form}
+                                            />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowFormPreview(true)}

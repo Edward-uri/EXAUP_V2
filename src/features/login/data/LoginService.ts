@@ -108,12 +108,21 @@ export const LoginService = {
     return user;
   },
 
-  logout: () => {
-    localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.USER);
-    localStorage.removeItem(STORAGE_KEYS.SESSION_EXPIRED);
-    localStorage.removeItem(STORAGE_KEYS.AUTH_SCOPE);
-    localStorage.removeItem(STORAGE_KEYS.EGRESADO_ID);
+  logout: async (): Promise<void> => {
+    try {
+      await apiClient.post("/auth/logout");
+    } catch {
+      // Si el servidor no responde, igual se limpia la sesión local.
+    } finally {
+      localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.USER);
+      localStorage.removeItem(STORAGE_KEYS.SESSION_EXPIRED);
+      localStorage.removeItem(STORAGE_KEYS.AUTH_SCOPE);
+      localStorage.removeItem(STORAGE_KEYS.EGRESADO_ID);
+      localStorage.removeItem("auth_method");
+      localStorage.removeItem("egresado_nombre");
+      localStorage.removeItem("egresado_email");
+    }
   },
 };

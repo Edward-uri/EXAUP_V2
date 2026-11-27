@@ -10,6 +10,7 @@ export const ROUTES = {
     FORMULARIOS: '/formularios',
     FORMULARIOS_CREAR: '/formularios/crear',
     ORGULLO_UP: '/orgullo-up',
+    USUARIOS: '/usuarios',
     ACERCA_DE: '/acerca-de',
     CURSOS: '/cursos',
     ACTUALIZAR_EGRESADO: '/actualizar-egresado',

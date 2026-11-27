@@ -17,7 +17,8 @@ export class AnalyticsService {
   async fetchSurveyAnalytics(surveyId: string): Promise<AnalyticsApiResponse> {
     try {
       const response = await axios.get<AnalyticsApiResponse>(
-        `${this.baseURL}${this.basePath}/${surveyId}`
+        `${this.baseURL}${this.basePath}/${surveyId}`,
+        { withCredentials: true }
       );
       
       return response.data;
@@ -45,7 +46,7 @@ export class AnalyticsService {
   async exportAnalyticsPDF(surveyId: string): Promise<Blob> {
     const response = await axios.get(
       `${this.baseURL}${this.basePath}/${surveyId}/export`,
-      { responseType: 'blob' }
+      { responseType: 'blob', withCredentials: true }
     );
     return response.data;
   }

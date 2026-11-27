@@ -1,4 +1,5 @@
 import { apiClient } from "../../../core/api.config";
+import type { Formulario } from "../../formulario/domain/Formulario";
 import axios from "axios";
 import { ENV } from "../../../core/env.config";
 import type { 
@@ -6,7 +7,8 @@ import type {
     Participante, 
     AsignacionResponse, 
     DispatchResponse,
-    ParticipantesMeta 
+    ParticipantesMeta,
+    GrupoAsignado
 } from "../domain/GestionEncuesta";
 
 // ===== GRUPOS =====
@@ -22,15 +24,24 @@ export const GrupoService = {
     }
 };
 
+// ===== FORMULARIOS ACTIVOS (F7, usa el filtro de B11) =====
+export const FormularioActivoService = {
+    getActivos: async (): Promise<Formulario[]> => {
+        const { data } = await apiClient.get('/formulario', { params: { activo: 'true', limit: 100 } });
+        return Array.isArray(data?.data) ? data.data : [];
+    }
+};
+
 // ===== ASIGNACIONES =====
 export const AsignacionService = {
     // Asignar por grupo
-    asignarPorGrupo: async (encuestaId: string, grupoId: string): Promise<AsignacionResponse> => {
+    asignarPorGrupo: async (encuestaId: string, grupoId: string, modo: 'sumar' | 'reemplazar' = 'sumar'): Promise<AsignacionResponse & { meta: { removed?: number } }> => {
         const payload = {
             data: {
                 type: "asignacion",
                 attributes: {
-                    id_group: parseInt(grupoId)
+                    id_group: parseInt(grupoId),
+                    modo
                 }
             }
         };
@@ -54,30 +65,19 @@ export const AsignacionService = {
 
     /**
      * Deja la encuesta únicamente con los miembros del grupo indicado.
-     *
-     * El API no tiene semántica de reemplazo: `/asignar` sólo agrega
-     * (`created/reactivated/skipped`) y la única baja es revocar participante por
-     * participante. Así que esto revoca a los actuales y luego asigna.
-     *
-     * ponytail: N+1 peticiones y sin transacción — si falla a medias la encuesta
-     * queda con una lista parcial, por eso devuelve cuántos se revocaron. La
-     * solución real es un flag `reemplazar` en /asignar del lado del backend.
+     * Usa el modo reemplazar del back (B5), en una sola petición.
      */
     reemplazarPorGrupo: async (
         encuestaId: string,
         grupoId: string
     ): Promise<AsignacionResponse & { revocados: number }> => {
-        const { data: actuales } = await ParticipanteService.getParticipantes(encuestaId, {
-            filtro_acceso: 'activos',
-            limit: 1000,
-        });
+        const res = await AsignacionService.asignarPorGrupo(encuestaId, grupoId, 'reemplazar');
+        return { ...res, revocados: res.meta.removed ?? 0 };
+    },
 
-        for (const p of actuales) {
-            await ParticipanteService.revocarParticipante(encuestaId, p.id);
-        }
-
-        const res = await AsignacionService.asignarPorGrupo(encuestaId, grupoId);
-        return { ...res, revocados: actuales.length };
+    gruposAsignados: async (encuestaId: string): Promise<GrupoAsignado[]> => {
+        const { data } = await apiClient.get(`/encuestas/${encuestaId}/grupos`);
+        return data?.data ?? [];
     }
 };
 
@@ -101,6 +101,11 @@ export const ParticipanteService = {
 
     revocarParticipante: async (encuestaId: string, participanteUuid: string): Promise<void> => {
         await apiClient.delete(`/encuestas/${encuestaId}/participantes/${participanteUuid}`);
+    },
+
+    revocarTodos: async (encuestaId: string): Promise<number> => {
+        const { data } = await apiClient.delete(`/encuestas/${encuestaId}/participantes`);
+        return data?.data?.attributes?.revocados ?? 0;
     }
 };
 
@@ -123,7 +128,8 @@ export const DistributionService = {
                 'Content-Type': 'application/json',
                 ...(token && { Authorization: `Bearer ${token}` })
             },
-            timeout: 10000
+            timeout: 10000,
+            withCredentials: true
         });
         return data;
     }
