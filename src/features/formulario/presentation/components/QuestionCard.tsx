@@ -11,13 +11,14 @@ import { tipoPreguntaLabel, tipoPreguntaDescripcion } from '../../domain/tipoPre
 interface QuestionCardProps {
     pregunta: Pregunta;
     isActive: boolean;
-    tiposDisponibles: TipoPregunta[]; 
+    tiposDisponibles: TipoPregunta[];
     onClick: () => void;
     onUpdate: (id: string, field: keyof Pregunta, value: any) => void;
     onDelete: (id: string) => void;
+    hasError?: boolean; // Fix F2: resalta la pregunta con opciones faltantes
 }
 
-export const QuestionCard = ({ pregunta, isActive, tiposDisponibles, onClick, onUpdate, onDelete }: QuestionCardProps) => {
+export const QuestionCard = ({ pregunta, isActive, tiposDisponibles, onClick, onUpdate, onDelete, hasError = false }: QuestionCardProps) => {
 
     // --- LÓGICA DE OPCIONES ---
     const handleAddOption = () => {
@@ -54,9 +55,9 @@ export const QuestionCard = ({ pregunta, isActive, tiposDisponibles, onClick, on
     // --- VISTA PREVIA (INACTIVA) ---
     if (!isActive) {
         return (
-            <div 
+            <div
                 onClick={onClick}
-                className="group bg-white rounded-xl shadow-sm border border-gray-100 px-7 py-5 cursor-pointer hover:border-gray-200 hover:shadow-md transition-all duration-200"
+                className={`group bg-white rounded-xl shadow-sm border px-7 py-5 cursor-pointer hover:shadow-md transition-all duration-200 ${hasError ? 'border-red-300 ring-2 ring-red-400' : 'border-gray-100 hover:border-gray-200'}`}
             >
                 <div className="flex justify-between items-start gap-3">
                     <div className="flex-1">
@@ -115,7 +116,7 @@ export const QuestionCard = ({ pregunta, isActive, tiposDisponibles, onClick, on
 
     // --- VISTA EDICIÓN (ACTIVA) ---
     return (
-        <div className="bg-white rounded-xl shadow-lg border-l-[6px] border-l-blue-600 px-7 py-6 transition-all duration-200 ring-1 ring-gray-100 relative">
+        <div className={`bg-white rounded-xl shadow-lg border-l-[6px] border-l-blue-600 px-7 py-6 transition-all duration-200 relative ${hasError ? 'ring-2 ring-red-400' : 'ring-1 ring-gray-100'}`}>
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5">
                 {/* Input Pregunta */}
                 <div className="md:col-span-7 lg:col-span-8 bg-gray-50 px-4 py-3 rounded-lg border-b-2 border-gray-300 focus-within:border-blue-600 focus-within:bg-blue-50/30 transition-all duration-200">
