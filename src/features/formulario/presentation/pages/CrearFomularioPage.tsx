@@ -36,6 +36,9 @@ export default function CrearFormularioPage() {
     // Cuál pregunta está activa
     const [activeQuestionId, setActiveQuestionId] = useState<string | null>('1');
 
+    // Fix F2: ids de preguntas resaltadas por tener opciones faltantes
+    const [invalidQuestionIds, setInvalidQuestionIds] = useState<string[]>([]);
+
     // Cargar datos cuando estamos en modo edición
     useEffect(() => {
         if (formularioData) {
@@ -70,9 +73,11 @@ export default function CrearFormularioPage() {
     };
 
     const updateQuestion = (id: string, field: keyof Pregunta, value: any) => {
-        setPreguntas(prev => prev.map(p => 
+        setPreguntas(prev => prev.map(p =>
             p.id === id ? { ...p, [field]: value } : p
         ));
+        // Fix F2: al editar la pregunta se quita su resaltado de error
+        setInvalidQuestionIds(prev => prev.filter(qid => qid !== id));
     };
 
     const deleteQuestion = (id: string) => {
@@ -89,6 +94,9 @@ export default function CrearFormularioPage() {
 
     // --- GUARDADO ---
     const handleSave = async () => {
+        // Fix F2: limpiar resaltados previos en cada intento de guardado
+        setInvalidQuestionIds([]);
+
         // Validación: Título obligatorio
         if (!titulo.trim() || titulo === 'Formulario sin título') {
             alert.error(
@@ -126,6 +134,28 @@ export default function CrearFormularioPage() {
             return;
         }
 
+        // Validación F2: las preguntas de opción múltiple / casillas deben
+        // tener al menos 2 opciones con texto. Antes se podía guardar una
+        // pregunta de opción múltiple sin opciones, dejando el formulario roto.
+        const requiereOpciones = (tipoId: string) => {
+            const nombre = tiposPregunta.find(t => t.id === tipoId)?.nombre.toLowerCase() || '';
+            return nombre.includes('múltiple') || nombre.includes('multiple')
+                || nombre.includes('casilla') || nombre.includes('check');
+        };
+        const preguntasOpcionInvalida = preguntas.filter(
+            p => requiereOpciones(p.tipoId) && (p.opciones?.filter(o => o.texto.trim()).length || 0) < 2
+        );
+        if (preguntasOpcionInvalida.length > 0) {
+            // Fix F2: resaltar las preguntas con el problema además del aviso
+            setInvalidQuestionIds(preguntasOpcionInvalida.map(p => p.id));
+            setActiveQuestionId(preguntasOpcionInvalida[0].id);
+            alert.error(
+                'Opciones faltantes',
+                `${preguntasOpcionInvalida.length} pregunta${preguntasOpcionInvalida.length > 1 ? 's de opción múltiple no tienen' : ' de opción múltiple no tiene'} suficientes opciones. Cada una debe tener al menos 2 opciones con texto.`
+            );
+            return;
+        }
+
         try {
             if (isEditMode && formularioId) {
                 await updateFormulario(formularioId, titulo, descripcion, preguntas);
@@ -140,10 +170,15 @@ export default function CrearFormularioPage() {
                     `"${titulo}" se ha guardado correctamente con ${preguntas.length} pregunta${preguntas.length > 1 ? 's' : ''}.`
                 );
             }
-        } catch (error) {
+        } catch (error: unknown) {
+            // Fix F1: mostrar el mensaje real del servidor (p. ej. título
+            // duplicado u opción múltiple sin opciones) para que el usuario
+            // entienda la causa y pueda corregir y volver a guardar.
+            const err = error as { response?: { data?: { error?: { detail?: string } } } };
+            const detalle = err?.response?.data?.error?.detail;
             alert.error(
                 'Error al guardar',
-                'No se pudo guardar el formulario. Por favor, intenta nuevamente.'
+                detalle || 'No se pudo guardar el formulario. Por favor, intenta nuevamente.'
             );
         }
     };
@@ -207,6 +242,7 @@ export default function CrearFormularioPage() {
                                 onClick={() => setActiveQuestionId(pregunta.id)}
                                 onUpdate={updateQuestion}
                                 onDelete={deleteQuestion}
+                                hasError={invalidQuestionIds.includes(pregunta.id)}
                             />
                         ))}
                     </div>
